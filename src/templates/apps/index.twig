@@ -12,6 +12,7 @@
       <th>{{ "Name"|t }}</th>
       <th>{{ "Handle"|t }}</th>
       <th>{{ "Type"|t }}</th>
+      <th>{{ "Number of Tokens"|t }}</th>
     </tr>
     </thead>
     <tbody>
@@ -25,21 +26,12 @@
         </th>
         <td data-title="{{ 'Handle'|t('oauthclient') }}">{{ app.handle }}</td>
         <td data-title="{{ 'Provider'|t('oauthclient') }}">{{ app.provider }}</td>
-        <td class="thin"><a class=" icon"
-                            title="{{ 'Delete'|t('oauthclient') }}"
-                            role="button"></a>
-        </td>
-
-        {#<td data-title="{{ 'Customer Enabled?'|t('oauthclient') }}">#}
-          {#{% if gateway.isFrontendEnabled %} <span data-icon="check"#}
-                                                   {#title="{{ 'Yes'|t('oauthclient') }}"></span>{% endif %}#}
-        {#</td>#}
-
+        <td data-title="{{ "Number of Tokens"|t }}">{{ app.getTokenRecordQuery().count() }}</td>
         <td class="thin"><a href="{{ app.getRedirectUrl() }}" class="icon add"
                             title="{{ 'Connect'|t('oauthclient') }}"
                             role="button"></a>
         <td class="thin"><a class="delete icon"
-                            title="{{ 'Delete'|t('oauthclient') }}"
+                            title="{{ 'Delete'|t('oauthclient') }}"></a>
         </td>
       </tr>
     {% endfor %}

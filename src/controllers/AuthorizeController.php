@@ -60,7 +60,7 @@ class AuthorizeController extends Controller
         // Begin auth process
         if (empty($code)) {
             $state = $this->getRandomState();
-            $url = $provider->getConfiguredProvider()->getAuthorizationUrl(['state' => $state]);
+            $url = $provider->getAuthorizeURL(['state' => $state]);
             \Craft::$app->session->set(self::STATE_SESSION_KEY, $state);
             return \Craft::$app->response->redirect($url);
 

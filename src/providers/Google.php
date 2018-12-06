@@ -35,14 +35,23 @@ class Google extends Provider
         $this->configuredProvider = new GoogleProvider([
             'clientId' => $this->getApp()->getClientId(),
             'clientSecret' => $this->getApp()->getClientSecret(),
-            'redirectUri' => $this->getApp()->getRedirectUrl()
+            'redirectUri' => $this->getApp()->getRedirectUrl(),
+            'accessType' => 'offline',
         ]);
         return $this->configuredProvider;
     }
 
+    /**
+     * @param array $options
+     * @return String
+     */
     public function getAuthorizeURL($options = []): String {
         return $this->getConfiguredProvider()->getAuthorizationUrl(
-            ['scope' => $this->getApp()->getScopes()]
+            array_merge([
+                'scope' => $this->getApp()->getScopes(),
+                'approval_prompt' => 'force'
+            ],
+            $options)
         );
     }
 }

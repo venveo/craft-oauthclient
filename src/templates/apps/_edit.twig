@@ -8,7 +8,19 @@
 
 {% import "_includes/forms" as forms %}
 
+
+{% set tabs = {
+  0: {'label':'Configuration'|t('oauthclient'),'url':'#config-tab'}
+} %}
+{% if app is defined and app.id is defined %}
+  {% set tabs = tabs|merge({
+    1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'},
+    2: {'label':'Tokens'|t('oauthclient'),'url':'#tokens-tab'},
+  }) %}
+{% endif %}
+
 {% block content %}
+  <div id="config-tab">
   <input type="hidden" name="id" value="{{ app.id }}">
   <input type="hidden" name="action" value="oauthclient/apps/save">
   {{ redirectInput('oauthclient/apps') }}
@@ -72,6 +84,43 @@
     required: false,
     errors: app.getErrors('scopes'),
   }) }}
+  </div>
+  {% if app is defined and app.id is defined %}
+  <div id="info-tab" class="hidden">
+    <p>Set your authorized redirect URI to the following:</p>
+    {{ forms.textField({
+      value : app.getRedirectUrl(),
+      required: false,
+      disabled: true
+    }) }}
+  </div>
+
+  <div id="tokens-tab" class="hidden">
+    {% set tokens = app.getAllTokens() %}
+    <table id="oauthapps" class="data fullwidth collapsible">
+      <thead>
+      <tr>
+        <th class="thin">{{ "ID"|t }}</th>
+        <th>{{ "Owner"|t }}</th>
+        <th>{{ "Created On"|t }}</th>
+        <th>{{ "Updated On"|t }}</th>
+        <th>{{ "Expires On"|t }}</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for token in tokens %}
+        <tr>
+          <td>{{ token.id }}</td>
+          <td>{% if token.getUser() %}{{ token.getUser().email }}{% else %}User Removed{% endif %}</td>
+          <td>{{ token.dateCreated|datetime('short') }}</td>
+          <td>{{ token.dateUpdated|datetime('short') }}</td>
+          <td>{{ token.expiryDate|datetime('short') }} {% if token.isExpired() %}<strong>EXPIRED</strong>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
 {% endblock %}
 
 {% if app is not defined or not app.handle %}

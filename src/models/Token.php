@@ -3,6 +3,7 @@
 namespace venveo\oauthclient\models;
 
 use craft\base\SavableComponent;
+use craft\helpers\DateTimeHelper;
 use craft\validators\DateTimeValidator;
 use League\OAuth2\Client\Token\AccessToken;
 
@@ -39,6 +40,18 @@ class Token extends SavableComponent
             'expiryDate' => $token->getExpires()
         ]);
     }
+
+    public function getUser()
+    {
+        return \Craft::$app->users->getUserById($this->userId);
+    }
+
+    public function isExpired(): bool
+    {
+        $date = DateTimeHelper::toDateTime($this->expiryDate);
+        return ($date <= (new \DateTime()));
+    }
+
 
     /**
      * @inheritdoc

@@ -78,6 +78,14 @@ class App extends SavableComponent
         return $this->providerInstance;
     }
 
+    public function getAllTokens() {
+        return Plugin::$plugin->tokens->getAllTokensForApp($this->id);
+    }
+    
+    public function getTokenRecordQuery() {
+        return \venveo\oauthclient\records\Token::find()->where(['id' => $this->id]);
+    }
+
     /**
      * @inheritdoc
      */

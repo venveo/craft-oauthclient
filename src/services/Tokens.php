@@ -36,7 +36,6 @@ class Tokens extends Component
     public function getAllTokens(): array
     {
         $rows = $this->_createTokenQuery()
-            ->orderBy(['name' => SORT_ASC])
             ->all();
 
         $tokens = [];
@@ -55,6 +54,20 @@ class Tokens extends Component
             ->one();
 
         return $result ? $this->createToken($result) : null;
+    }
+
+    public function getAllTokensForApp($appId): array {
+        $rows = $this->_createTokenQuery()
+            ->where(['appId' => $appId])
+            ->all();
+
+        $tokens = [];
+
+        foreach ($rows as $row) {
+            $tokens[$row['id']] = $this->createToken($row);
+        }
+
+        return $tokens;
     }
 
     public function createToken($config): TokenModel
