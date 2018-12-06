@@ -1,0 +1,81 @@
+{% extends "oauthclient/_layouts/cp" %}
+
+{% set crumbs = [
+  { label: "OAuth Apps"|t, url: url('oauthclient/apps') },
+] %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+  <input type="hidden" name="id" value="{{ app.id }}">
+  <input type="hidden" name="action" value="oauthclient/apps/save">
+  {{ redirectInput('oauthclient/apps') }}
+
+  {{ forms.textField({
+    label: 'Name'|t('oauthclient'),
+    name: 'name',
+    id: 'name',
+    value : app.name,
+    required: true,
+    errors: app.getErrors('name'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Handle'|t('oauthclient'),
+    name: 'handle',
+    id: 'handle',
+    value : app.handle,
+    required: true,
+    errors: app.getErrors('handle'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Client ID'|t('oauthclient'),
+    name: 'clientId',
+    id: 'clientId',
+    value : app.clientId,
+    instructions: 'Enter your client ID here. You may use aliases here if you wish.',
+    required: true,
+    errors: app.getErrors('clientId'),
+  }) }}
+
+  {{ forms.textField({
+    label: 'Client Secret'|t('oauthclient'),
+    name: 'clientSecret',
+    id: 'clientSecret',
+    value : app.clientSecret,
+    instructions: 'Enter your client secret here. You may use aliases here if you wish.',
+    required: true,
+    errors: app.getErrors('clientSecret'),
+  }) }}
+
+  {{ forms.selectField({
+    first: true,
+    label: 'Provider'|t('oauthclient'),
+    id: 'provider',
+    name: 'provider',
+    options : providerOptions,
+    value : app.provider,
+    required: true,
+    errors: app.provider.getErrors('type') ?? null,
+    toggle: true
+  }) }}
+
+  {{ forms.textField({
+    label: 'Scopes'|t('oauthclient'),
+    name: 'scopes',
+    id: 'scopes',
+    value : app.scopes,
+    instructions: 'Enter the app scopes here, comma separated',
+    required: false,
+    errors: app.getErrors('scopes'),
+  }) }}
+{% endblock %}
+
+{% if app is not defined or not app.handle %}
+  {% js %}
+    new Craft.HandleGenerator('#name', '#handle');
+  {% endjs %}
+{% endif %}

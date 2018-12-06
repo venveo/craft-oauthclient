@@ -1,0 +1,62 @@
+{% extends "oauthclient/_layouts/cp" %}
+
+{% set title = "OAuth 2.0 Apps"|t %}
+
+{% block content %}
+  <h2>{{ "Registered Apps"|t }}</h2>
+
+  <table id="oauthapps" class="data fullwidth collapsible">
+    <thead>
+    <tr>
+      <th class="thin">{{ "ID"|t }}</th>
+      <th>{{ "Name"|t }}</th>
+      <th>{{ "Handle"|t }}</th>
+      <th>{{ "Type"|t }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for app in apps %}
+      <tr data-id="{{ app.id }}"
+          data-name="{{ app.name }}">
+        <td class="thin" scope="row"
+            data-title="{{ 'ID'|t('oauthclient') }}">{{ app.id }}</td>
+        <th scope="row" data-title="{{ 'Name'|t('oauthclient') }}"><a
+            href="{{ app.cpEditUrl }}">{{ app.name }}</a>
+        </th>
+        <td data-title="{{ 'Handle'|t('oauthclient') }}">{{ app.handle }}</td>
+        <td data-title="{{ 'Provider'|t('oauthclient') }}">{{ app.provider }}</td>
+        <td class="thin"><a class=" icon"
+                            title="{{ 'Delete'|t('oauthclient') }}"
+                            role="button"></a>
+        </td>
+
+        {#<td data-title="{{ 'Customer Enabled?'|t('oauthclient') }}">#}
+          {#{% if gateway.isFrontendEnabled %} <span data-icon="check"#}
+                                                   {#title="{{ 'Yes'|t('oauthclient') }}"></span>{% endif %}#}
+        {#</td>#}
+
+        <td class="thin"><a href="{{ app.getRedirectUrl() }}" class="icon add"
+                            title="{{ 'Connect'|t('oauthclient') }}"
+                            role="button"></a>
+        <td class="thin"><a class="delete icon"
+                            title="{{ 'Delete'|t('oauthclient') }}"
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="buttons">
+    <a href="{{ url('oauthclient/apps/new') }}"
+       class="btn submit add icon">{{ 'New app'|t }}</a>
+  </div>
+{% endblock %}
+
+
+{% js %}
+  new Craft.AdminTable({
+  tableSelector: '#oauthapps',
+  deleteAction: 'oauthclient/apps/delete',
+  minObjects: 0
+  });
+{% endjs %}
