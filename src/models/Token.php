@@ -2,6 +2,9 @@
 
 namespace venveo\oauthclient\models;
 
+use craft\elements\User;
+use venveo\oauthclient\OauthClient as Plugin;
+use venveo\oauthclient\models\App as AppModel;
 use craft\base\SavableComponent;
 use craft\helpers\DateTimeHelper;
 use craft\validators\DateTimeValidator;
@@ -21,6 +24,9 @@ class Token extends SavableComponent
     public $expiryDate;
     public $refreshToken;
     public $accessToken;
+
+    private $app;
+    private $user;
 
     /**
      * Returns the name of this payment method.
@@ -43,7 +49,21 @@ class Token extends SavableComponent
 
     public function getUser()
     {
-        return \Craft::$app->users->getUserById($this->userId);
+        if ($this->user instanceof User) {
+            return $this->user;
+        }
+
+        $this->user = \Craft::$app->users->getUserById($this->userId);
+        return $this->user;
+    }
+
+    public function getApp() {
+        if ($this->app instanceof AppModel) {
+            return $this->app;
+        }
+
+        $this->app = Plugin::$plugin->apps->getAppById($this->appId);
+        return $this->app;
     }
 
     public function isExpired(): bool
@@ -51,6 +71,7 @@ class Token extends SavableComponent
         $date = DateTimeHelper::toDateTime($this->expiryDate);
         return ($date <= (new \DateTime()));
     }
+
 
 
     /**

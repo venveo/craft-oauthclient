@@ -16,15 +16,17 @@ use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\web\UrlManager;
 use venveo\oauthclient\services\Apps as AppsService;
+use venveo\oauthclient\services\Credentials;
+use venveo\oauthclient\services\Credentials as CredentialsService;
 use venveo\oauthclient\services\Providers as ProvidersService;
 use venveo\oauthclient\services\Tokens as TokensService;
 use yii\base\Event;
 
 /**
- * Class Oauth20Client
+ * Class OauthClient
  *
  * @author    Venveo
- * @package   Oauth20Client
+ * @package   OauthClient
  * @since     1.0.0
  *
  *
@@ -32,6 +34,7 @@ use yii\base\Event;
  * @property AppsService $apps
  * @property ProvidersService $providers
  * @property TokensService $tokens
+ * @property CredentialsService $credentials
  */
 class OauthClient extends Plugin
 {
@@ -74,6 +77,7 @@ class OauthClient extends Plugin
             'apps' => AppsService::class,
             'providers' => ProvidersService::class,
             'tokens' => TokensService::class,
+            'credentials' => CredentialsService::class,
         ]);
     }
 

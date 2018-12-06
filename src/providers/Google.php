@@ -13,6 +13,7 @@ namespace venveo\oauthclient\providers;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Google as GoogleProvider;
 use venveo\oauthclient\base\Provider;
+use venveo\oauthclient\models\Token;
 
 /**
  * @author    Venveo

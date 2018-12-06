@@ -81,7 +81,10 @@ class App extends SavableComponent
     public function getAllTokens() {
         return Plugin::$plugin->tokens->getAllTokensForApp($this->id);
     }
-    
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getTokenRecordQuery() {
         return \venveo\oauthclient\records\Token::find()->where(['id' => $this->id]);
     }
