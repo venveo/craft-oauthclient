@@ -3,6 +3,7 @@
 namespace venveo\oauthclient\models;
 
 use craft\elements\User;
+use craft\helpers\UrlHelper;
 use venveo\oauthclient\OauthClient as Plugin;
 use venveo\oauthclient\models\App as AppModel;
 use craft\base\SavableComponent;
@@ -24,6 +25,7 @@ class Token extends SavableComponent
     public $expiryDate;
     public $refreshToken;
     public $accessToken;
+    public $uid;
 
     private $app;
     private $user;
@@ -68,8 +70,14 @@ class Token extends SavableComponent
 
     public function isExpired(): bool
     {
-        $date = DateTimeHelper::toDateTime($this->expiryDate);
-        return ($date <= (new \DateTime()));
+        $expiryDate = DateTimeHelper::toDateTime($this->expiryDate);
+        $now = DateTimeHelper::currentUTCDateTime();
+        $expired = $now >= $expiryDate;
+        return $expired;
+    }
+
+    public function getRefreshURL() {
+        return UrlHelper::cpUrl('oauthclient/authorize/refresh/'.$this->id);
     }
 
 

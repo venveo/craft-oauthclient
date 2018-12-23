@@ -114,7 +114,7 @@
           <td>{% if token.getUser() %}{{ token.getUser().email }}{% else %}User Removed{% endif %}</td>
           <td>{{ token.dateCreated|datetime('short') }}</td>
           <td>{{ token.dateUpdated|datetime('short') }}</td>
-          <td>{{ token.expiryDate|datetime('short') }} {% if token.isExpired() %}<strong>EXPIRED</strong>{% endif %}</td>
+          <td>{{ token.expiryDate|datetime('short') }} {% if token.isExpired() %}<strong><a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a></strong>{% endif %}</td>
         </tr>
       {% endfor %}
       </tbody>

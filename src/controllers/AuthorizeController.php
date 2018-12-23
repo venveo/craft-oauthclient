@@ -97,6 +97,20 @@ class AuthorizeController extends Controller
         }
     }
 
+    public function actionRefresh($id) {
+        $token = Plugin::$plugin->tokens->getTokenById($id);
+        if (!$token) {
+            \Craft::$app->response->setStatusCode(404, "Token not found");
+        }
+
+        $refreshed = Plugin::$plugin->credentials->refreshToken($token);
+        if ($refreshed) {
+            $app = $token->getApp();
+            return \Craft::$app->response->redirect($app->getCpEditUrl());
+        }
+        throw new \Exception("Failed to refresh token");
+    }
+
     protected function getRandomState($length = 32)
     {
         // Converting bytes to hex will always double length. Hence, we can reduce

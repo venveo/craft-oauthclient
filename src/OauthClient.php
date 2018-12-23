@@ -69,6 +69,7 @@ class OauthClient extends Plugin
             $event->rules['oauthclient/apps'] = 'oauthclient/apps/index';
             $event->rules['oauthclient/apps/new'] = 'oauthclient/apps/edit';
             $event->rules['oauthclient/apps/<id:\d+>'] = 'oauthclient/apps/edit';
+            $event->rules['oauthclient/authorize/refresh/<id:\d+>'] = 'oauthclient/authorize/refresh';
             $event->rules['oauthclient/authorize/<handle:{handle}>'] = 'oauthclient/authorize/authorize-app';
         }
         );

@@ -27,10 +27,10 @@ class Credentials extends Component
     /**
      * @param $appHandle
      * @param $userId
-     * @return array|null
+     * @return TokenModel[]
      * @throws \Exception
      */
-    public function getValidTokensForAppAndUser($appHandle, $userId): ?array
+    public function getValidTokensForAppAndUser($appHandle, $userId = null): ?array
     {
         // Allow models or IDs against my better judgement
         if ($appHandle instanceof AppModel) {
@@ -39,7 +39,6 @@ class Credentials extends Component
         } else {
             $app = Plugin::$plugin->apps->getAppByHandle($appHandle);
         }
-
         if ($userId instanceof User) {
             $userId = $userId->getId();
         }
@@ -48,9 +47,14 @@ class Credentials extends Component
             throw new \Exception("App does not exist");
         }
 
-        $tokenRecords = $app->getTokenRecordQuery()->where(['userId' => $userId])->all();
+        $query = $app->getTokenRecordQuery();
+
+        if ($userId !== null) {
+            $query->where(['userId' => $userId]);
+        }
+        $tokenRecords = $query->all();
         if (!count($tokenRecords)) {
-            return null;
+            return [];
         }
 
         $tokenModels = [];
@@ -63,8 +67,8 @@ class Credentials extends Component
             if ($tokenModel->isExpired()) {
                 if (!$this->refreshToken($tokenModel)) {
                     \Craft::error('Unable to refresh token: '.print_r($tokenModel, true), __METHOD__);
+                    continue;
                 }
-                continue;
             }
 
             $tokenModels[] = $tokenModel;

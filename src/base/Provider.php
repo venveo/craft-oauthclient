@@ -56,7 +56,9 @@ abstract class Provider extends Component implements ProviderInterface
 
         $tokenModel->accessToken= $token->getToken();
         $tokenModel->expiryDate = $token->getExpires();
-        $tokenModel->refreshToken = $token->getRefreshToken();
+        if ($token->getRefreshToken()) {
+            $tokenModel->refreshToken = $token->getRefreshToken();
+        }
         return $tokenModel;
     }
 }
