@@ -5,7 +5,7 @@ namespace venveo\oauthclient\models;
 use craft\base\SavableComponent;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
-use venveo\oauthclient\OauthClient as Plugin;
+use venveo\oauthclient\Plugin;
 use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\records\App as AppRecord;
 

@@ -14,7 +14,7 @@ use craft\helpers\UrlHelper;
 use craft\web\Response;
 use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\models\Token as TokenModel;
-use venveo\oauthclient\OauthClient as Plugin;
+use venveo\oauthclient\Plugin;
 use venveo\oauthclient\models\App as AppModel;
 
 use Craft;

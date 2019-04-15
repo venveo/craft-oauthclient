@@ -12,7 +12,7 @@ namespace venveo\oauthclient\controllers;
 
 use Craft;
 use venveo\oauthclient\models\App as AppModel;
-use venveo\oauthclient\OauthClient as Plugin;
+use venveo\oauthclient\Plugin;
 use craft\web\Controller;
 use craft\web\Response;
 use venveo\oauthclient\records\App as AppRecord;

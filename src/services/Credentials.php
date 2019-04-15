@@ -14,7 +14,7 @@ use craft\base\Component;
 use craft\elements\User;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\models\Token as TokenModel;
-use venveo\oauthclient\OauthClient as Plugin;
+use venveo\oauthclient\Plugin;
 
 /**
  * @author    Venveo

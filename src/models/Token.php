@@ -4,7 +4,7 @@ namespace venveo\oauthclient\models;
 
 use craft\elements\User;
 use craft\helpers\UrlHelper;
-use venveo\oauthclient\OauthClient as Plugin;
+use venveo\oauthclient\Plugin;
 use venveo\oauthclient\models\App as AppModel;
 use craft\base\SavableComponent;
 use craft\helpers\DateTimeHelper;
