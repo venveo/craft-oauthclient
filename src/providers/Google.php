@@ -22,7 +22,7 @@ use venveo\oauthclient\models\Token;
  */
 class Google extends Provider
 {
-    public static function getDisplayName(): string
+    public static function displayName(): string
     {
         return 'Google';
     }

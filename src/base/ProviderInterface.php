@@ -6,7 +6,7 @@ use venveo\oauthclient\models\App as AppModel;
 
 interface ProviderInterface
 {
-    public static function getDisplayName():string;
+    public static function displayName():string;
 
     /**
      * @return AbstractProvider
