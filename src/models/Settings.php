@@ -10,7 +10,7 @@
 
 namespace venveo\oauthclient\models;
 
-use venveo\oauthclient\OauthClient;
+use venveo\oauthclient\Plugin;
 
 use Craft;
 use craft\base\Model;

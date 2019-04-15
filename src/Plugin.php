@@ -11,12 +11,11 @@
 namespace venveo\oauthclient;
 
 use Craft;
-use craft\base\Plugin;
+use craft\base\Plugin as BasePlugin;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\web\UrlManager;
 use venveo\oauthclient\services\Apps as AppsService;
-use venveo\oauthclient\services\Credentials;
 use venveo\oauthclient\services\Credentials as CredentialsService;
 use venveo\oauthclient\services\Providers as ProvidersService;
 use venveo\oauthclient\services\Tokens as TokensService;
@@ -36,13 +35,13 @@ use yii\base\Event;
  * @property TokensService $tokens
  * @property CredentialsService $credentials
  */
-class OauthClient extends Plugin
+class Plugin extends BasePlugin
 {
     // Static Properties
     // =========================================================================
 
     /**
-     * @var OauthClient
+     * @var Plugin
      */
     public static $plugin;
 
@@ -65,7 +64,7 @@ class OauthClient extends Plugin
         parent::init();
         self::$plugin = $this;
 
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function (RegisterUrlRulesEvent $event) {
             $event->rules['oauthclient/apps'] = 'oauthclient/apps/index';
             $event->rules['oauthclient/apps/new'] = 'oauthclient/apps/edit';
             $event->rules['oauthclient/apps/<id:\d+>'] = 'oauthclient/apps/edit';

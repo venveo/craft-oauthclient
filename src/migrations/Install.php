@@ -102,7 +102,7 @@ class Install extends Migration
                     'userId' => $this->integer(),
                     'name' => $this->string(255)->notNull(),
                     'handle' => $this->string(255)->notNull(),
-                    'provider' => $this->text()->notNull(),
+                    'provider' => $this->string(255)->notNull(),
                     'clientId' => $this->text(),
                     'clientSecret' => $this->text(),
                     'scopes' => $this->text(),

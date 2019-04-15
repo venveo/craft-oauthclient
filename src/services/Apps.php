@@ -128,6 +128,7 @@ class Apps extends Component
         $record->clientId = $app->clientId;
         $record->provider = $app->provider;
         $record->scopes = $app->scopes;
+        $record->siteId = Craft::$app->sites->currentSite->id;
 
         $record->validate();
         $record->addErrors($record->getErrors());
