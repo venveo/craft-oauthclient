@@ -125,16 +125,18 @@
         <th>{{ "Created On"|t }}</th>
         <th>{{ "Updated On"|t }}</th>
         <th>{{ "Expires On"|t }}</th>
+        <th class="thin">{{ "Refresh Token"|t }}</th>
       </tr>
       </thead>
       <tbody>
       {% for token in tokens %}
         <tr>
           <td>{{ token.id }}</td>
-          <td>{% if token.getUser() %}{{ token.getUser().email }}{% else %}User Removed{% endif %}</td>
+          <td>{%- include "_elements/element" with { element: token.getUser(), size: 'small' } -%}</td>
           <td>{{ token.dateCreated|datetime('short') }}</td>
           <td>{{ token.dateUpdated|datetime('short') }}</td>
           <td>{{ token.expiryDate|datetime('short') }} {% if token.isExpired() %}<strong><a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a></strong>{% endif %}</td>
+          <td>{% if token.refreshToken|length %}<span class="success" title="{{ 'Yes'|t('app') }}" data-icon="check"></span>{% else %}<span class="error" title="{{ 'No'|t('app') }}" data-icon="error"></span>{% endif %}</td>
         </tr>
       {% endfor %}
       </tbody>

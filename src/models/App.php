@@ -41,12 +41,12 @@ class App extends SavableComponent
 
     public function getClientId(): string
     {
-        return \Craft::alias($this->clientId);
+        return \Craft::parseEnv($this->clientId);
     }
 
     public function getClientSecret(): string
     {
-        return \Craft::alias($this->clientSecret);
+        return \Craft::parseEnv($this->clientSecret);
     }
 
     public function getScopes($forTable = false): array

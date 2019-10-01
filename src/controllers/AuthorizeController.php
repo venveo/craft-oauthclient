@@ -80,7 +80,6 @@ class AuthorizeController extends Controller
             // We need to save the token
             $token = TokenModel::fromLeagueToken($tokenResponse);
             $token->appId = $app->id;
-            $token->siteId = \Craft::$app->sites->getCurrentSite()->id;
             $token->userId = \Craft::$app->user->getId();
 
             try {

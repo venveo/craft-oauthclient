@@ -2,55 +2,54 @@
 
 {% set title = "OAuth 2.0 Apps"|t %}
 {% block actionButton %}
-  <a href="{{ url('oauthclient/apps/new') }}"
-     class="btn submit add icon">{{ 'Register New App'|t }}</a>
+    <a href="{{ url('oauthclient/apps/new') }}"
+       class="btn submit add icon">{{ 'Register New App'|t }}</a>
 {% endblock %}
 {% block content %}
-  {% if apps|length %}
-  <h2>{{ "Registered Apps"|t }}</h2>
+    {% if apps|length %}
+        <h2>{{ "Registered Apps"|t }}</h2>
 
-  <table id="oauthapps" class="data fullwidth collapsible">
-    <thead>
-    <tr>
-      <th class="thin">{{ "ID"|t }}</th>
-      <th>{{ "Name"|t }}</th>
-      <th>{{ "Handle"|t }}</th>
-      <th>{{ "Type"|t }}</th>
-      <th>{{ "Number of Tokens"|t }}</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for app in apps %}
-      <tr data-id="{{ app.id }}"
-          data-name="{{ app.name }}">
-        <td class="thin" scope="row"
-            data-title="{{ 'ID'|t('oauthclient') }}">{{ app.id }}</td>
-        <th scope="row" data-title="{{ 'Name'|t('oauthclient') }}"><a
-            href="{{ app.cpEditUrl }}">{{ app.name }}</a>
-        </th>
-        <td data-title="{{ 'Handle'|t('oauthclient') }}">{{ app.handle }}</td>
-        <td data-title="{{ 'Provider'|t('oauthclient') }}">{{ app.provider }}</td>
-        <td data-title="{{ "Number of Tokens"|t }}">{{ app.getTokenRecordQuery().count() }}</td>
-        <td class="thin"><a href="{{ app.getRedirectUrl() }}" class="icon add"
-                            title="{{ 'Connect'|t('oauthclient') }}"
-                            role="button"></a>
-        <td class="thin"><a class="delete icon"
-                            title="{{ 'Delete'|t('oauthclient') }}"></a>
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <h2>You don't have any OAuth Apps registered! Click the button on the top right to add one.</h2>
-  {% endif %}
+        <table id="oauthapps" class="data fullwidth collapsible">
+            <thead>
+            <tr>
+                <th>{{ "Name"|t }}</th>
+                <th>{{ "Handle"|t }}</th>
+                <th>{{ "Type"|t }}</th>
+                <th>{{ "Number of Tokens"|t }}</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for app in apps %}
+                <tr data-id="{{ app.id }}"
+                    data-name="{{ app.name }}">
+                    <th scope="row" data-title="{{ 'Name'|t('oauthclient') }}"><a
+                                href="{{ app.cpEditUrl }}">{{ app.name }}</a>
+                    </th>
+                    <td data-title="{{ 'Handle'|t('oauthclient') }}">{{ app.handle }}</td>
+                    <td data-title="{{ 'Provider'|t('oauthclient') }}">{{ app.provider }}</td>
+                    <td data-title="{{ "Number of Tokens"|t }}">{{ app.getTokenRecordQuery().count() }}</td>
+                    <td class="thin"><a href="{{ app.getRedirectUrl() }}" class="icon add"
+                                        title="{{ 'Connect'|t('oauthclient') }}"
+                                        role="button"></a>
+                    <td class="thin"><a class="delete icon"
+                                        title="{{ 'Delete'|t('oauthclient') }}"></a>
+                    </td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+        {% js %}
+            new Craft.AdminTable({
+            tableSelector: '#oauthapps',
+            deleteAction: 'oauthclient/apps/delete',
+            minObjects: 0
+            });
+        {% endjs %}
+
+    {% else %}
+        <h3>You don't have any OAuth Apps registered! Click the button on the top right to add one.</h3>
+    {% endif %}
 {% endblock %}
-
-
-{% js %}
-  new Craft.AdminTable({
-  tableSelector: '#oauthapps',
-  deleteAction: 'oauthclient/apps/delete',
-  minObjects: 0
-  });
-{% endjs %}
