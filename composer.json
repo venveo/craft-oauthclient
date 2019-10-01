@@ -32,6 +32,8 @@
         }
     },
     "extra": {
+        "hasCpSettings": true,
+        "hasCpSection": false,
         "name": "OAuth 2.0 Client",
         "handle": "oauthclient",
         "changelogUrl": "https://raw.githubusercontent.com/venveo/craft-oauthclient/master/CHANGELOG.md",

@@ -33,6 +33,8 @@ class AuthorizeController extends Controller
      * Handles the actual OAuth process
      * @param string $handle
      * @return Response
+     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     * @throws \craft\errors\SiteNotFoundException
      */
     public function actionAuthorizeApp($handle): Response
     {
@@ -108,7 +110,7 @@ class AuthorizeController extends Controller
             $app = $token->getApp();
             return \Craft::$app->response->redirect($app->getCpEditUrl());
         }
-        throw new \Exception("Failed to refresh token");
+        throw new \Exception('Failed to refresh token');
     }
 
     protected function getRandomState($length = 32)

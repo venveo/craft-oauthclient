@@ -12,22 +12,28 @@
 {% set tabs = {
   0: {'label':'Configuration'|t('oauthclient'),'url':'#config-tab'}
 } %}
+
 {% if app is defined and app.id is defined %}
   {% set tabs = tabs|merge({
-    1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'},
-    2: {'label':'Tokens'|t('oauthclient'),'url':'#tokens-tab'},
+    1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'}
   }) %}
+  {% if app.getAllTokens()|length %}
+    {% set tabs = tabs|merge({
+      2: {'label':'Tokens'|t('oauthclient'),'url':'#tokens-tab'},
+    }) %}
+    {% endif %}
 {% endif %}
 
 {% block content %}
   <div id="config-tab">
   <input type="hidden" name="id" value="{{ app.id }}">
-  <input type="hidden" name="action" value="oauthclient/apps/save">
-  {{ redirectInput('oauthclient/apps') }}
+  {{ actionInput('oauthclient/apps/save') }}
 
   {{ forms.textField({
     label: 'Name'|t('oauthclient'),
+    instructions: 'Give your app a descriptive name, like Google, HubSpot CRM, or Jeff'|t('oauthclient'),
     name: 'name',
+    first: true,
     id: 'name',
     value : app.name,
     required: true,
@@ -36,6 +42,7 @@
 
   {{ forms.textField({
     label: 'Handle'|t('oauthclient'),
+    instructions: 'This is a unique handle used to reference the app in the API.',
     name: 'handle',
     id: 'handle',
     value : app.handle,
@@ -43,22 +50,25 @@
     errors: app.getErrors('handle'),
   }) }}
 
-  {{ forms.textField({
+
+  {{ forms.autosuggestField({
+    suggestEnvVars: true,
     label: 'Client ID'|t('oauthclient'),
+    instructions: 'Enter your client ID here',
     name: 'clientId',
     id: 'clientId',
     value : app.clientId,
-    instructions: 'Enter your client ID here. You may use aliases here if you wish.',
     required: true,
     errors: app.getErrors('clientId'),
   }) }}
 
-  {{ forms.textField({
+    {{ forms.autosuggestField({
+      suggestEnvVars: true,
     label: 'Client Secret'|t('oauthclient'),
     name: 'clientSecret',
     id: 'clientSecret',
     value : app.clientSecret,
-    instructions: 'Enter your client secret here. You may use aliases here if you wish.',
+    instructions: 'Enter your client secret here',
     required: true,
     errors: app.getErrors('clientSecret'),
   }) }}
@@ -75,20 +85,30 @@
     toggle: true
   }) }}
 
-  {{ forms.textField({
-    label: 'Scopes'|t('oauthclient'),
-    name: 'scopes',
-    id: 'scopes',
-    value : app.scopes,
-    instructions: 'Enter the app scopes here, comma separated',
-    required: false,
-    errors: app.getErrors('scopes'),
-  }) }}
+    {{ forms.editableTableField({
+      label: 'Scopes'|t('oauthclient'),
+      instructions: 'Add scopes associated with this application',
+      id: 'scopes',
+      name: 'scopes',
+      addRowLabel: 'Add a Scope',
+      cols: {
+        scope: {
+          type: 'singleline',
+          heading: 'Scope Name'|t('oauthclient'),
+          info: 'The name of the scope'|t('oauthclient'),
+          code: true,
+        }
+      },
+      rows: app.getScopes(true),
+      errors: app.getErrors('scopes'),
+    }) }}
   </div>
   {% if app is defined and app.id is defined %}
   <div id="info-tab" class="hidden">
-    <p>Set your authorized redirect URI to the following:</p>
     {{ forms.textField({
+      first: true,
+      label: 'Redirect URI',
+      instructions: 'This value is determined by Craft - make sure you paste this into your registered OAuth Application in your OAuth provider',
       value : app.getRedirectUrl(),
       required: false,
       disabled: true

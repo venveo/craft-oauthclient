@@ -5,7 +5,7 @@
  * Simple OAuth 2.0 client
  *
  * @link      https://venveo.com
- * @copyright Copyright (c) 2018 Venveo
+ * @copyright Copyright (c) 2019 Venveo
  */
 
 namespace venveo\oauthclient\migrations;
@@ -70,7 +70,6 @@ class Install extends Migration
 
         $tableSchema = Craft::$app->db->schema->getTableSchema('{{%oauthclient_tokens}}');
         if ($tableSchema === null) {
-            $tablesCreated = true;
             $this->createTable(
                 '{{%oauthclient_tokens}}',
                 [
@@ -79,8 +78,8 @@ class Install extends Migration
                     'dateUpdated' => $this->dateTime()->notNull(),
                     'uid' => $this->uid(),
                     'siteId' => $this->integer()->notNull(),
-                    'userId' => $this->integer(),
-                    'appId' => $this->integer()->notNull(),
+                    'userId' => $this->integer()->unsigned()->notNull(),
+                    'appId' => $this->integer()->unsigned()->notNull(),
                     'accessToken' => $this->text()->notNull(),
                     'refreshToken' => $this->text(),
                     'expiryDate' => $this->dateTime(),
@@ -90,7 +89,6 @@ class Install extends Migration
 
         $tableSchema = Craft::$app->db->schema->getTableSchema('{{%oauthclient_apps}}');
         if ($tableSchema === null) {
-            $tablesCreated = true;
             $this->createTable(
                 '{{%oauthclient_apps}}',
                 [
@@ -110,7 +108,7 @@ class Install extends Migration
             );
         }
 
-        return $tablesCreated;
+        return true;
     }
 
     /**
@@ -172,7 +170,7 @@ class Install extends Migration
             'userId',
             '{{%users}}',
             'id',
-            'SET NULL',
+            'CASCADE',
             'CASCADE'
         );
 
@@ -192,7 +190,7 @@ class Install extends Migration
             'userId',
             '{{%users}}',
             'id',
-            'SET NULL',
+            'CASCADE',
             'CASCADE'
         );
     }

@@ -13,7 +13,6 @@ namespace venveo\oauthclient\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
-use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\records\App as AppRecord;
 
@@ -47,7 +46,7 @@ class Apps extends Component
         return $apps;
     }
 
-    public function getAppById($id):?AppModel
+    public function getAppById($id): ?AppModel
     {
         $result = $this->_createAppQuery()
             ->where(['id' => $id])
@@ -56,7 +55,8 @@ class Apps extends Component
         return $result ? $this->createApp($result) : null;
     }
 
-    public function getAppByHandle($handle): ?AppModel {
+    public function getAppByHandle($handle): ?AppModel
+    {
         $result = $this->_createAppQuery()
             ->where(['handle' => $handle])
             ->one();
@@ -113,7 +113,9 @@ class Apps extends Component
             if (!$record) {
                 throw new \Exception(\Craft::t('oauthclient', 'No app exists with the ID “{id}”', ['id' => $app->id]));
             }
+            $app->isNew = false;
         } else {
+            $app->isNew = true;
             $record = new AppRecord();
         }
 

@@ -1,8 +1,12 @@
 {% extends "oauthclient/_layouts/cp" %}
 
 {% set title = "OAuth 2.0 Apps"|t %}
-
+{% block actionButton %}
+  <a href="{{ url('oauthclient/apps/new') }}"
+     class="btn submit add icon">{{ 'Register New App'|t }}</a>
+{% endblock %}
 {% block content %}
+  {% if apps|length %}
   <h2>{{ "Registered Apps"|t }}</h2>
 
   <table id="oauthapps" class="data fullwidth collapsible">
@@ -37,11 +41,9 @@
     {% endfor %}
     </tbody>
   </table>
-
-  <div class="buttons">
-    <a href="{{ url('oauthclient/apps/new') }}"
-       class="btn submit add icon">{{ 'New app'|t }}</a>
-  </div>
+  {% else %}
+  <h2>You don't have any OAuth Apps registered! Click the button on the top right to add one.</h2>
+  {% endif %}
 {% endblock %}
 
 

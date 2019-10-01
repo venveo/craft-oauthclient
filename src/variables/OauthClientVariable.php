@@ -10,10 +10,6 @@
 
 namespace venveo\oauthclient\variables;
 
-use venveo\oauth20client\OauthClient;
-
-use Craft;
-
 /**
  * @author    Venveo
  * @package   Oauth20Client
