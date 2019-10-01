@@ -19,7 +19,6 @@ use League\OAuth2\Client\Token\AccessToken;
  */
 class Token extends SavableComponent
 {
-    public $siteId;
     public $userId;
     public $appId;
     public $expiryDate;
@@ -88,7 +87,7 @@ class Token extends SavableComponent
     public function rules()
     {
         return [
-            [['siteId', 'accessToken', 'appId'], 'required'],
+            [['accessToken', 'appId'], 'required'],
             [
                 ['expiryDate'],
                 DateTimeValidator::class

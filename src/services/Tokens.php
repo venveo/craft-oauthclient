@@ -74,7 +74,6 @@ class Tokens extends Component
     {
         $app = new TokenModel($config);
         $app->userId = $app->userId ?? \Craft::$app->user->getId();
-        $app->siteId = $app->siteId ?? \Craft::$app->sites->getCurrentSite()->id;
         return $app;
     }
 
@@ -89,7 +88,6 @@ class Tokens extends Component
         return (new Query())
             ->select([
                 'id',
-                'siteId',
                 'userId',
                 'dateCreated',
                 'dateUpdated',
@@ -130,7 +128,6 @@ class Tokens extends Component
         $record->accessToken = $token->accessToken;
         $record->refreshToken = $token->refreshToken;
         $record->expiryDate = $token->expiryDate;
-        $record->siteId = $token->siteId;
         $record->userId = $token->userId;
         $record->appId = $token->appId;
 

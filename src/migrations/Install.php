@@ -77,7 +77,6 @@ class Install extends Migration
                     'dateCreated' => $this->dateTime()->notNull(),
                     'dateUpdated' => $this->dateTime()->notNull(),
                     'uid' => $this->uid(),
-                    'siteId' => $this->integer()->notNull(),
                     'userId' => $this->integer()->unsigned()->notNull(),
                     'appId' => $this->integer()->unsigned()->notNull(),
                     'accessToken' => $this->text()->notNull(),
@@ -96,7 +95,6 @@ class Install extends Migration
                     'dateCreated' => $this->dateTime()->notNull(),
                     'dateUpdated' => $this->dateTime()->notNull(),
                     'uid' => $this->uid(),
-                    'siteId' => $this->integer()->notNull(),
                     'userId' => $this->integer(),
                     'name' => $this->string(255)->notNull(),
                     'handle' => $this->string(255)->notNull(),
@@ -145,16 +143,6 @@ class Install extends Migration
     protected function addForeignKeys()
     {
         $this->addForeignKey(
-            $this->db->getForeignKeyName('{{%oauthclient_tokens}}', 'siteId'),
-            '{{%oauthclient_tokens}}',
-            'siteId',
-            '{{%sites}}',
-            'id',
-            'CASCADE',
-            'CASCADE'
-        );
-
-        $this->addForeignKey(
             $this->db->getForeignKeyName('{{%oauthclient_tokens}}', 'appId'),
             '{{%oauthclient_tokens}}',
             'appId',
@@ -169,16 +157,6 @@ class Install extends Migration
             '{{%oauthclient_tokens}}',
             'userId',
             '{{%users}}',
-            'id',
-            'CASCADE',
-            'CASCADE'
-        );
-
-        $this->addForeignKey(
-            $this->db->getForeignKeyName('{{%oauthclient_apps}}', 'siteId'),
-            '{{%oauthclient_apps}}',
-            'siteId',
-            '{{%sites}}',
             'id',
             'CASCADE',
             'CASCADE'

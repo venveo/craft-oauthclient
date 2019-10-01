@@ -11,7 +11,6 @@
 namespace venveo\oauthclient\records;
 
 use craft\db\ActiveRecord;
-use craft\records\Site;
 use craft\records\User;
 use yii\db\ActiveQueryInterface;
 
@@ -23,7 +22,6 @@ use yii\db\ActiveQueryInterface;
  * @property \DateTime $dateCreated
  * @property \DateTime $dateUpdated
  * @property string $uid
- * @property int $siteId
  * @property int $userId
  * @property string $name
  * @property string $provider
@@ -31,7 +29,6 @@ use yii\db\ActiveQueryInterface;
  * @property string $clientId
  * @property string $clientSecret
  * @property User $user
- * @property Site $site
  * @property \yii\db\ActiveQueryInterface $tokens
  * @property string $scopes
  */
@@ -48,16 +45,8 @@ class App extends ActiveRecord
         return '{{%oauthclient_apps}}';
     }
 
-    /**
-     * Returns the OAuth Tokens’s user.
-     *
-     * @return ActiveQueryInterface The relational query object.
-     */
-    public function getSite(): ActiveQueryInterface
-    {
-        return $this->hasOne(Site::class, ['id' => 'siteId']);
-    }
-
+    // Public Methods
+    // =========================================================================
 
     /**
      * Returns the OAuth Tokens’s user.

@@ -18,7 +18,6 @@ use venveo\oauthclient\records\App as AppRecord;
 class App extends SavableComponent
 {
     public $scopes;
-    public $siteId;
     public $userId;
     public $provider;
     public $name;
@@ -106,7 +105,7 @@ class App extends SavableComponent
     public function rules()
     {
         return [
-            [['siteId', 'userId', 'handle', 'name', 'clientId', 'clientSecret', 'provider'], 'required'],
+            [['userId', 'handle', 'name', 'clientId', 'clientSecret', 'provider'], 'required'],
             [
                 ['handle'],
                 UniqueValidator::class,
