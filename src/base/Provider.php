@@ -16,32 +16,44 @@ abstract class Provider extends Component implements ProviderInterface
     private $app;
     protected $configuredProvider;
 
+    /**
+     * Sets the app model
+     * @param AppModel $app
+     */
     public function setApp(AppModel $app)
     {
         $this->app = $app;
     }
 
+    /**
+     * Gets the app this concrete provider is configured for.
+     * @return AppModel
+     */
     public function getApp(): AppModel
     {
         return $this->app;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getAuthorizeURL($options = []): string
     {
         $provider = $this->getConfiguredProvider();
         return $provider->getAuthorizationUrl($options);
     }
 
+    /**
+     * Gets a unique state parameter. We're gonna use the CSRF token by default
+     * @return string|null
+     */
     public function getState(): ?string
     {
         return \Craft::$app->request->getCsrfToken();
     }
 
     /**
-     * @param $grant
-     * @param array $options
-     * @return \League\OAuth2\Client\Token\AccessTokenInterface
-     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     * @inheritDoc
      */
     public function getAccessToken($grant, $options = [])
     {
@@ -54,7 +66,7 @@ abstract class Provider extends Component implements ProviderInterface
      * @return TokenModel
      * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
      */
-    public function refreshToken(TokenModel $tokenModel, $options = [])
+    public function refreshToken(TokenModel $tokenModel, $options = []): TokenModel
     {
         $grant = new RefreshToken();
         $token = $this->getConfiguredProvider()->getAccessToken($grant, array_merge([
