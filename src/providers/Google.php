@@ -10,7 +10,6 @@
 
 namespace venveo\oauthclient\providers;
 
-use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Google as GoogleProvider;
 use venveo\oauthclient\base\Provider;
 
@@ -21,38 +20,19 @@ use venveo\oauthclient\base\Provider;
  */
 class Google extends Provider
 {
+    /**
+     * @inheritDoc
+     */
     public static function displayName(): string
     {
         return 'Google';
     }
 
-    public function getConfiguredProvider(): GoogleProvider
-    {
-        if ($this->configuredProvider instanceof AbstractProvider) {
-            return $this->configuredProvider;
-        }
-
-        $this->configuredProvider = new GoogleProvider([
-            'clientId' => $this->getApp()->getClientId(),
-            'clientSecret' => $this->getApp()->getClientSecret(),
-            'redirectUri' => $this->getApp()->getRedirectUrl(),
-            'accessType' => 'offline',
-        ]);
-        return $this->configuredProvider;
-    }
-
     /**
-     * @param array $options
-     * @return String
+     * @inheritDoc
      */
-    public function getAuthorizeURL($options = []): String
+    public static function getProviderClass(): string
     {
-        return $this->getConfiguredProvider()->getAuthorizationUrl(
-            array_merge([
-                'scope' => $this->getApp()->getScopes(),
-                'approval_prompt' => 'force'
-            ],
-                $options)
-        );
+        return GoogleProvider::class;
     }
 }

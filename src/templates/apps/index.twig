@@ -1,14 +1,12 @@
 {% extends "oauthclient/_layouts/cp" %}
 
-{% set title = "OAuth 2.0 Apps"|t %}
+{% set title = "OAuth Apps"|t('oauthclient') %}
 {% block actionButton %}
     <a href="{{ url('oauthclient/apps/new') }}"
        class="btn submit add icon">{{ 'Register New App'|t }}</a>
 {% endblock %}
 {% block content %}
     {% if apps|length %}
-        <h2>{{ "Registered Apps"|t }}</h2>
-
         <table id="oauthapps" class="data fullwidth collapsible">
             <thead>
             <tr>

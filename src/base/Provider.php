@@ -4,6 +4,7 @@ namespace venveo\oauthclient\base;
 
 use craft\base\Component;
 use League\OAuth2\Client\Grant\RefreshToken;
+use League\OAuth2\Client\Provider\AbstractProvider;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\models\Token as TokenModel;
 
@@ -35,12 +36,55 @@ abstract class Provider extends Component implements ProviderInterface
     }
 
     /**
+     * Provides the options that will be passed to the new instance of the League provider.
+     * If you override this, make sure you merge in the parent options (these).
+     * @return array
+     */
+    public function getProviderOptions(): array
+    {
+        return [
+            'clientId' => $this->getApp()->getClientId(),
+            'clientSecret' => $this->getApp()->getClientSecret(),
+            'redirectUri' => $this->getApp()->getRedirectUrl()
+        ];
+    }
+
+    /**
+     * Provide additional options for the authorization URL.
+     * @return array
+     */
+    public function getDefaultAuthorizationUrlOptions(): array
+    {
+        return [
+            'scope' => $this->getApp()->getScopes()
+        ];
+    }
+
+    /**
      * @inheritDoc
      */
     public function getAuthorizeURL($options = []): string
     {
+        $options = array_merge($this->getDefaultAuthorizationUrlOptions(), $options);
         $provider = $this->getConfiguredProvider();
         return $provider->getAuthorizationUrl($options);
+    }
+
+    /**
+     * @inheritDoc
+     * @throws \ReflectionException
+     */
+    public function getConfiguredProvider()
+    {
+        if ($this->configuredProvider instanceof AbstractProvider) {
+            return $this->configuredProvider;
+        }
+
+        $leagueProvider = new \ReflectionClass(static::getProviderClass());
+
+        $this->configuredProvider = $leagueProvider->newInstance($this->getProviderOptions());
+
+        return $this->configuredProvider;
     }
 
     /**
@@ -80,6 +124,12 @@ abstract class Provider extends Component implements ProviderInterface
         }
         return $tokenModel;
     }
+
+    /**
+     * Get the class name for the League provider
+     * @return string
+     */
+    abstract public static function getProviderClass(): string;
 
     public function __toString()
     {

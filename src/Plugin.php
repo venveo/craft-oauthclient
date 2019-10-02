@@ -1,11 +1,8 @@
 <?php
 /**
- * OAuth 2.0 Client plugin for Craft CMS 3.x
- *
- * Simple OAuth 2.0 client
- *
- * @link      https://venveo.com
- * @copyright Copyright (c) 2018 Venveo
+ * OAuth 2.0 Client plugin for Craft CMS 3
+ *  @link      https://www.venveo.com
+ *  @copyright Copyright (c) 2018-2019 Venveo
  */
 
 namespace venveo\oauthclient;

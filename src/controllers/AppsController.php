@@ -1,11 +1,8 @@
 <?php
 /**
- * OAuth 2.0 Client plugin for Craft CMS 3.x
- *
- * Simple OAuth 2.0 client
- *
- * @link      https://venveo.com
- * @copyright Copyright (c) 2018 Venveo
+ *  OAuth 2.0 Client plugin for Craft CMS 3
+ *  @link      https://www.venveo.com
+ *  @copyright Copyright (c) 2018-2019 Venveo
  */
 
 namespace venveo\oauthclient\controllers;
@@ -64,23 +61,13 @@ class AppsController extends Controller
         /** @var string[] $allProviderTypes */
         $allProviderTypes = $providersService->getAllProviderTypes();
 
-        // Make sure the selected gateway class is in there
-//        if ($variables['app']->provider && !in_array($variables['app']->provider, $allProviderTypes, true)) {
-//            $allGatewayTypes[] = get_class($gateway);
-//        }
         $providerOptions = [];
-        $providerInstances = [];
-//
         foreach ($allProviderTypes as $class) {
-//            if (($gateway && $class === get_class($gateway)) || $class::isSelectable()) {
-            $providerInstances[$class] = $providersService->createProvider($class);
-//
             $providerOptions[] = [
                 'value' => $class,
                 'label' => $class::displayName()
             ];
         }
-//        }
 
         $variables['providerTypes'] = $allProviderTypes;
         $variables['providerOptions'] = $providerOptions;
@@ -96,6 +83,7 @@ class AppsController extends Controller
     /**
      * @return Response|null
      * @throws HttpException
+     * @throws \Exception
      */
     public function actionSave()
     {

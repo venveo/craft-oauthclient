@@ -19,6 +19,12 @@ interface ProviderInterface
     public static function displayName(): string;
 
     /**
+     * Get the class name for the League provider
+     * @return string
+     */
+    public static function getProviderClass(): string;
+
+    /**
      * Gets a concrete League provider instance
      * @return AbstractProvider
      */
