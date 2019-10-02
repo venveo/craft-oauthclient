@@ -135,7 +135,7 @@
           <td>{%- include "_elements/element" with { element: token.getUser(), size: 'small' } -%}</td>
           <td>{{ token.dateCreated|datetime('short') }}</td>
           <td>{{ token.dateUpdated|datetime('short') }}</td>
-          <td>{{ token.expiryDate|datetime('short') }} {% if token.isExpired() %}<strong><a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a></strong>{% endif %}</td>
+          <td>{{ token.expiryDate|datetime('short') }} {% if token.hasExpired() %}<strong><a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a></strong>{% endif %}</td>
           <td>{% if token.refreshToken|length %}<span class="success" title="{{ 'Yes'|t('app') }}" data-icon="check"></span>{% else %}<span class="error" title="{{ 'No'|t('app') }}" data-icon="error"></span>{% endif %}</td>
         </tr>
       {% endfor %}

@@ -35,7 +35,11 @@ class Token extends Model implements AccessTokenInterface
     public $accessToken;
     public $uid;
 
+    private $tokenValues;
+
+    /** @var AppModel */
     private $app;
+    /** @var User */
     private $user;
 
     public static function fromLeagueToken(AccessToken $token): self
@@ -47,16 +51,23 @@ class Token extends Model implements AccessTokenInterface
         ]);
     }
 
+    /**
+     * Gets the user the token belongs to
+     * @return User|null
+     */
     public function getUser()
     {
         if ($this->user instanceof User) {
             return $this->user;
         }
 
-        $this->user = \Craft::$app->users->getUserById($this->userId);
-        return $this->user;
+        return $this->user = \Craft::$app->users->getUserById($this->userId);
     }
 
+    /**
+     * Gets the app this token belongs to
+     * @return App|null
+     */
     public function getApp()
     {
         if ($this->app instanceof AppModel) {
@@ -67,15 +78,8 @@ class Token extends Model implements AccessTokenInterface
         return $this->app;
     }
 
-    public function isExpired(): bool
-    {
-        $expiryDate = DateTimeHelper::toDateTime($this->expiryDate);
-        $now = DateTimeHelper::currentUTCDateTime();
-        $expired = $now >= $expiryDate;
-        return $expired;
-    }
-
     /**
+     * The internal URL in the CP to refresh this token
      * @return string
      */
     public function getRefreshURL()
@@ -129,7 +133,9 @@ class Token extends Model implements AccessTokenInterface
      */
     public function hasExpired()
     {
-        return $this->isExpired();
+        $expiryDate = DateTimeHelper::toDateTime($this->expiryDate);
+        $now = DateTimeHelper::currentUTCDateTime();
+        return $now >= $expiryDate;
     }
 
     /**
@@ -137,7 +143,7 @@ class Token extends Model implements AccessTokenInterface
      */
     public function getValues()
     {
-        return $this->values;
+        return $this->tokenValues;
     }
 
     /**
