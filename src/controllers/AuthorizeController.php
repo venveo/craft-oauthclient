@@ -40,6 +40,7 @@ class AuthorizeController extends Controller
      */
     public function actionAuthorizeApp($handle): Response
     {
+        $this->requireAdmin();
         /** @var  $app */
         $app = Plugin::$plugin->apps->getAppByHandle($handle);
         if (!$app instanceof AppModel) {
