@@ -10,13 +10,11 @@
 
 
 {% set tabs = {
-  0: {'label':'Configuration'|t('oauthclient'),'url':'#config-tab'}
+  0: {'label':'Configuration'|t('oauthclient'),'url':'#config-tab'},
+  1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'}
 } %}
 
-{% if app is defined and app.id is defined %}
-  {% set tabs = tabs|merge({
-    1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'}
-  }) %}
+{% if app is defined and app.id is defined and app.id != null %}
   {% if app.getAllTokens()|length %}
     {% set tabs = tabs|merge({
       2: {'label':'Tokens'|t('oauthclient'),'url':'#tokens-tab'},
@@ -107,11 +105,12 @@
   <div id="info-tab" class="hidden">
     {{ forms.textField({
       first: true,
+      id: 'redirectUri',
+      readonly: true,
       label: 'Redirect URI',
       instructions: 'This value is determined by Craft - make sure you paste this into your registered OAuth Application in your OAuth provider',
-      value : app.getRedirectUrl(),
-      required: false,
-      disabled: true
+      value : app.id != null ? app.getRedirectUrl() : 'Enter an app handle first!',
+      required: false
     }) }}
   </div>
 
@@ -135,7 +134,22 @@
           <td>{%- include "_elements/element" with { element: token.getUser(), size: 'small' } -%}</td>
           <td>{{ token.dateCreated|datetime('short') }}</td>
           <td>{{ token.dateUpdated|datetime('short') }}</td>
-          <td>{{ token.expiryDate|datetime('short') }} {% if token.hasExpired() %}<strong><a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a></strong>{% endif %}</td>
+          <td>
+            {% if token.expiryDate != null %}
+              {{ token.expiryDate|datetime('short') }}
+              {% if token.hasExpired() %}
+                <strong>
+                {% if token.refreshToken|length %}
+                  <a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a>
+                {% else %}
+                  EXPIRED
+                {% endif %}
+              {% endif %}
+              </strong>
+            {% else %}
+              <p>Unknown</p>
+            {% endif %}
+          </td>
           <td class="centeralign">{% if token.refreshToken|length %}<span class="success" title="{{ 'Yes'|t('app') }}" data-icon="check"></span>{% else %}<span class="error" title="{{ 'No'|t('app') }}" data-icon="remove"></span>{% endif %}</td>
         </tr>
       {% endfor %}
@@ -148,5 +162,11 @@
 {% if app is not defined or not app.handle %}
   {% js %}
     new Craft.HandleGenerator('#name', '#handle');
+    $(document).ready(function() {
+      $('#handle').change(function(value) {
+          var value = value.target.value;
+          $('#redirectUri').val("{{ app.getRedirectUrl()|e('js') }}/" + value);
+      });
+    });
   {% endjs %}
 {% endif %}

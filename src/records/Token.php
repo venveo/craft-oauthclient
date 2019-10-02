@@ -64,4 +64,16 @@ class Token extends ActiveRecord
     {
         return $this->hasOne(AppRecord::class, ['id' => 'appId']);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function datetimeAttributes(): array
+    {
+        $attributes = parent::datetimeAttributes();
+
+        $attributes[] = 'expiryDate';
+
+        return $attributes;
+    }
 }

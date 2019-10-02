@@ -7,6 +7,7 @@ use craft\elements\User;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
+use DateTime;
 use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use venveo\oauthclient\models\App as AppModel;
@@ -133,9 +134,14 @@ class Token extends Model implements AccessTokenInterface
      */
     public function hasExpired()
     {
-        $expiryDate = DateTimeHelper::toDateTime($this->expiryDate);
-        $now = DateTimeHelper::currentUTCDateTime();
-        return $now >= $expiryDate;
+        if (!$this->expiryDate) {
+            return false;
+        }
+
+        $now = new DateTime();
+        $expiryDate = $this->expiryDate;
+
+        return $now->getTimestamp() > $expiryDate->getTimestamp();
     }
 
     /**
@@ -160,5 +166,18 @@ class Token extends Model implements AccessTokenInterface
     public function __toString()
     {
         return $this->accessToken;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function datetimeAttributes(): array
+    {
+        $attributes = parent::datetimeAttributes();
+
+        $attributes[] = 'expiryDate';
+
+        return $attributes;
     }
 }
