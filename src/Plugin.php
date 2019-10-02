@@ -1,8 +1,8 @@
 <?php
 /**
  * OAuth 2.0 Client plugin for Craft CMS 3
- *  @link      https://www.venveo.com
- *  @copyright Copyright (c) 2018-2019 Venveo
+ * @link      https://www.venveo.com
+ * @copyright Copyright (c) 2018-2019 Venveo
  */
 
 namespace venveo\oauthclient;
@@ -15,6 +15,7 @@ use craft\log\FileTarget;
 use craft\web\UrlManager;
 use venveo\oauthclient\services\Apps as AppsService;
 use venveo\oauthclient\services\Credentials as CredentialsService;
+use venveo\oauthclient\services\Providers;
 use venveo\oauthclient\services\Providers as ProvidersService;
 use venveo\oauthclient\services\Tokens as TokensService;
 use yii\base\Event;
@@ -85,11 +86,12 @@ class Plugin extends BasePlugin
     /**
      *
      */
-    private function _registerLogger() {
-            Craft::getLogger()->dispatcher->targets[] = new FileTarget([
-                'logFile' => Craft::getAlias('@storage/logs/oauthclient.log'),
-                'categories' => ['venveo\oauthclient\*'],
-            ]);
+    private function _registerLogger()
+    {
+        Craft::getLogger()->dispatcher->targets[] = new FileTarget([
+            'logFile' => Craft::getAlias('@storage/logs/oauthclient.log'),
+            'categories' => ['venveo\oauthclient\*'],
+        ]);
     }
 
     /**

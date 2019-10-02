@@ -4,7 +4,6 @@ namespace venveo\oauthclient\models;
 
 use craft\base\Model;
 use craft\elements\User;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use DateTime;
