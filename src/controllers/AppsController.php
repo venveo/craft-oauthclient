@@ -26,6 +26,7 @@ class AppsController extends Controller
 
     public function actionIndex()
     {
+        $this->requireAdmin();
         $apps = Plugin::getInstance()->apps->getAllApps();
 
         return $this->renderTemplate('oauthclient/apps/index.twig', [
@@ -42,6 +43,7 @@ class AppsController extends Controller
      */
     public function actionEdit($handle = null, $app = null)
     {
+        $this->requireAdmin();
         $variables = [
             'handle' => $handle,
             'app' => $app
@@ -87,6 +89,7 @@ class AppsController extends Controller
      */
     public function actionSave()
     {
+        $this->requireAdmin();
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
