@@ -8,6 +8,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
 
@@ -16,9 +17,12 @@ use venveo\oauthclient\Plugin;
  *
  * @since 2.0
  * @property mixed $refreshURL
+ * @property mixed $token
+ * @property mixed $values
+ * @property mixed $expires
  * @property string $cpEditUrl
  */
-class Token extends Model
+class Token extends Model implements AccessTokenInterface
 {
     public $id;
     public $dateCreated;
@@ -33,16 +37,6 @@ class Token extends Model
 
     private $app;
     private $user;
-
-    /**
-     * Returns the name of this payment method.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return (string)$this->accessToken;
-    }
 
     public static function fromLeagueToken(AccessToken $token): self
     {
@@ -81,6 +75,9 @@ class Token extends Model
         return $expired;
     }
 
+    /**
+     * @return string
+     */
     public function getRefreshURL()
     {
         return UrlHelper::cpUrl('oauthclient/authorize/refresh/' . $this->id);
@@ -99,5 +96,63 @@ class Token extends Model
                 DateTimeValidator::class
             ]
         ];
+    }
+
+    // These are the attributes required by the League token interface
+
+    /**
+     * @inheritDoc
+     */
+    public function getToken()
+    {
+        return $this->accessToken;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRefreshToken()
+    {
+        return $this->refreshToken;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getExpires()
+    {
+        return $this->expiryDate;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasExpired()
+    {
+        return $this->isExpired();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function __toString()
+    {
+        return $this->accessToken;
     }
 }
