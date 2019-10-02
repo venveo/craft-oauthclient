@@ -55,7 +55,7 @@ class Token extends Model implements AccessTokenInterface
      * Gets the user the token belongs to
      * @return User|null
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         if ($this->user instanceof User) {
             return $this->user;
