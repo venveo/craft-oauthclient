@@ -15,19 +15,20 @@
                 <th>{{ "Name"|t }}</th>
                 <th>{{ "Handle"|t }}</th>
                 <th>{{ "Type"|t }}</th>
-                <th>{{ "Number of Tokens"|t }}</th>
+                <th class="thin">{{ "Number of Tokens"|t }}</th>
             </tr>
             </thead>
             <tbody>
 
             {% for app in apps %}
+                {% set instance = app.getProviderInstance() %}
                 <tr data-id="{{ app.id }}"
                     data-name="{{ app.name }}">
                     <th scope="row" data-title="{{ 'Name'|t('oauthclient') }}"><a
                                 href="{{ app.cpEditUrl }}">{{ app.name }}</a>
                     </th>
                     <td data-title="{{ 'Handle'|t('oauthclient') }}">{{ app.handle }}</td>
-                    <td data-title="{{ 'Provider'|t('oauthclient') }}">{{ app.provider }}</td>
+                    <td data-title="{{ 'Provider'|t('oauthclient') }}">{{ instance }}</td>
                     <td data-title="{{ "Number of Tokens"|t }}">{{ app.getTokenRecordQuery().count() }}</td>
                     <td class="thin"><a href="{{ app.getRedirectUrl() }}" class="icon add"
                                         title="{{ 'Connect'|t('oauthclient') }}"

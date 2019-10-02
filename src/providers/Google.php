@@ -5,7 +5,7 @@
  * Simple OAuth 2.0 client
  *
  * @link      https://venveo.com
- * @copyright Copyright (c) 2018 Venveo
+ * @copyright Copyright (c) 2019 Venveo
  */
 
 namespace venveo\oauthclient\providers;
@@ -13,7 +13,6 @@ namespace venveo\oauthclient\providers;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Google as GoogleProvider;
 use venveo\oauthclient\base\Provider;
-use venveo\oauthclient\models\Token;
 
 /**
  * @author    Venveo
@@ -46,13 +45,14 @@ class Google extends Provider
      * @param array $options
      * @return String
      */
-    public function getAuthorizeURL($options = []): String {
+    public function getAuthorizeURL($options = []): String
+    {
         return $this->getConfiguredProvider()->getAuthorizationUrl(
             array_merge([
                 'scope' => $this->getApp()->getScopes(),
                 'approval_prompt' => 'force'
             ],
-            $options)
+                $options)
         );
     }
 }
