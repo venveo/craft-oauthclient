@@ -45,16 +45,29 @@ class App extends Model
         return (string)$this->name;
     }
 
+    /**
+     * Parse any environment variables and return the client ID
+     * @return string
+     */
     public function getClientId(): string
     {
         return \Craft::parseEnv($this->clientId);
     }
 
+    /**
+     * Parse any environment variables and return the client secret
+     * @return string
+     */
     public function getClientSecret(): string
     {
         return \Craft::parseEnv($this->clientSecret);
     }
 
+    /**
+     * Get the scopes for the app
+     * @param bool $forTable If true, we'll format the output for Craft's table field
+     * @return array
+     */
     public function getScopes($forTable = false): array
     {
         if ($forTable) {
@@ -66,6 +79,7 @@ class App extends Model
     }
 
     /**
+     * Get the URL to edit the app in the CP
      * @return string
      */
     public function getCpEditUrl(): string
@@ -73,6 +87,10 @@ class App extends Model
         return UrlHelper::cpUrl('oauthclient/apps/' . $this->handle);
     }
 
+    /**
+     * Get the URL callback URL
+     * @return string
+     */
     public function getRedirectUrl(): string
     {
         return UrlHelper::cpUrl('oauthclient/authorize/' . $this->handle);
