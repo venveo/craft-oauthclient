@@ -2,7 +2,7 @@
 
 namespace venveo\oauthclient\models;
 
-use craft\base\SavableComponent;
+use craft\base\Model;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use venveo\oauthclient\base\Provider;
@@ -13,10 +13,16 @@ use venveo\oauthclient\records\App as AppRecord;
  * Class App
  *
  * @since 2.0
+ * @property \yii\db\ActiveQuery $tokenRecordQuery
+ * @property array $allTokens
+ * @property string $redirectUrl
  * @property string $cpEditUrl
  */
-class App extends SavableComponent
+class App extends Model
 {
+    public $id;
+    public $dateCreated;
+    public $dateUpdated;
     public $scopes;
     public $userId;
     public $provider;

@@ -2,23 +2,28 @@
 
 namespace venveo\oauthclient\models;
 
+use craft\base\Model;
 use craft\elements\User;
-use craft\helpers\UrlHelper;
-use venveo\oauthclient\Plugin;
-use venveo\oauthclient\models\App as AppModel;
-use craft\base\SavableComponent;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use League\OAuth2\Client\Token\AccessToken;
+use venveo\oauthclient\models\App as AppModel;
+use venveo\oauthclient\Plugin;
 
 /**
  * Class App
  *
  * @since 2.0
+ * @property mixed $refreshURL
  * @property string $cpEditUrl
  */
-class Token extends SavableComponent
+class Token extends Model
 {
+    public $id;
+    public $dateCreated;
+    public $dateUpdated;
+
     public $userId;
     public $appId;
     public $expiryDate;
@@ -58,7 +63,8 @@ class Token extends SavableComponent
         return $this->user;
     }
 
-    public function getApp() {
+    public function getApp()
+    {
         if ($this->app instanceof AppModel) {
             return $this->app;
         }
@@ -75,10 +81,10 @@ class Token extends SavableComponent
         return $expired;
     }
 
-    public function getRefreshURL() {
-        return UrlHelper::cpUrl('oauthclient/authorize/refresh/'.$this->id);
+    public function getRefreshURL()
+    {
+        return UrlHelper::cpUrl('oauthclient/authorize/refresh/' . $this->id);
     }
-
 
 
     /**

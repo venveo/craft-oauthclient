@@ -13,6 +13,7 @@ namespace venveo\oauthclient\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use venveo\oauthclient\events\AppEvent;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\records\App as AppRecord;
 
@@ -21,10 +22,13 @@ use venveo\oauthclient\records\App as AppRecord;
  * @package   OauthClient
  * @since     1.0.0
  *
- * @property \venveo\oauthclient\models\App[]|array $allApps
+ * @property AppModel[]|array $allApps
  */
 class Apps extends Component
 {
+
+    public const EVENT_BEFORE_APP_SAVED = 'EVENT_BEFORE_APP_SAVED';
+    public const EVENT_AFTER_APP_SAVED = 'EVENT_AFTER_APP_SAVED';
 
     private $_APPS_BY_HANDLE = [];
     private $_APPS_BY_ID = [];
@@ -91,6 +95,10 @@ class Apps extends Component
         return null;
     }
 
+    /**
+     * @param $config
+     * @return AppModel
+     */
     public function createApp($config): AppModel
     {
         $app = new AppModel($config);
@@ -144,6 +152,10 @@ class Apps extends Component
             $record = new AppRecord();
         }
 
+        $event = new AppEvent();
+        $event->app = $app;
+        $this->trigger(self::EVENT_BEFORE_APP_SAVED, $event);
+
         if ($runValidation && !$app->validate()) {
             Craft::info('App not saved due to validation error.', __METHOD__);
 
@@ -162,9 +174,10 @@ class Apps extends Component
         if (!$record->hasErrors()) {
             // Save it!
             $record->save(false);
-
             // Now that we have a record ID, save it on the model
             $app->id = $record->id;
+
+            $this->trigger(self::EVENT_AFTER_APP_SAVED, $event);
 
             return true;
         }

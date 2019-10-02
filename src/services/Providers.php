@@ -24,6 +24,8 @@ use venveo\oauthclient\providers\MissingProvider;
  * @package   OauthClient
  * @since     1.0.0
  *
+ *
+ * @property array $allProviderTypes
  */
 class Providers extends Component
 {

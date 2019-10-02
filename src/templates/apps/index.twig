@@ -21,7 +21,7 @@
             <tbody>
 
             {% for app in apps %}
-                {% set instance = app.getProviderInstance() %}
+                {% set instance = app.providerInstance %}
                 <tr data-id="{{ app.id }}"
                     data-name="{{ app.name }}">
                     <th scope="row" data-title="{{ 'Name'|t('oauthclient') }}"><a
@@ -30,7 +30,7 @@
                     <td data-title="{{ 'Handle'|t('oauthclient') }}">{{ app.handle }}</td>
                     <td data-title="{{ 'Provider'|t('oauthclient') }}">{{ instance }}</td>
                     <td data-title="{{ "Number of Tokens"|t }}">{{ app.getTokenRecordQuery().count() }}</td>
-                    <td class="thin"><a href="{{ app.getRedirectUrl() }}" class="icon add"
+                    <td class="thin"><a href="{{ app.redirectUrl }}" class="icon add"
                                         title="{{ 'Connect'|t('oauthclient') }}"
                                         role="button"></a>
                     <td class="thin"><a class="delete icon"

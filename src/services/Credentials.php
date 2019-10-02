@@ -64,11 +64,9 @@ class Credentials extends Component
             if ($tokenModel->isExpired() && empty($tokenModel->refreshToken)) {
                 continue;
             }
-            if ($tokenModel->isExpired()) {
-                if (!$this->refreshToken($tokenModel)) {
-                    \Craft::error('Unable to refresh token: '.print_r($tokenModel, true), __METHOD__);
-                    continue;
-                }
+            if ($tokenModel->isExpired() && !$this->refreshToken($tokenModel)) {
+                \Craft::error('Unable to refresh token: '.print_r($tokenModel, true), __METHOD__);
+                continue;
             }
 
             $tokenModels[] = $tokenModel;
