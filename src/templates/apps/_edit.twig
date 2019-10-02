@@ -10,24 +10,28 @@
 
 
 {% set tabs = {
-  0: {'label':'Configuration'|t('oauthclient'),'url':'#config-tab'}
+  0: {'label':'Configuration'|t('oauthclient'),'url':'#config-tab'},
+  1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'}
 } %}
-{% if app is defined and app.id is defined %}
-  {% set tabs = tabs|merge({
-    1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'},
-    2: {'label':'Tokens'|t('oauthclient'),'url':'#tokens-tab'},
-  }) %}
+
+{% if app is defined and app.id is defined and app.id != null %}
+  {% if app.getAllTokens()|length %}
+    {% set tabs = tabs|merge({
+      2: {'label':'Tokens'|t('oauthclient'),'url':'#tokens-tab'},
+    }) %}
+    {% endif %}
 {% endif %}
 
 {% block content %}
   <div id="config-tab">
   <input type="hidden" name="id" value="{{ app.id }}">
-  <input type="hidden" name="action" value="oauthclient/apps/save">
-  {{ redirectInput('oauthclient/apps') }}
+  {{ actionInput('oauthclient/apps/save') }}
 
   {{ forms.textField({
     label: 'Name'|t('oauthclient'),
+    instructions: 'Give your app a descriptive name, like Google, HubSpot CRM, or Jeff'|t('oauthclient'),
     name: 'name',
+    first: true,
     id: 'name',
     value : app.name,
     required: true,
@@ -36,6 +40,7 @@
 
   {{ forms.textField({
     label: 'Handle'|t('oauthclient'),
+    instructions: 'This is a unique handle used to reference the app in the API.',
     name: 'handle',
     id: 'handle',
     value : app.handle,
@@ -43,22 +48,25 @@
     errors: app.getErrors('handle'),
   }) }}
 
-  {{ forms.textField({
+
+  {{ forms.autosuggestField({
+    suggestEnvVars: true,
     label: 'Client ID'|t('oauthclient'),
+    instructions: 'Enter your client ID here',
     name: 'clientId',
     id: 'clientId',
     value : app.clientId,
-    instructions: 'Enter your client ID here. You may use aliases here if you wish.',
     required: true,
     errors: app.getErrors('clientId'),
   }) }}
 
-  {{ forms.textField({
+    {{ forms.autosuggestField({
+      suggestEnvVars: true,
     label: 'Client Secret'|t('oauthclient'),
     name: 'clientSecret',
     id: 'clientSecret',
     value : app.clientSecret,
-    instructions: 'Enter your client secret here. You may use aliases here if you wish.',
+    instructions: 'Enter your client secret here',
     required: true,
     errors: app.getErrors('clientSecret'),
   }) }}
@@ -75,23 +83,34 @@
     toggle: true
   }) }}
 
-  {{ forms.textField({
-    label: 'Scopes'|t('oauthclient'),
-    name: 'scopes',
-    id: 'scopes',
-    value : app.scopes,
-    instructions: 'Enter the app scopes here, comma separated',
-    required: false,
-    errors: app.getErrors('scopes'),
-  }) }}
+    {{ forms.editableTableField({
+      label: 'Scopes'|t('oauthclient'),
+      instructions: 'Add scopes associated with this application',
+      id: 'scopes',
+      name: 'scopes',
+      addRowLabel: 'Add a Scope',
+      cols: {
+        scope: {
+          type: 'singleline',
+          heading: 'Scope Name'|t('oauthclient'),
+          info: 'The name of the scope'|t('oauthclient'),
+          code: true,
+        }
+      },
+      rows: app.getScopes(true),
+      errors: app.getErrors('scopes'),
+    }) }}
   </div>
   {% if app is defined and app.id is defined %}
   <div id="info-tab" class="hidden">
-    <p>Set your authorized redirect URI to the following:</p>
     {{ forms.textField({
-      value : app.getRedirectUrl(),
-      required: false,
-      disabled: true
+      first: true,
+      id: 'redirectUri',
+      readonly: true,
+      label: 'Redirect URI',
+      instructions: 'This value is determined by Craft - make sure you paste this into your registered OAuth Application in your OAuth provider',
+      value : app.id != null ? app.getRedirectUrl() : 'Enter an app handle first!',
+      required: false
     }) }}
   </div>
 
@@ -105,16 +124,33 @@
         <th>{{ "Created On"|t }}</th>
         <th>{{ "Updated On"|t }}</th>
         <th>{{ "Expires On"|t }}</th>
+        <th class="thin">{{ "Refresh Token"|t }}</th>
       </tr>
       </thead>
       <tbody>
       {% for token in tokens %}
         <tr>
           <td>{{ token.id }}</td>
-          <td>{% if token.getUser() %}{{ token.getUser().email }}{% else %}User Removed{% endif %}</td>
+          <td>{%- include "_elements/element" with { element: token.getUser(), size: 'small' } -%}</td>
           <td>{{ token.dateCreated|datetime('short') }}</td>
           <td>{{ token.dateUpdated|datetime('short') }}</td>
-          <td>{{ token.expiryDate|datetime('short') }} {% if token.isExpired() %}<strong><a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a></strong>{% endif %}</td>
+          <td>
+            {% if token.expiryDate != null %}
+              {{ token.expiryDate|datetime('short') }}
+              {% if token.hasExpired() %}
+                <strong>
+                {% if token.refreshToken|length %}
+                  <a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a>
+                {% else %}
+                  EXPIRED
+                {% endif %}
+              {% endif %}
+              </strong>
+            {% else %}
+              <p>Unknown</p>
+            {% endif %}
+          </td>
+          <td class="centeralign">{% if token.refreshToken|length %}<span class="success" title="{{ 'Yes'|t('app') }}" data-icon="check"></span>{% else %}<span class="error" title="{{ 'No'|t('app') }}" data-icon="remove"></span>{% endif %}</td>
         </tr>
       {% endfor %}
       </tbody>
@@ -126,5 +162,11 @@
 {% if app is not defined or not app.handle %}
   {% js %}
     new Craft.HandleGenerator('#name', '#handle');
+    $(document).ready(function() {
+      $('#handle').change(function(value) {
+          var value = value.target.value;
+          $('#redirectUri').val("{{ app.getRedirectUrl()|e('js') }}/" + value);
+      });
+    });
   {% endjs %}
 {% endif %}

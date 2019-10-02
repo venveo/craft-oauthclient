@@ -10,7 +10,7 @@
 
 namespace venveo\oauthclient\providers;
 
-use League\OAuth2\Client\Provider\Google as GoogleProvider;
+use League\OAuth2\Client\Provider\Github as GithubProvider;
 use venveo\oauthclient\base\Provider;
 
 /**
@@ -18,14 +18,14 @@ use venveo\oauthclient\base\Provider;
  * @package   OauthClient
  * @since     1.0.0
  */
-class Google extends Provider
+class GitHub extends Provider
 {
     /**
      * @inheritDoc
      */
     public static function displayName(): string
     {
-        return 'Google';
+        return 'GitHub';
     }
 
     /**
@@ -33,6 +33,6 @@ class Google extends Provider
      */
     public static function getProviderClass(): string
     {
-        return GoogleProvider::class;
+        return GithubProvider::class;
     }
 }

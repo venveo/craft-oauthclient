@@ -11,7 +11,6 @@
 namespace venveo\oauthclient\records;
 
 use craft\db\ActiveRecord;
-use craft\records\Site;
 use craft\records\User;
 use venveo\oauthclient\records\App as AppRecord;
 use yii\db\ActiveQueryInterface;
@@ -26,13 +25,11 @@ use yii\db\ActiveQueryInterface;
  * @property \DateTime $dateUpdated
  * @property \DateTime $expiryDate
  * @property string $uid
- * @property int $siteId
  * @property int $userId
  * @property int $appId
  * @property string $accessToken
  * @property string $refreshToken
  * @property App $app
- * @property Site $site
  * @property User $user
  */
 class Token extends ActiveRecord
@@ -59,14 +56,6 @@ class Token extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
-     */
-    public function getSite(): ActiveQueryInterface
-    {
-        return $this->hasOne(Site::class, ['id' => 'siteId']);
-    }
-
-    /**
      * Returns the OAuth Tokens’s user.
      *
      * @return ActiveQueryInterface The relational query object.
@@ -74,5 +63,17 @@ class Token extends ActiveRecord
     public function getApp(): ActiveQueryInterface
     {
         return $this->hasOne(AppRecord::class, ['id' => 'appId']);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function datetimeAttributes(): array
+    {
+        $attributes = parent::datetimeAttributes();
+
+        $attributes[] = 'expiryDate';
+
+        return $attributes;
     }
 }

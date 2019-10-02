@@ -5,7 +5,7 @@
  * Simple OAuth 2.0 client
  *
  * @link      https://venveo.com
- * @copyright Copyright (c) 2018 Venveo
+ * @copyright Copyright (c) 2018-2019 Venveo
  */
 
 namespace venveo\oauthclient\services;
@@ -25,6 +25,8 @@ use venveo\oauthclient\Plugin;
 class Credentials extends Component
 {
     /**
+     * Gets valid tokens given an application and optionally, a Craft user ID
+     * This method will attempt to refresh expired tokens for an app
      * @param $appHandle
      * @param $userId
      * @return TokenModel[]
@@ -44,7 +46,7 @@ class Credentials extends Component
         }
 
         if (!$app instanceof AppModel) {
-            throw new \Exception("App does not exist");
+            throw new \Exception('App does not exist');
         }
 
         $query = $app->getTokenRecordQuery();
@@ -61,14 +63,12 @@ class Credentials extends Component
         foreach ($tokenRecords as $tokenRecord) {
             $tokenModel = Plugin::$plugin->tokens->createToken($tokenRecord);
             // We need to prune this token at some point
-            if ($tokenModel->isExpired() && empty($tokenModel->refreshToken)) {
+            if ($tokenModel->hasExpired() && empty($tokenModel->refreshToken)) {
                 continue;
             }
-            if ($tokenModel->isExpired()) {
-                if (!$this->refreshToken($tokenModel)) {
-                    \Craft::error('Unable to refresh token: '.print_r($tokenModel, true), __METHOD__);
-                    continue;
-                }
+            if ($tokenModel->hasExpired() && !$this->refreshToken($tokenModel)) {
+                \Craft::error('Unable to refresh token: '.print_r($tokenModel, true), __METHOD__);
+                continue;
             }
 
             $tokenModels[] = $tokenModel;

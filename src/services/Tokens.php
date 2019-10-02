@@ -13,6 +13,7 @@ namespace venveo\oauthclient\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use venveo\oauthclient\events\TokenEvent;
 use venveo\oauthclient\models\Token;
 use venveo\oauthclient\models\Token as TokenModel;
 use venveo\oauthclient\records\Token as TokenRecord;
@@ -23,10 +24,13 @@ use venveo\oauthclient\records\Token as TokenRecord;
  * @since     1.0.0
  *
  *
- * @property \venveo\oauthclient\models\Token[]|array $allTokens
+ * @property TokenModel[]|array $allTokens
  */
 class Tokens extends Component
 {
+
+    public const EVENT_BEFORE_TOKEN_SAVED = 'EVENT_BEFORE_TOKEN_SAVED';
+    public const EVENT_AFTER_TOKEN_SAVED = 'EVENT_AFTER_TOKEN_SAVED';
 
     /**
      * Returns all tokens
@@ -74,7 +78,6 @@ class Tokens extends Component
     {
         $app = new TokenModel($config);
         $app->userId = $app->userId ?? \Craft::$app->user->getId();
-        $app->siteId = $app->siteId ?? \Craft::$app->sites->getCurrentSite()->id;
         return $app;
     }
 
@@ -89,7 +92,6 @@ class Tokens extends Component
         return (new Query())
             ->select([
                 'id',
-                'siteId',
                 'userId',
                 'dateCreated',
                 'dateUpdated',
@@ -122,6 +124,10 @@ class Tokens extends Component
             $record = new TokenRecord();
         }
 
+        $event = new TokenEvent();
+        $event->token = $token;
+        $this->trigger(self::EVENT_BEFORE_TOKEN_SAVED, $event);
+
         if ($runValidation && !$token->validate()) {
             Craft::info('Token not saved due to validation error.', __METHOD__);
 
@@ -130,7 +136,6 @@ class Tokens extends Component
         $record->accessToken = $token->accessToken;
         $record->refreshToken = $token->refreshToken;
         $record->expiryDate = $token->expiryDate;
-        $record->siteId = $token->siteId;
         $record->userId = $token->userId;
         $record->appId = $token->appId;
 
@@ -143,6 +148,8 @@ class Tokens extends Component
 
             // Now that we have a record ID, save it on the model
             $token->id = $record->id;
+
+            $this->trigger(self::EVENT_AFTER_TOKEN_SAVED, $event);
 
             return true;
         }

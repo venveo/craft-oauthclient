@@ -2,24 +2,32 @@
 
 namespace venveo\oauthclient\models;
 
+use craft\base\Model;
 use craft\elements\User;
 use craft\helpers\UrlHelper;
-use venveo\oauthclient\Plugin;
-use venveo\oauthclient\models\App as AppModel;
-use craft\base\SavableComponent;
-use craft\helpers\DateTimeHelper;
 use craft\validators\DateTimeValidator;
+use DateTime;
 use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
+use venveo\oauthclient\models\App as AppModel;
+use venveo\oauthclient\Plugin;
 
 /**
  * Class App
  *
  * @since 2.0
+ * @property mixed $refreshURL
+ * @property mixed $token
+ * @property mixed $values
+ * @property mixed $expires
  * @property string $cpEditUrl
  */
-class Token extends SavableComponent
+class Token extends Model implements AccessTokenInterface
 {
-    public $siteId;
+    public $id;
+    public $dateCreated;
+    public $dateUpdated;
+
     public $userId;
     public $appId;
     public $expiryDate;
@@ -27,18 +35,12 @@ class Token extends SavableComponent
     public $accessToken;
     public $uid;
 
-    private $app;
-    private $user;
+    private $tokenValues;
 
-    /**
-     * Returns the name of this payment method.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return (string)$this->accessToken;
-    }
+    /** @var AppModel */
+    private $app;
+    /** @var User */
+    private $user;
 
     public static function fromLeagueToken(AccessToken $token): self
     {
@@ -49,17 +51,25 @@ class Token extends SavableComponent
         ]);
     }
 
-    public function getUser()
+    /**
+     * Gets the user the token belongs to
+     * @return User|null
+     */
+    public function getUser(): ?User
     {
         if ($this->user instanceof User) {
             return $this->user;
         }
 
-        $this->user = \Craft::$app->users->getUserById($this->userId);
-        return $this->user;
+        return $this->user = \Craft::$app->users->getUserById($this->userId);
     }
 
-    public function getApp() {
+    /**
+     * Gets the app this token belongs to
+     * @return App|null
+     */
+    public function getApp()
+    {
         if ($this->app instanceof AppModel) {
             return $this->app;
         }
@@ -68,18 +78,14 @@ class Token extends SavableComponent
         return $this->app;
     }
 
-    public function isExpired(): bool
+    /**
+     * The internal URL in the CP to refresh this token
+     * @return string
+     */
+    public function getRefreshURL()
     {
-        $expiryDate = DateTimeHelper::toDateTime($this->expiryDate);
-        $now = DateTimeHelper::currentUTCDateTime();
-        $expired = $now >= $expiryDate;
-        return $expired;
+        return UrlHelper::cpUrl('oauthclient/authorize/refresh/' . $this->id);
     }
-
-    public function getRefreshURL() {
-        return UrlHelper::cpUrl('oauthclient/authorize/refresh/'.$this->id);
-    }
-
 
 
     /**
@@ -88,11 +94,89 @@ class Token extends SavableComponent
     public function rules()
     {
         return [
-            [['siteId', 'accessToken', 'appId'], 'required'],
+            [['accessToken', 'appId'], 'required'],
             [
                 ['expiryDate'],
                 DateTimeValidator::class
             ]
         ];
+    }
+
+    // These are the attributes required by the League token interface
+
+    /**
+     * @inheritDoc
+     */
+    public function getToken()
+    {
+        return $this->accessToken;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRefreshToken()
+    {
+        return $this->refreshToken;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getExpires()
+    {
+        return $this->expiryDate;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasExpired()
+    {
+        if (!$this->expiryDate) {
+            return false;
+        }
+
+        $now = new DateTime();
+        $expiryDate = $this->expiryDate;
+
+        return $now->getTimestamp() > $expiryDate->getTimestamp();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getValues()
+    {
+        return $this->tokenValues;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function __toString()
+    {
+        return $this->accessToken;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function datetimeAttributes(): array
+    {
+        $attributes = parent::datetimeAttributes();
+
+        $attributes[] = 'expiryDate';
+
+        return $attributes;
     }
 }

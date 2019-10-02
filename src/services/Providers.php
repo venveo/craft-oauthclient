@@ -16,7 +16,9 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\Component as ComponentHelper;
 use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\base\ProviderInterface;
-use venveo\oauthclient\providers\Google as GoogleProvider;
+use venveo\oauthclient\providers\Facebook;
+use venveo\oauthclient\providers\GitHub;
+use venveo\oauthclient\providers\Google;
 use venveo\oauthclient\providers\MissingProvider;
 
 /**
@@ -24,6 +26,8 @@ use venveo\oauthclient\providers\MissingProvider;
  * @package   OauthClient
  * @since     1.0.0
  *
+ *
+ * @property array $allProviderTypes
  */
 class Providers extends Component
 {
@@ -33,7 +37,9 @@ class Providers extends Component
     public function getAllProviderTypes(): array
     {
         $providerTypes = [
-            GoogleProvider::class
+            Google::class,
+            GitHub::class,
+            Facebook::class
         ];
 
         $event = new RegisterComponentTypesEvent([
