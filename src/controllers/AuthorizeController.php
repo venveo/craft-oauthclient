@@ -1,24 +1,24 @@
 <?php
 /**
- * OAuth 2.0 Client plugin for Craft CMS 3.x
- *
- * Simple OAuth 2.0 client
- *
- * @link      https://venveo.com
- * @copyright Copyright (c) 2018 Venveo
+ *  OAuth 2.0 Client plugin for Craft CMS 3
+ *  @link      https://www.venveo.com
+ *  @copyright Copyright (c) 2018-2019 Venveo
  */
 
 namespace venveo\oauthclient\controllers;
 
+use Craft;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\UrlHelper;
+use craft\web\Controller;
 use craft\web\Response;
+use Exception;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use ReflectionException;
 use venveo\oauthclient\base\Provider;
+use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\models\Token as TokenModel;
 use venveo\oauthclient\Plugin;
-use venveo\oauthclient\models\App as AppModel;
-
-use Craft;
-use craft\web\Controller;
 
 /**
  * @author    Venveo
@@ -33,29 +33,32 @@ class AuthorizeController extends Controller
      * Handles the actual OAuth process
      * @param string $handle
      * @return Response
-     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
-     * @throws \craft\errors\SiteNotFoundException
+     * @throws IdentityProviderException
+     * @throws SiteNotFoundException
+     * @throws ReflectionException
+     * @throws Exception
      */
     public function actionAuthorizeApp($handle): Response
     {
         /** @var  $app */
         $app = Plugin::$plugin->apps->getAppByHandle($handle);
         if (!$app instanceof AppModel) {
-            \Craft::$app->response->setStatusCode(404, 'App handle does not exist');
+            Craft::$app->response->setStatusCode(404, 'App handle does not exist');
             return null;
         }
 
-        $error = \Craft::$app->request->getParam('error');
-        $code = \Craft::$app->request->getParam('code');
-        $state = \Craft::$app->request->getParam('state');
+        $error = Craft::$app->request->getParam('error');
+        $code = Craft::$app->request->getParam('code');
+        $state = Craft::$app->request->getParam('state');
 
         /** @var Provider $provider */
         $provider = $app->getProviderInstance();
 
         // OAuth provider sent back an error
         if (!empty($error)) {
-            \Craft::$app->session->remove(self::STATE_SESSION_KEY);
-            \Craft::$app->session->setError(Craft::t('oauthclient', 'Failed to authorize app: '. $error));
+            Craft::error($error, __METHOD__);
+            Craft::$app->session->remove(self::STATE_SESSION_KEY);
+            Craft::$app->session->setError(Craft::t('oauthclient', 'Failed to authorize app: ' . $error));
             return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
         }
 
@@ -63,55 +66,71 @@ class AuthorizeController extends Controller
         if (empty($code)) {
             $state = $this->getRandomState();
             $url = $provider->getAuthorizeURL(['state' => $state]);
-            \Craft::$app->session->set(self::STATE_SESSION_KEY, $state);
-            return \Craft::$app->response->redirect($url);
+            Craft::$app->session->set(self::STATE_SESSION_KEY, $state);
+            return Craft::$app->response->redirect($url);
 
-        // Invalid state
-        } elseif(empty($state) || \Craft::$app->session->get(self::STATE_SESSION_KEY) !== $state) {
+            // Invalid state
+        }
 
-            \Craft::$app->session->setError(Craft::t('oauthclient', 'Invalid OAuth 2 State'));
-            \Craft::$app->session->remove(self::STATE_SESSION_KEY);
-            return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
-        } else {
-            $tokenResponse = $provider->getConfiguredProvider()->getAccessToken('authorization_code', [
-                'code' => $code
-            ]);
+        if (empty($state) || Craft::$app->session->get(self::STATE_SESSION_KEY) !== $state) {
 
-            // We need to save the token
-            $token = TokenModel::fromLeagueToken($tokenResponse);
-            $token->appId = $app->id;
-            $token->userId = \Craft::$app->user->getId();
-
-            try {
-                $saved = Plugin::$plugin->tokens->saveToken($token);
-                if($saved) {
-                    \Craft::$app->session->setFlash(Craft::t('oauthclient', 'Connected via '.$app->name));
-                } else {
-                    \Craft::$app->session->setError(Craft::t('oauthclient', 'Failed to save token'));
-//                    var_dump($token->getErrors());
-//                    die();
-                }
-            } catch (\Exception $e) {
-                \Craft::$app->session->setError(Craft::t('oauthclient', 'Something went wrong: '. $e->getMessage()));
-            }
+            Craft::$app->session->setError(Craft::t('oauthclient', 'Invalid OAuth 2 State'));
+            Craft::$app->session->remove(self::STATE_SESSION_KEY);
             return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
         }
+
+        $tokenResponse = $provider->getConfiguredProvider()->getAccessToken('authorization_code', [
+            'code' => $code
+        ]);
+
+        // We need to save the token
+        $token = TokenModel::fromLeagueToken($tokenResponse);
+        $token->appId = $app->id;
+        $token->userId = Craft::$app->user->getId();
+
+        try {
+            $saved = Plugin::$plugin->tokens->saveToken($token);
+            if ($saved) {
+                Craft::$app->session->setFlash(Craft::t('oauthclient', 'Connected via ' . $app->name));
+            } else {
+                Craft::$app->session->setError(Craft::t('oauthclient', 'Failed to save token'));
+            }
+        } catch (Exception $e) {
+            Craft::error($e->getTraceAsString(), __METHOD__);
+            Craft::$app->session->setError(Craft::t('oauthclient', 'Something went wrong: ' . $e->getMessage()));
+        }
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
     }
 
-    public function actionRefresh($id) {
+    /**
+     * Will refresh a token by its ID
+     * @param $id
+     * @return Response|\yii\console\Response
+     * @throws IdentityProviderException
+     * @throws \Exception
+     */
+    public function actionRefresh($id)
+    {
         $token = Plugin::$plugin->tokens->getTokenById($id);
         if (!$token) {
-            \Craft::$app->response->setStatusCode(404, "Token not found");
+            return Craft::$app->response->setStatusCode(404, 'Token not found');
         }
 
         $refreshed = Plugin::$plugin->credentials->refreshToken($token);
         if ($refreshed) {
             $app = $token->getApp();
-            return \Craft::$app->response->redirect($app->getCpEditUrl());
+            return Craft::$app->response->redirect($app->getCpEditUrl());
         }
+
         throw new \Exception('Failed to refresh token');
     }
 
+    /**
+     * Get a random state value
+     * @param int $length
+     * @return string
+     * @throws Exception
+     */
     protected function getRandomState($length = 32)
     {
         // Converting bytes to hex will always double length. Hence, we can reduce

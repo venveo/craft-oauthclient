@@ -28,4 +28,12 @@ class MissingProvider extends Provider
     {
         return null;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getProviderClass(): string
+    {
+        return '';
+    }
 }

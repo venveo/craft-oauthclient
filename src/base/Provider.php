@@ -10,6 +10,8 @@ use venveo\oauthclient\models\Token as TokenModel;
 
 /**
  *
+ * @property array $providerOptions
+ * @property array $defaultAuthorizationUrlOptions
  * @property null|string $state
  */
 abstract class Provider extends Component implements ProviderInterface
@@ -62,6 +64,7 @@ abstract class Provider extends Component implements ProviderInterface
 
     /**
      * @inheritDoc
+     * @throws \ReflectionException
      */
     public function getAuthorizeURL($options = []): string
     {
