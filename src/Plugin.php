@@ -66,6 +66,10 @@ class Plugin extends BasePlugin
         parent::init();
         self::$plugin = $this;
 
+        if (Craft::$app->request->getIsConsoleRequest()) {
+            $this->controllerNamespace = 'venveo\oauthclient\console\controllers';
+        }
+
         $this->_registerLogger();
         $this->_setComponents();
         $this->_registerCpRoutes();
@@ -87,7 +91,7 @@ class Plugin extends BasePlugin
     // =========================================================================
 
     /**
-     *
+     * Register a custom logger
      */
     private function _registerLogger()
     {
@@ -98,7 +102,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     *
+     * Set our service components
      */
     private function _setComponents()
     {
@@ -128,13 +132,15 @@ class Plugin extends BasePlugin
         });
     }
 
+    /**
+     * Set our Twig variable
+     */
     private function _registerVariables()
     {
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
             function (Event $event) {
-                /** @var CraftVariable $variable */
                 $variable = $event->sender;
                 $variable->set('oauth', OAuthVariable::class);
             }

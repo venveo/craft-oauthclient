@@ -129,6 +129,13 @@ There's a helpful Twig variable, `craft.oauth` exposed by the OAuth Client plugi
 
 `craft.oauth.getAppByHandle('handle')` returns an App model if it exists
 
+### Command Line Interface (CLI)
+
+If you would like to refresh all tokens, you can utilize the CLI to automate the process.
+
+` ./craft oauthclient/apps/refresh-tokens <app handle>`
+
+Returns status code 1 if there were errors and 0 if successful
 
 ---
 

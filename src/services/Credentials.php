@@ -81,21 +81,19 @@ class Credentials extends Component
     /**
      * Attempts to refresh a token and save it to the database
      * @param TokenModel $tokenModel
-     * @param null $app
      * @return bool
-     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
      */
-    public function refreshToken(TokenModel $tokenModel, $app = null): bool
+    public function refreshToken(TokenModel $tokenModel): bool
     {
         if (!$tokenModel->refreshToken) {
             return false;
         }
-        if (!$app instanceof AppModel) {
+        try {
             $app = $tokenModel->getApp();
+            $app->getProviderInstance()->refreshToken($tokenModel);
+            return Plugin::$plugin->tokens->saveToken($tokenModel);
+        } catch (\Exception $exception) {
+            return false;
         }
-
-        $app->getProviderInstance()->refreshToken($tokenModel);
-
-        return Plugin::$plugin->tokens->saveToken($tokenModel);
     }
 }
