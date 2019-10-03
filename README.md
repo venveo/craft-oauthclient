@@ -12,8 +12,8 @@ act as an authentication provider for users to login to the CMS.
 - Reading from and writing to Google Sheets
 - Querying data on a business' Facebook page
 
-## Example NON-USE-CASES
-- Logging in users on the frontend
+## Example Non-Use Cases
+- Logging-in users on the frontend
 - Allowing users to access the CP via social accounts
 - Keeping track of many CMS users' social accounts
 
