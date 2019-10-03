@@ -12,12 +12,14 @@ use craft\base\Plugin as BasePlugin;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\log\FileTarget;
+use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use venveo\oauthclient\services\Apps as AppsService;
 use venveo\oauthclient\services\Credentials as CredentialsService;
 use venveo\oauthclient\services\Providers;
 use venveo\oauthclient\services\Providers as ProvidersService;
 use venveo\oauthclient\services\Tokens as TokensService;
+use venveo\oauthclient\variables\OAuthVariable;
 use yii\base\Event;
 
 /**
@@ -64,9 +66,14 @@ class Plugin extends BasePlugin
         parent::init();
         self::$plugin = $this;
 
+        if (Craft::$app->request->getIsConsoleRequest()) {
+            $this->controllerNamespace = 'venveo\oauthclient\console\controllers';
+        }
+
         $this->_registerLogger();
         $this->_setComponents();
         $this->_registerCpRoutes();
+        $this->_registerVariables();
     }
 
     // Protected Methods
@@ -84,7 +91,7 @@ class Plugin extends BasePlugin
     // =========================================================================
 
     /**
-     *
+     * Register a custom logger
      */
     private function _registerLogger()
     {
@@ -95,7 +102,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     *
+     * Set our service components
      */
     private function _setComponents()
     {
@@ -123,5 +130,20 @@ class Plugin extends BasePlugin
                 'oauthclient/authorize/<handle:{handle}>' => 'oauthclient/authorize/authorize-app',
             ]);
         });
+    }
+
+    /**
+     * Set our Twig variable
+     */
+    private function _registerVariables()
+    {
+        Event::on(
+            CraftVariable::class,
+            CraftVariable::EVENT_INIT,
+            function (Event $event) {
+                $variable = $event->sender;
+                $variable->set('oauth', OAuthVariable::class);
+            }
+        );
     }
 }

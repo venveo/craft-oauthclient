@@ -124,8 +124,7 @@ class Tokens extends Component
             $record = new TokenRecord();
         }
 
-        $event = new TokenEvent();
-        $event->token = $token;
+        $event = new TokenEvent($token);
         $this->trigger(self::EVENT_BEFORE_TOKEN_SAVED, $event);
 
         if ($runValidation && !$token->validate()) {

@@ -12,14 +12,14 @@ act as an authentication provider for users to login to the CMS.
 - Reading from and writing to Google Sheets
 - Querying data on a business' Facebook page
 
-## Example NON-USE-CASES
-- Logging in users on the frontend
+## Example Non-Use Cases
+- Logging-in users on the frontend
 - Allowing users to access the CP via social accounts
 - Keeping track of many CMS users' social accounts
 
 ## Requirements
 
-This plugin should work on Craft CMS 3.2.0 or later, and likely earlier versions of Craft.
+This plugin should work on Craft CMS 3.1.0 or later, and likely earlier versions of Craft.
 
 ## Installation
 
@@ -98,7 +98,7 @@ override and implement in order to customize the authorization flow of your prov
 See `venveo\oauthclient\base\Provider` for information on the possibilities here. 
 
 
-### Apps
+## Apps
 
 In this plugin, an App represents the implementation of a provider with a registered OAuth provider. Most people will
 probably only need one or two, but you can create as many as needed. To register an app, you'll need to start on the
@@ -109,7 +109,7 @@ temporary until you've saved the app - at which point you'll need to update it w
 After an app is registered, you should be able to visit the OAuth Apps overview page and click the "+" button to the
 right of the app listing to create your first token.
 
-### API Usage
+## API Usage
 
 This plugin assumes you're performing your actual logic in your module or plugin.
 
@@ -122,7 +122,50 @@ The plugin has the following services available:
 
 Generally, you'll only find yourself using the `Apps` and `Credentials` services. 
 
-#### Example (Interact with Google Sheets)
+## Events
+
+#### `venveo\oauthclient\services\Apps`
+
+- `Apps:EVENT_BEFORE_APP_SAVED` 
+    - `venveo\oauthclient\events\AppEvent`
+- `Apps:EVENT_AFTER_APP_SAVED` 
+    - `venveo\oauthclient\events\AppEvent`
+
+#### `venveo\oauthclient\services\Tokens`
+
+- `Tokens:EVENT_BEFORE_TOKEN_SAVED` 
+    - `venveo\oauthclient\events\TokenEvent`
+- `Tokens:EVENT_BEFORE_TOKEN_SAVED` 
+    - `venveo\oauthclient\events\TokenEvent`
+
+#### `venveo\oauthclient\services\Credentials`
+
+- `Credentials:EVENT_BEFORE_REFRESH_TOKEN`
+    - `venveo\oauthclient\events\TokenEvent`
+- `Credentials:EVENT_AFTER_REFRESH_TOKEN` 
+    - `venveo\oauthclient\events\TokenEvent`
+- `Credentials::EVENT_TOKEN_REFRESH_FAILED`
+    - `venveo\oauthclient\events\TokenEvent`
+
+## Twig Variable
+
+There's a helpful Twig variable, `craft.oauth` exposed by the OAuth Client plugin to help you build your UI.
+
+`craft.oauth.getAppByHandle('handle')` returns an App model if it exists
+
+## Command Line Interface (CLI)
+
+If you would like to refresh all tokens, you can utilize the CLI to automate the process.
+
+` ./craft oauthclient/apps/refresh-tokens <app handle>`
+
+Returns status code 1 if there were errors and 0 if successful
+
+---
+
+## Examples
+
+### Interact with Google Sheets
 
 If you wanted to manage some data in your Google Sheets account, you could easily require the Google_Client composer
 package and make the necessary requests; however, token management adds a lot of overhead and complexity. That's where
@@ -150,5 +193,21 @@ $service = new \Google_Service_Sheets($client);
 $sheet = $service->spreadsheets->get('some-google-sheet');
 ```
 
+### Using the Twig variable to check if the current user is connected
+
+```twig
+{% set app = craft.oauth.getAppByHandle('google') %}
+{% if app %}
+    {{ app.name }}
+    {% set tokens = app.getValidTokensForUser() %}
+    {% if tokens|length %}
+        Connected!
+    {% else %}
+        Not connected :(
+    {% endif %}
+{% else %}
+    Could not find app
+{% endif %}
+```
 
 Brought to you by [Venveo](https://www.venveo.com)

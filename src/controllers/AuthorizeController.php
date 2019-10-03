@@ -1,14 +1,13 @@
 <?php
 /**
  *  OAuth 2.0 Client plugin for Craft CMS 3
- *  @link      https://www.venveo.com
- *  @copyright Copyright (c) 2018-2019 Venveo
+ * @link      https://www.venveo.com
+ * @copyright Copyright (c) 2018-2019 Venveo
  */
 
 namespace venveo\oauthclient\controllers;
 
 use Craft;
-use craft\errors\SiteNotFoundException;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use craft\web\Response;
@@ -34,7 +33,6 @@ class AuthorizeController extends Controller
      * @param string $handle
      * @return Response
      * @throws IdentityProviderException
-     * @throws SiteNotFoundException
      * @throws ReflectionException
      * @throws Exception
      */

@@ -152,8 +152,7 @@ class Apps extends Component
             $record = new AppRecord();
         }
 
-        $event = new AppEvent();
-        $event->app = $app;
+        $event = new AppEvent($app);
         $this->trigger(self::EVENT_BEFORE_APP_SAVED, $event);
 
         if ($runValidation && !$app->validate()) {
