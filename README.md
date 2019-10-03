@@ -98,7 +98,7 @@ override and implement in order to customize the authorization flow of your prov
 See `venveo\oauthclient\base\Provider` for information on the possibilities here. 
 
 
-### Apps
+## Apps
 
 In this plugin, an App represents the implementation of a provider with a registered OAuth provider. Most people will
 probably only need one or two, but you can create as many as needed. To register an app, you'll need to start on the
@@ -109,7 +109,7 @@ temporary until you've saved the app - at which point you'll need to update it w
 After an app is registered, you should be able to visit the OAuth Apps overview page and click the "+" button to the
 right of the app listing to create your first token.
 
-### API Usage
+## API Usage
 
 This plugin assumes you're performing your actual logic in your module or plugin.
 
@@ -122,7 +122,7 @@ The plugin has the following services available:
 
 Generally, you'll only find yourself using the `Apps` and `Credentials` services. 
 
-### Events
+## Events
 
 #### `venveo\oauthclient\services\Apps`
 
@@ -147,13 +147,13 @@ Generally, you'll only find yourself using the `Apps` and `Credentials` services
 - `Credentials::EVENT_TOKEN_REFRESH_FAILED`
     - `venveo\oauthclient\events\TokenEvent`
 
-### Twig Variable
+## Twig Variable
 
 There's a helpful Twig variable, `craft.oauth` exposed by the OAuth Client plugin to help you build your UI.
 
 `craft.oauth.getAppByHandle('handle')` returns an App model if it exists
 
-### Command Line Interface (CLI)
+## Command Line Interface (CLI)
 
 If you would like to refresh all tokens, you can utilize the CLI to automate the process.
 
@@ -163,9 +163,9 @@ Returns status code 1 if there were errors and 0 if successful
 
 ---
 
-### Examples
+## Examples
 
-##### Interact with Google Sheets
+### Interact with Google Sheets
 
 If you wanted to manage some data in your Google Sheets account, you could easily require the Google_Client composer
 package and make the necessary requests; however, token management adds a lot of overhead and complexity. That's where
