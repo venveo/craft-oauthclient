@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Added `craft.oauth` Twig variable
 - Added `craft.oauth.getAppByHandle()` Twig helper
 - Added CLI for refreshing app tokens `oauthclient/apps/refresh-tokens <app handle>`
+- Added events for token refresh before, after, and error
 
 ### Changed
 - refreshToken service method no longer accepts an $app parameter

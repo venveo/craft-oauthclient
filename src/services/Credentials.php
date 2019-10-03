@@ -12,9 +12,11 @@ namespace venveo\oauthclient\services;
 
 use craft\base\Component;
 use craft\elements\User;
+use venveo\oauthclient\events\TokenEvent;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\models\Token as TokenModel;
 use venveo\oauthclient\Plugin;
+use yii\db\Exception;
 
 /**
  * @author    Venveo
@@ -24,6 +26,10 @@ use venveo\oauthclient\Plugin;
  */
 class Credentials extends Component
 {
+    public const EVENT_BEFORE_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
+    public const EVENT_AFTER_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
+    public const EVENT_TOKEN_REFRESH_FAILED = 'EVENT_TOKEN_REFRESH_FAILED';
+
     /**
      * Gets valid tokens given an application and optionally, a Craft user ID
      * This method will attempt to refresh expired tokens for an app
@@ -85,14 +91,25 @@ class Credentials extends Component
      */
     public function refreshToken(TokenModel $tokenModel): bool
     {
+        $event = new TokenEvent($tokenModel);
+        $this->trigger(self::EVENT_BEFORE_REFRESH_TOKEN, $event);
+
         if (!$tokenModel->refreshToken) {
             return false;
         }
         try {
             $app = $tokenModel->getApp();
             $app->getProviderInstance()->refreshToken($tokenModel);
-            return Plugin::$plugin->tokens->saveToken($tokenModel);
+            $saved = Plugin::$plugin->tokens->saveToken($tokenModel);
+            if ($saved) {
+                $this->trigger(self::EVENT_AFTER_REFRESH_TOKEN, $event);
+            } else {
+                throw new Exception('Failed to save refreshed token');
+            }
+            return $saved;
         } catch (\Exception $exception) {
+            \Craft::warning($exception->getMessage(), __METHOD__);
+            $this->trigger(self::EVENT_TOKEN_REFRESH_FAILED, $event);
             return false;
         }
     }

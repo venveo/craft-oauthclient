@@ -122,6 +122,30 @@ The plugin has the following services available:
 
 Generally, you'll only find yourself using the `Apps` and `Credentials` services. 
 
+### Events
+
+#### `venveo\oauthclient\services\Apps`
+
+- `Apps:EVENT_BEFORE_APP_SAVED` 
+    - `venveo\oauthclient\events\AppEvent`
+- `Apps:EVENT_AFTER_APP_SAVED` 
+    - `venveo\oauthclient\events\AppEvent`
+
+#### `venveo\oauthclient\services\Tokens`
+
+- `Tokens:EVENT_BEFORE_TOKEN_SAVED` 
+    - `venveo\oauthclient\events\TokenEvent`
+- `Tokens:EVENT_BEFORE_TOKEN_SAVED` 
+    - `venveo\oauthclient\events\TokenEvent`
+
+#### `venveo\oauthclient\services\Credentials`
+
+- `Credentials:EVENT_BEFORE_REFRESH_TOKEN`
+    - `venveo\oauthclient\events\TokenEvent`
+- `Credentials:EVENT_AFTER_REFRESH_TOKEN` 
+    - `venveo\oauthclient\events\TokenEvent`
+- `Credentials::EVENT_TOKEN_REFRESH_FAILED`
+    - `venveo\oauthclient\events\TokenEvent`
 
 ### Twig Variable
 
