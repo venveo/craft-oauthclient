@@ -193,5 +193,21 @@ $service = new \Google_Service_Sheets($client);
 $sheet = $service->spreadsheets->get('some-google-sheet');
 ```
 
+### Using the Twig variable to check if the current user is connected
+
+```twig
+{% set app = craft.oauth.getAppByHandle('google') %}
+{% if app %}
+    {{ app.name }}
+    {% set tokens = app.getValidTokensForUser() %}
+    {% if tokens|length %}
+        Connected!
+    {% else %}
+        Not connected :(
+    {% endif %}
+{% else %}
+    Could not find app
+{% endif %}
+```
 
 Brought to you by [Venveo](https://www.venveo.com)

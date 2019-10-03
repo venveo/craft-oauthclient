@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Added `craft.oauth.getAppByHandle()` Twig helper
 - Added CLI for refreshing app tokens `oauthclient/apps/refresh-tokens <app handle>`
 - Added events for token refresh before, after, and error
+- Added `getValidTokensForUser()` to App model
 
 ### Fixed
 - Fixed a potential bug getting tokens by app & user

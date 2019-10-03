@@ -9,6 +9,7 @@ use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\Plugin;
 use venveo\oauthclient\records\App as AppRecord;
 use venveo\oauthclient\records\Token as TokenRecord;
+use craft\elements\User;
 
 /**
  * Class App
@@ -120,6 +121,29 @@ class App extends Model
         ];
         $this->providerInstance = Plugin::$plugin->providers->createProvider($config);
         return $this->providerInstance;
+    }
+
+    /**
+     * Get all tokens valid tokens for the supplied user. If no user is supplied, the current user will
+     * be used.
+     *
+     * @param null|int|User $user
+     * @return Token[]
+     * @throws \Exception
+     */
+    public function getValidTokensForUser($user = null) {
+        $userId = null;
+        if ($user instanceof User) {
+            $userId = $user->id;
+        } elseif (is_int($user)) {
+            $userId = $user;
+        } elseif ($currentUser = \Craft::$app->user->getIdentity()) {
+            $userId = $currentUser->id;
+        } else {
+            // No user, but let's return an empty array so we don't break anything upstream
+            return [];
+        }
+        return Plugin::$plugin->credentials->getValidTokensForAppAndUser($this, $userId);
     }
 
     /**
