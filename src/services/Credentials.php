@@ -13,8 +13,11 @@ namespace venveo\oauthclient\services;
 use Craft;
 use craft\base\Component;
 use craft\elements\User;
+use venveo\oauthclient\base\Provider;
+use venveo\oauthclient\base\ValidatesTokens;
 use venveo\oauthclient\events\TokenEvent;
 use venveo\oauthclient\models\App as AppModel;
+use venveo\oauthclient\models\Token;
 use venveo\oauthclient\models\Token as TokenModel;
 use venveo\oauthclient\Plugin;
 use yii\db\Exception;
@@ -117,5 +120,23 @@ class Credentials extends Component
             $this->trigger(self::EVENT_TOKEN_REFRESH_FAILED, $event);
             return false;
         }
+    }
+
+    /**
+     * If the token's Provider implements ValidatesToken, we can ask it to verify the token with the provider
+     *
+     * @param TokenModel $token
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function checkTokenWithProvider(Token $token) {
+        $app = $token->getApp();
+
+        /** @var Provider $provider */
+        $provider = $app->getProviderInstance();
+        if (!$provider instanceof ValidatesTokens) {
+            throw new \Exception('Provider cannot validate tokens');
+        }
+        return $provider::checkToken($token);
     }
 }
