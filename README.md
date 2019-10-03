@@ -203,7 +203,8 @@ $sheet = $service->spreadsheets->get('some-google-sheet');
     {% if tokens|length %}
         Connected!
     {% else %}
-        Not connected :(
+        {# This will render some boilerplate UI to connect the app #}
+        {{ app.renderConnector() }}
     {% endif %}
 {% else %}
     Could not find app

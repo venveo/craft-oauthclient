@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.0.4 - 2019-10-03
+### Added
+- Added renderConnector() to app model
+- Added support for redirectUri in connector controller
+
+### Fixed
+- Fixed bug where tokens for the wrong app could be retrieved
+
 ## 2.0.3 - 2019-10-03
 ### Added
 - Added `craft.oauth` Twig variable
