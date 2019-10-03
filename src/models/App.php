@@ -2,7 +2,9 @@
 
 namespace venveo\oauthclient\models;
 
+use Craft;
 use craft\base\Model;
+use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use venveo\oauthclient\base\Provider;
@@ -164,6 +166,30 @@ class App extends Model
     public function getTokenRecordQuery(): \yii\db\ActiveQuery
     {
         return TokenRecord::find()->where(['appId' => $this->id]);
+    }
+
+    /**
+     * Renders some basic UI to allow a user to connect to the app
+     *
+     * @return \Twig\Markup
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\Exception
+     */
+    public function renderConnector() {
+        $view = Craft::$app->getView();
+        $oldTemplateMode = $view->getTemplateMode();
+        if ($oldTemplateMode !== $view::TEMPLATE_MODE_CP) {
+            $view->setTemplateMode($view::TEMPLATE_MODE_CP);
+        }
+        $tokens = $this->getValidTokensForUser();
+        $template = \Craft::$app->view->renderTemplate('oauthclient/_connector/connector', [
+            'app' => $this,
+            'token' => count($tokens) ? $tokens[0] : null
+        ]);
+        $view->setTemplateMode($oldTemplateMode);
+        return Template::raw($template);
     }
 
     /**

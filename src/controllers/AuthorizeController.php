@@ -39,6 +39,14 @@ class AuthorizeController extends Controller
     public function actionAuthorizeApp($handle): Response
     {
         $this->requireAdmin();
+
+        if (Craft::$app->request->isPost) {
+            $redirectUrl = Craft::$app->getRequest()->getValidatedBodyParam('redirect');
+            if ($redirectUrl) {
+                Craft::$app->session->set('OAUTH_REDIRECT_URL', $redirectUrl);
+            }
+        }
+
         /** @var  $app */
         $app = Plugin::$plugin->apps->getAppByHandle($handle);
         if (!$app instanceof AppModel) {
@@ -98,6 +106,13 @@ class AuthorizeController extends Controller
             Craft::error($e->getTraceAsString(), __METHOD__);
             Craft::$app->session->setError(Craft::t('oauthclient', 'Something went wrong: ' . $e->getMessage()));
         }
+
+        $redirectUrl = Craft::$app->session->get('OAUTH_REDIRECT_URL');
+        if ($redirectUrl) {
+            Craft::$app->session->remove('OAUTH_REDIRECT_URL');
+            return Craft::$app->getResponse()->redirect(UrlHelper::url($redirectUrl));
+        }
+
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
     }
 
