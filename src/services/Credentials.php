@@ -66,7 +66,7 @@ class Credentials extends Component
         $query = $app->getTokenRecordQuery();
 
         if ($userId !== null) {
-            $query->where(['userId' => $userId]);
+            $query->andWhere(['userId' => $userId]);
         }
         $tokenRecords = $query->all();
         if (!count($tokenRecords)) {
