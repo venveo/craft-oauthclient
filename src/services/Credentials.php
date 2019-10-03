@@ -10,6 +10,7 @@
 
 namespace venveo\oauthclient\services;
 
+use Craft;
 use craft\base\Component;
 use craft\elements\User;
 use venveo\oauthclient\events\TokenEvent;
@@ -33,26 +34,30 @@ class Credentials extends Component
     /**
      * Gets valid tokens given an application and optionally, a Craft user ID
      * This method will attempt to refresh expired tokens for an app
-     * @param $appHandle
-     * @param $userId
+     * @param $appHandle AppModel|string
+     * @param $user User|int
      * @return TokenModel[]
      * @throws \Exception
      */
-    public function getValidTokensForAppAndUser($appHandle, $userId = null): ?array
+    public function getValidTokensForAppAndUser($appHandle, $user = null): array
     {
         // Allow models or IDs against my better judgement
-        if ($appHandle instanceof AppModel) {
+        if (!$appHandle instanceof AppModel) {
             $app = $appHandle;
-            $appHandle = $app->handle;
         } else {
             $app = Plugin::$plugin->apps->getAppByHandle($appHandle);
-        }
-        if ($userId instanceof User) {
-            $userId = $userId->getId();
         }
 
         if (!$app instanceof AppModel) {
             throw new \Exception('App does not exist');
+        }
+
+        $userId = null;
+
+        if ($user instanceof User) {
+            $userId = $user->getId();
+        } elseif (is_int($user)) {
+            $userId = $user;
         }
 
         $query = $app->getTokenRecordQuery();
@@ -73,7 +78,7 @@ class Credentials extends Component
                 continue;
             }
             if ($tokenModel->hasExpired() && !$this->refreshToken($tokenModel)) {
-                \Craft::error('Unable to refresh token: '.print_r($tokenModel, true), __METHOD__);
+                Craft::error('Unable to refresh token: '.print_r($tokenModel, true), __METHOD__);
                 continue;
             }
 
@@ -108,7 +113,7 @@ class Credentials extends Component
             }
             return $saved;
         } catch (\Exception $exception) {
-            \Craft::warning($exception->getMessage(), __METHOD__);
+            Craft::warning($exception->getMessage(), __METHOD__);
             $this->trigger(self::EVENT_TOKEN_REFRESH_FAILED, $event);
             return false;
         }
