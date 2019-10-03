@@ -8,6 +8,7 @@ use craft\validators\UniqueValidator;
 use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\Plugin;
 use venveo\oauthclient\records\App as AppRecord;
+use venveo\oauthclient\records\Token as TokenRecord;
 
 /**
  * Class App
@@ -47,6 +48,7 @@ class App extends Model
 
     /**
      * Parse any environment variables and return the client ID
+     *
      * @return string
      */
     public function getClientId(): string
@@ -56,6 +58,7 @@ class App extends Model
 
     /**
      * Parse any environment variables and return the client secret
+     *
      * @return string
      */
     public function getClientSecret(): string
@@ -65,6 +68,7 @@ class App extends Model
 
     /**
      * Get the scopes for the app
+     *
      * @param bool $forTable If true, we'll format the output for Craft's table field
      * @return array
      */
@@ -80,6 +84,7 @@ class App extends Model
 
     /**
      * Get the URL to edit the app in the CP
+     *
      * @return string
      */
     public function getCpEditUrl(): string
@@ -89,6 +94,7 @@ class App extends Model
 
     /**
      * Get the URL callback URL
+     *
      * @return string
      */
     public function getRedirectUrl(): string
@@ -96,7 +102,13 @@ class App extends Model
         return UrlHelper::cpUrl('oauthclient/authorize/' . $this->handle);
     }
 
-    public function getProviderInstance()
+    /**
+     * Get an instance of the Provider
+     *
+     * @return Provider|null
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getProviderInstance(): ?Provider
     {
         if ($this->providerInstance instanceof Provider) {
             return $this->providerInstance;
@@ -110,17 +122,24 @@ class App extends Model
         return $this->providerInstance;
     }
 
-    public function getAllTokens()
+    /**
+     * Get all token models belong to this app
+     *
+     * @return Token[]
+     */
+    public function getAllTokens(): array
     {
         return Plugin::$plugin->tokens->getAllTokensForApp($this->id);
     }
 
     /**
+     * Gets an ActiveQuery for tokens belonging to this app.
+     *
      * @return \yii\db\ActiveQuery
      */
-    public function getTokenRecordQuery()
+    public function getTokenRecordQuery(): \yii\db\ActiveQuery
     {
-        return \venveo\oauthclient\records\Token::find()->where(['appId' => $this->id]);
+        return TokenRecord::find()->where(['appId' => $this->id]);
     }
 
     /**
