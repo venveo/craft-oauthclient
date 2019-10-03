@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- Added `craft.oauth` Twig variable
+- Added `craft.oauth.getAppByHandle()` Twig helper
+
 ## 2.0.2 - 2019-10-02
 ### Fixed
 - Fixed install migration on MySQL

@@ -19,7 +19,7 @@ act as an authentication provider for users to login to the CMS.
 
 ## Requirements
 
-This plugin should work on Craft CMS 3.2.0 or later, and likely earlier versions of Craft.
+This plugin should work on Craft CMS 3.1.0 or later, and likely earlier versions of Craft.
 
 ## Installation
 
@@ -122,7 +122,19 @@ The plugin has the following services available:
 
 Generally, you'll only find yourself using the `Apps` and `Credentials` services. 
 
-#### Example (Interact with Google Sheets)
+
+### Twig Variable
+
+There's a helpful Twig variable, `craft.oauth` exposed by the OAuth Client plugin to help you build your UI.
+
+`craft.oauth.getAppByHandle('handle')` returns an App model if it exists
+
+
+---
+
+### Examples
+
+##### Interact with Google Sheets
 
 If you wanted to manage some data in your Google Sheets account, you could easily require the Google_Client composer
 package and make the necessary requests; however, token management adds a lot of overhead and complexity. That's where
