@@ -42,7 +42,7 @@ class Credentials extends Component
     public function getValidTokensForAppAndUser($appHandle, $user = null): array
     {
         // Allow models or IDs against my better judgement
-        if (!$appHandle instanceof AppModel) {
+        if ($appHandle instanceof AppModel) {
             $app = $appHandle;
         } else {
             $app = Plugin::$plugin->apps->getAppByHandle($appHandle);

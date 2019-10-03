@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Added CLI for refreshing app tokens `oauthclient/apps/refresh-tokens <app handle>`
 - Added events for token refresh before, after, and error
 
+### Fixed
+- Fixed a potential bug getting tokens by app & user
+
 ### Changed
 - refreshToken service method no longer accepts an $app parameter
 
