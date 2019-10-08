@@ -18,11 +18,11 @@
     "authors": [
         {
             "name": "Venveo",
-            "homepage": "https://venveo.com"
+            "homepage": "https://www.venveo.com"
         }
     ],
     "require": {
-        "craftcms/cms": "^3.2.0",
+        "craftcms/cms": "^3.1.34.3",
         "league/oauth2-client": "^2.2.1",
         "league/oauth2-google": "^2.2",
         "league/oauth2-facebook": "^2.0",

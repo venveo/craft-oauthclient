@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Added project config support
 
 ### Changed
-- Minimum Craft version require is now 3.2
+- Minimum Craft version require is now 3.1.34.3
 
 ### Fixed
 - Fixed deleting apps
