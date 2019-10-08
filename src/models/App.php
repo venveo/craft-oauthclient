@@ -21,9 +21,11 @@ use craft\elements\User;
  * @property array $allTokens
  * @property string $redirectUrl
  * @property string $cpEditUrl
+ * @property string uid
  */
 class App extends Model
 {
+    public $uid;
     public $id;
     public $dateCreated;
     public $dateUpdated;
@@ -198,7 +200,7 @@ class App extends Model
     public function rules()
     {
         return [
-            [['userId', 'handle', 'name', 'clientId', 'clientSecret', 'provider'], 'required'],
+            [['handle', 'name', 'clientId', 'clientSecret', 'provider'], 'required'],
             [
                 ['handle'],
                 UniqueValidator::class,
