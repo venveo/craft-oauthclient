@@ -14,6 +14,7 @@ use craft\web\Controller;
 use craft\web\Response;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 
@@ -44,6 +45,9 @@ class AppsController extends Controller
      */
     public function actionEdit($handle = null, $app = null)
     {
+        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
+        }
         $this->requireAdmin();
         $variables = [
             'handle' => $handle,
@@ -91,6 +95,9 @@ class AppsController extends Controller
      * @throws \yii\web\ForbiddenHttpException
      */
     public function actionDelete() {
+        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
+        }
         $this->requireAdmin();
         $this->requirePostRequest();
 
@@ -114,6 +121,9 @@ class AppsController extends Controller
      */
     public function actionSave()
     {
+        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
+        }
         $this->requireAdmin();
         $this->requirePostRequest();
 
