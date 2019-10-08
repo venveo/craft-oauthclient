@@ -33,7 +33,10 @@ class Providers extends Component
 {
     public const EVENT_REGISTER_PROVIDER_TYPES = 'EVENT_REGISTER_GATEWAY_TYPES';
 
-
+    /**
+     * Get all of the registered provider types. This is a great place to register your custom providers!
+     * @return array
+     */
     public function getAllProviderTypes(): array
     {
         $providerTypes = [
@@ -41,11 +44,13 @@ class Providers extends Component
             GitHub::class,
             Facebook::class
         ];
-
         $event = new RegisterComponentTypesEvent([
             'types' => $providerTypes
         ]);
-        $this->trigger(self::EVENT_REGISTER_PROVIDER_TYPES, $event);
+
+        if ($this->hasEventHandlers(self::EVENT_REGISTER_PROVIDER_TYPES)) {
+            $this->trigger(self::EVENT_REGISTER_PROVIDER_TYPES, $event);
+        }
 
         return $event->types;
     }

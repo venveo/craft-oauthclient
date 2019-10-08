@@ -81,7 +81,7 @@ class Credentials extends Component
                 continue;
             }
             if ($tokenModel->hasExpired() && !$this->refreshToken($tokenModel)) {
-                Craft::error('Unable to refresh token: '.print_r($tokenModel, true), __METHOD__);
+                Craft::error('Unable to refresh token: ' . print_r($tokenModel, true), __METHOD__);
                 continue;
             }
 
@@ -99,8 +99,11 @@ class Credentials extends Component
      */
     public function refreshToken(TokenModel $tokenModel): bool
     {
-        $event = new TokenEvent($tokenModel);
-        $this->trigger(self::EVENT_BEFORE_REFRESH_TOKEN, $event);
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_REFRESH_TOKEN)) {
+            $this->trigger(self::EVENT_BEFORE_REFRESH_TOKEN, new TokenEvent([
+                'token' => $tokenModel
+            ]));
+        }
 
         if (!$tokenModel->refreshToken) {
             return false;
@@ -110,14 +113,22 @@ class Credentials extends Component
             $app->getProviderInstance()->refreshToken($tokenModel);
             $saved = Plugin::$plugin->tokens->saveToken($tokenModel);
             if ($saved) {
-                $this->trigger(self::EVENT_AFTER_REFRESH_TOKEN, $event);
+                if ($this->hasEventHandlers(self::EVENT_AFTER_REFRESH_TOKEN)) {
+                    $this->trigger(self::EVENT_AFTER_REFRESH_TOKEN, new TokenEvent([
+                        'token' => $tokenModel
+                    ]));
+                }
             } else {
                 throw new Exception('Failed to save refreshed token');
             }
             return $saved;
         } catch (\Exception $exception) {
             Craft::warning($exception->getMessage(), __METHOD__);
-            $this->trigger(self::EVENT_TOKEN_REFRESH_FAILED, $event);
+            if ($this->hasEventHandlers(self::EVENT_TOKEN_REFRESH_FAILED)) {
+                $this->trigger(self::EVENT_TOKEN_REFRESH_FAILED, new TokenEvent([
+                    'token' => $tokenModel
+                ]));
+            }
             return false;
         }
     }
@@ -129,7 +140,8 @@ class Credentials extends Component
      * @return bool
      * @throws \yii\base\InvalidConfigException
      */
-    public function checkTokenWithProvider(Token $token) {
+    public function checkTokenWithProvider(Token $token): bool
+    {
         $app = $token->getApp();
 
         /** @var Provider $provider */

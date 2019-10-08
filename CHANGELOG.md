@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- Added project config support
+
+### Changed
+- Minimum Craft version require is now 3.2
+
+### Fixed
+- Fixed deleting apps
+
 ## 2.0.4 - 2019-10-03
 ### Added
 - Added renderConnector() to app model

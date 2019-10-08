@@ -7,17 +7,12 @@
 
 namespace venveo\oauthclient\events;
 
+use craft\events\ModelEvent;
 use venveo\oauthclient\models\App;
-use yii\base\Event;
 
-class AppEvent extends Event
+class AppEvent extends ModelEvent
 {
-    public function __construct(App $app)
-    {
-        parent::__construct();
-        $this->app = $app;
-    }
-
     /** @var App */
     public $app;
+
 }
