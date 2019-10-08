@@ -54,6 +54,7 @@ class AuthorizeController extends Controller
             return null;
         }
 
+        $context = Craft::$app->request->getParam('context');
         $error = Craft::$app->request->getParam('error');
         $code = Craft::$app->request->getParam('code');
         $state = Craft::$app->request->getParam('state');
@@ -72,11 +73,11 @@ class AuthorizeController extends Controller
         // Begin auth process
         if (empty($code)) {
             $state = $this->getRandomState();
-            $url = $provider->getAuthorizeURL(['state' => $state]);
             Craft::$app->session->set(self::STATE_SESSION_KEY, $state);
-            return Craft::$app->response->redirect($url);
 
-            // Invalid state
+            $url = Plugin::$plugin->apps->getAuthorizationUrlForApp($app, $state, $context);
+
+            return Craft::$app->response->redirect($url);
         }
 
         if (empty($state) || Craft::$app->session->get(self::STATE_SESSION_KEY) !== $state) {

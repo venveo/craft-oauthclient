@@ -7,7 +7,7 @@
         <h4>Token Last Updated on {{ token.dateCreated|datetime('short') }}</h4>
     {% else %}
         <h3>Connect to {{ app.name }}</h3>
-        <form method="post" action="{{ app.getRedirectUrl() }}">
+        <form method="post" action="{{ app.getRedirectUrl(context) }}">
             {{ csrfInput() }}
             {{ redirectInput(craft.app.request.url) }}
             <button type="submit" class="btn formsubmit">Connect</button>
