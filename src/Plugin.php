@@ -9,9 +9,11 @@ namespace venveo\oauthclient;
 
 use Craft;
 use craft\base\Plugin as BasePlugin;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\helpers\UrlHelper;
 use craft\log\FileTarget;
+use craft\services\ProjectConfig;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use venveo\oauthclient\services\Apps as AppsService;
@@ -40,6 +42,7 @@ class Plugin extends BasePlugin
 {
     // Static Properties
     // =========================================================================
+    public static $PROJECT_CONFIG_KEY = 'oauthClient';
 
     /**
      * @var Plugin
@@ -74,6 +77,7 @@ class Plugin extends BasePlugin
         $this->_setComponents();
         $this->_registerCpRoutes();
         $this->_registerVariables();
+        $this->_registerProjectConfig();
     }
 
     // Protected Methods
@@ -126,10 +130,48 @@ class Plugin extends BasePlugin
                 'oauthclient/apps' => 'oauthclient/apps/index',
                 'oauthclient/apps/new' => 'oauthclient/apps/edit',
                 'oauthclient/apps/<handle:{handle}>' => 'oauthclient/apps/edit',
+                'oauthclient/apps/delete' => 'oauthclient/apps/delete',
                 'oauthclient/authorize/refresh/<id:\d+>' => 'oauthclient/authorize/refresh',
                 'oauthclient/authorize/<handle:{handle}>' => 'oauthclient/authorize/authorize-app',
             ]);
         });
+    }
+
+    /**
+     *  Register project config handlers
+     */
+    private function _registerProjectConfig(): void
+    {
+        Craft::$app->projectConfig
+            ->onAdd(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleUpdatedApp'])
+            ->onUpdate(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleUpdatedApp'])
+            ->onRemove(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleRemovedApp']);
+
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
+            $this->_handleProjectConfigRebuild($e);
+        });
+    }
+
+    /**
+     * Handle project config rebuilding
+     * @param RebuildConfigEvent $e
+     */
+    private function _handleProjectConfigRebuild(RebuildConfigEvent $e): void
+    {
+        $appData = [];
+        $apps = $this->apps->getAllApps();
+        foreach($apps as $app) {
+            $appData[$app->uid] = [
+                'name' => $app->name,
+                'handle' => $app->handle,
+                'provider' => $app->provider,
+                'clientId' => $app->clientId,
+                'clientSecret' => $app->clientSecret,
+                'scopes' => $app->scopes
+            ];
+        }
+
+        $e->config[self::$PROJECT_CONFIG_KEY]['apps'] = $appData;
     }
 
     /**

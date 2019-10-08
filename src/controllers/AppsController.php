@@ -14,7 +14,9 @@ use craft\web\Controller;
 use craft\web\Response;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 /**
  * @author    Venveo
@@ -43,6 +45,9 @@ class AppsController extends Controller
      */
     public function actionEdit($handle = null, $app = null)
     {
+        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
+        }
         $this->requireAdmin();
         $variables = [
             'handle' => $handle,
@@ -83,33 +88,63 @@ class AppsController extends Controller
     }
 
     /**
+     * Attempt to delete an app by its ID
+     * @return \yii\web\Response
+     * @throws \yii\db\Exception
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public function actionDelete() {
+        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
+        }
+        $this->requireAdmin();
+        $this->requirePostRequest();
+
+        $request = Craft::$app->getRequest();
+        $id = $request->getRequiredBodyParam('id');
+        $app = Plugin::$plugin->apps->getAppById($id);
+
+        if (!$app) {
+            throw new NotFoundHttpException('App does not exist');
+        }
+
+        Plugin::$plugin->apps->deleteApp($app);
+
+        return $this->asJson(['success' => true]);
+    }
+
+    /**
      * @return Response|null
      * @throws HttpException
      * @throws \Exception
      */
     public function actionSave()
     {
+        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+            throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
+        }
         $this->requireAdmin();
         $this->requirePostRequest();
 
         $request = Craft::$app->getRequest();
-        $gatewayService = Plugin::getInstance()->apps;
+        $appService = Plugin::getInstance()->apps;
 
         $scopes = $request->getBodyParam('scopes');
         $scopes = implode(',', ArrayHelper::getColumn($scopes, 'scope'));
 
         $config = [
             'id' => $request->getBodyParam('id'),
-            'provider' => $request->getBodyParam('provider'),
-            'name' => $request->getBodyParam('name'),
-            'handle' => $request->getBodyParam('handle'),
-            'clientId' => $request->getBodyParam('clientId'),
-            'clientSecret' => $request->getBodyParam('clientSecret'),
+            'provider' => $request->getRequiredBodyParam('provider'),
+            'name' => $request->getRequiredBodyParam('name'),
+            'handle' => $request->getRequiredBodyParam('handle'),
+            'clientId' => $request->getRequiredBodyParam('clientId'),
+            'clientSecret' => $request->getRequiredBodyParam('clientSecret'),
             'scopes' => $scopes
         ];
 
         /** @var AppModel $app */
-        $app = $gatewayService->createApp($config);
+        $app = $appService->createApp($config);
 
         $session = Craft::$app->session;
 
@@ -120,7 +155,6 @@ class AppsController extends Controller
             Craft::$app->getUrlManager()->setRouteParams([
                 'app' => $app
             ]);
-
             return null;
         }
 

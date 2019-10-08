@@ -60,7 +60,8 @@ class Tokens extends Component
         return $result ? $this->createToken($result) : null;
     }
 
-    public function getAllTokensForApp($appId): array {
+    public function getAllTokensForApp($appId): array
+    {
         $rows = $this->_createTokenQuery()
             ->where(['appId' => $appId])
             ->all();
@@ -114,6 +115,7 @@ class Tokens extends Component
      */
     public function saveToken(TokenModel $token, bool $runValidation = true): bool
     {
+        $isNew = empty($token->id);
         if ($token->id) {
             $record = TokenRecord::findOne($token->id);
 
@@ -124,8 +126,12 @@ class Tokens extends Component
             $record = new TokenRecord();
         }
 
-        $event = new TokenEvent($token);
-        $this->trigger(self::EVENT_BEFORE_TOKEN_SAVED, $event);
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_TOKEN_SAVED)) {
+            $this->trigger(self::EVENT_BEFORE_TOKEN_SAVED, new TokenEvent([
+                'token' => $token,
+                'isNew' => $isNew
+            ]));
+        }
 
         if ($runValidation && !$token->validate()) {
             Craft::info('Token not saved due to validation error.', __METHOD__);
@@ -148,7 +154,12 @@ class Tokens extends Component
             // Now that we have a record ID, save it on the model
             $token->id = $record->id;
 
-            $this->trigger(self::EVENT_AFTER_TOKEN_SAVED, $event);
+            if ($this->hasEventHandlers(self::EVENT_AFTER_TOKEN_SAVED)) {
+                $this->trigger(self::EVENT_AFTER_TOKEN_SAVED, new TokenEvent([
+                    'token' => $token,
+                    'isNew' => $isNew
+                ]));
+            }
 
             return true;
         }

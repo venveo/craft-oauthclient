@@ -1,4 +1,4 @@
-OAuth 2.0 Client plugin for Craft CMS 3.1
+OAuth 2.0 Client plugin for Craft CMS 3
 ===
 
 This plugin provides developers with an easy centralized approach to managing and storing OAuth 2.0
@@ -6,6 +6,13 @@ clients and tokens.
 
 It exposes an easy to use API and frontend for authorizing tokens for internal business logic. What it does not do is
 act as an authentication provider for users to login to the CMS.
+
+## Features
+- Simple API for integrating League OAuth Providers
+- Lots of events for developers
+- CLI for refreshing tokens
+- Project config support
+- 1-line Twig helper for generating authentication UI in your module
 
 ## Example Use Cases
 - Building a custom CRM integration
@@ -19,7 +26,7 @@ act as an authentication provider for users to login to the CMS.
 
 ## Requirements
 
-This plugin should work on Craft CMS 3.1.0 or later, and likely earlier versions of Craft.
+This plugin should work on Craft CMS 3.1.34.3 or later
 
 ## Installation
 
@@ -34,6 +41,8 @@ To install the plugin, follow these instructions.
         composer require venveo/craft-oauthclient
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for OAuth 2.0 Client.
+
+4. Configure on Craft settings page
 
 ---
 
@@ -129,6 +138,10 @@ Generally, you'll only find yourself using the `Apps` and `Credentials` services
 - `Apps:EVENT_BEFORE_APP_SAVED` 
     - `venveo\oauthclient\events\AppEvent`
 - `Apps:EVENT_AFTER_APP_SAVED` 
+    - `venveo\oauthclient\events\AppEvent`
+- `Apps:EVENT_BEFORE_APP_DELETED` 
+    - `venveo\oauthclient\events\AppEvent`
+- `Apps:EVENT_AFTER_APP_DELETED` 
     - `venveo\oauthclient\events\AppEvent`
 
 #### `venveo\oauthclient\services\Tokens`

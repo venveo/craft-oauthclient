@@ -13,9 +13,12 @@ namespace venveo\oauthclient\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use craft\events\ConfigEvent;
+use craft\helpers\Db;
+use craft\helpers\StringHelper;
 use venveo\oauthclient\events\AppEvent;
 use venveo\oauthclient\models\App as AppModel;
-use venveo\oauthclient\records\App as AppRecord;
+use venveo\oauthclient\Plugin;
 
 /**
  * @author    Venveo
@@ -30,8 +33,12 @@ class Apps extends Component
     public const EVENT_BEFORE_APP_SAVED = 'EVENT_BEFORE_APP_SAVED';
     public const EVENT_AFTER_APP_SAVED = 'EVENT_AFTER_APP_SAVED';
 
+    public const EVENT_BEFORE_APP_DELETED = 'EVENT_BEFORE_APP_DELETED';
+    public const EVENT_AFTER_APP_DELETED = 'EVENT_AFTER_APP_DELETED';
+
     private $_APPS_BY_HANDLE = [];
     private $_APPS_BY_ID = [];
+    private $_APPS_BY_UID = [];
     private $_ALL_APPS_FETCHED = false;
 
     /**
@@ -52,6 +59,7 @@ class Apps extends Component
         foreach ($rows as $row) {
             $app = $this->createApp($row);
             $this->_APPS_BY_ID[$app->id] = $app;
+            $this->_APPS_BY_UID[$app->uid] = $app;
             $this->_APPS_BY_HANDLE[$app->handle] = $app;
         }
 
@@ -71,6 +79,26 @@ class Apps extends Component
         $app = $result ? $this->createApp($result) : null;
         if ($app) {
             $this->_APPS_BY_ID[$app->id] = $app;
+            $this->_APPS_BY_UID[$app->uid] = $app;
+            $this->_APPS_BY_HANDLE[$app->handle] = $app;
+            return $this->_APPS_BY_ID[$app->id];
+        }
+        return null;
+    }
+
+    public function getAppByUid($uid): ?AppModel
+    {
+        if (isset($this->_APPS_BY_UID[$uid])) {
+            return $this->_APPS_BY_UID[$uid];
+        }
+        $result = $this->_createAppQuery()
+            ->where(['uid' => $uid])
+            ->one();
+
+        $app = $result ? $this->createApp($result) : null;
+        if ($app) {
+            $this->_APPS_BY_ID[$app->id] = $app;
+            $this->_APPS_BY_UID[$app->uid] = $app;
             $this->_APPS_BY_HANDLE[$app->handle] = $app;
             return $this->_APPS_BY_ID[$app->id];
         }
@@ -89,6 +117,7 @@ class Apps extends Component
         $app = $result ? $this->createApp($result) : null;
         if ($app) {
             $this->_APPS_BY_ID[$app->id] = $app;
+            $this->_APPS_BY_UID[$app->uid] = $app;
             $this->_APPS_BY_HANDLE[$app->handle] = $app;
             return $this->_APPS_BY_HANDLE[$app->handle];
         }
@@ -106,6 +135,22 @@ class Apps extends Component
         return $app;
     }
 
+    /**
+     * Deletes an app
+     * @param AppModel $app
+     */
+    public function deleteApp(AppModel $app): void
+    {
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_APP_DELETED)) {
+            $this->trigger(self::EVENT_BEFORE_APP_DELETED, new AppEvent([
+                'app' => $app,
+            ]));
+        }
+
+        $path = Plugin::$PROJECT_CONFIG_KEY . ".apps.{$app->uid}";
+        Craft::$app->projectConfig->remove($path);
+    }
+
 
     /**
      * Returns a Query object prepped for retrieving gateways.
@@ -116,6 +161,7 @@ class Apps extends Component
     {
         return (new Query())
             ->select([
+                'uid',
                 'id',
                 'provider',
                 'name',
@@ -137,50 +183,136 @@ class Apps extends Component
      * @param AppModel $app
      * @param bool $runValidation
      * @return bool
+     * @throws \Exception
      */
     public function saveApp(AppModel $app, bool $runValidation = true): bool
     {
-        if ($app->id) {
-            $record = AppRecord::findOne($app->id);
+        $isNew = empty($app->id);
 
-            if (!$record) {
-                throw new \Exception(\Craft::t('oauthclient', 'No app exists with the ID “{id}”', ['id' => $app->id]));
-            }
-            $app->isNew = false;
-        } else {
-            $app->isNew = true;
-            $record = new AppRecord();
+        // Ensure the product type has a UID
+        if ($isNew) {
+            $app->uid = StringHelper::UUID();
+        } else if (!$app->uid) {
+            $app->uid = Db::uidById('{{%oauthclient_apps}}', $app->id);
         }
 
-        $event = new AppEvent($app);
-        $this->trigger(self::EVENT_BEFORE_APP_SAVED, $event);
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_APP_SAVED)) {
+            $this->trigger(self::EVENT_BEFORE_APP_SAVED, new AppEvent([
+                'app' => $app,
+                'isNew' => $isNew,
+            ]));
+        }
 
+        // Make sure it validates
         if ($runValidation && !$app->validate()) {
-            Craft::info('App not saved due to validation error.', __METHOD__);
-
             return false;
         }
-        $record->name = $app->name;
-        $record->handle = $app->handle;
-        $record->clientSecret = $app->clientSecret;
-        $record->clientId = $app->clientId;
-        $record->provider = $app->provider;
-        $record->scopes = $app->scopes;
 
-        $record->validate();
-        $record->addErrors($record->getErrors());
+        // Save it to the project config
+        $path = Plugin::$PROJECT_CONFIG_KEY . ".apps.{$app->uid}";
+        Craft::$app->projectConfig->set($path, [
+            'name' => $app->name,
+            'handle' => $app->handle,
+            'provider' => $app->provider,
+            'clientId' => $app->clientId,
+            'clientSecret' => $app->clientSecret,
+            'scopes' => $app->scopes,
+        ]);
 
-        if (!$record->hasErrors()) {
-            // Save it!
-            $record->save(false);
-            // Now that we have a record ID, save it on the model
-            $app->id = $record->id;
-
-            $this->trigger(self::EVENT_AFTER_APP_SAVED, $event);
-
-            return true;
+        if ($isNew) {
+            $app->id = Db::idByUid('{{%oauthclient_apps}}', $app->uid);
         }
 
-        return false;
+        return true;
+    }
+
+    // PROJECT CONFIG HANDLERS //
+
+    /**
+     * @param ConfigEvent $event
+     * @throws \yii\db\Exception
+     */
+    public function handleUpdatedApp(ConfigEvent $event)
+    {
+        $uid = $event->tokenMatches[0];
+
+        // Does this app exist?
+        $id = (new Query())
+            ->select(['id'])
+            ->from('{{%oauthclient_apps}}')
+            ->where(['uid' => $uid])
+            ->scalar();
+
+        $isNew = empty($id);
+
+        // Insert or update its row
+        if ($isNew) {
+            Craft::$app->db->createCommand()
+                ->insert('{{%oauthclient_apps}}', [
+                    'uid' => $uid,
+                    'name' => $event->newValue['name'],
+                    'handle' => $event->newValue['handle'],
+                    'provider' => $event->newValue['provider'],
+                    'clientId' => $event->newValue['clientId'],
+                    'clientSecret' => $event->newValue['clientSecret'],
+                    'scopes' => $event->newValue['scopes'],
+                ])
+                ->execute();
+        } else {
+            Craft::$app->db->createCommand()
+                ->update('{{%oauthclient_apps}}', [
+                    'name' => $event->newValue['name'],
+                    'handle' => $event->newValue['handle'],
+                    'provider' => $event->newValue['provider'],
+                    'clientId' => $event->newValue['clientId'],
+                    'clientSecret' => $event->newValue['clientSecret'],
+                    'scopes' => $event->newValue['scopes'],
+                ], ['id' => $id])
+                ->execute();
+        }
+
+        $app = $this->getAppByUid($uid);
+
+        if ($this->hasEventHandlers(self::EVENT_AFTER_APP_SAVED)) {
+            $event = new AppEvent([
+                'app' => $app
+            ]);
+            $this->trigger(self::EVENT_AFTER_APP_SAVED, $event);
+        }
+    }
+
+    /**
+     * @param ConfigEvent $event
+     * @throws \yii\db\Exception
+     */
+    public function handleRemovedApp(ConfigEvent $event)
+    {
+        $uid = $event->tokenMatches[0];
+
+        $app = $this->getAppByUid($uid);
+
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_APP_DELETED)) {
+            $event = new AppEvent([
+                'app' => $app
+            ]);
+            $this->trigger(self::EVENT_BEFORE_APP_DELETED, $event);
+        }
+
+        // If that came back empty, we're done!
+        if (!$app) {
+            return;
+        }
+
+        // Delete its row
+        Craft::$app->db->createCommand()
+            ->delete('{{%oauthclient_apps}}', ['id' => $app->id])
+            ->execute();
+
+        if ($this->hasEventHandlers(self::EVENT_AFTER_APP_DELETED)) {
+            $event = new AppEvent([
+                'app' => $app
+            ]);
+            $this->trigger(self::EVENT_AFTER_APP_DELETED, $event);
+        }
     }
 }
