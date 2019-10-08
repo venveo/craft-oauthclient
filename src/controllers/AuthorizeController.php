@@ -15,7 +15,6 @@ use Exception;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use ReflectionException;
 use venveo\oauthclient\base\Provider;
-use venveo\oauthclient\events\AuthorizationUrlEvent;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\models\Token as TokenModel;
 use venveo\oauthclient\Plugin;
