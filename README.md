@@ -1,4 +1,4 @@
-OAuth 2.0 Client plugin for Craft CMS 3.1
+OAuth 2.0 Client plugin for Craft CMS 3
 ===
 
 This plugin provides developers with an easy centralized approach to managing and storing OAuth 2.0
