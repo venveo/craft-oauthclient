@@ -131,6 +131,21 @@ The plugin has the following services available:
 
 Generally, you'll only find yourself using the `Apps` and `Credentials` services. 
 
+## Controlling Authentication Flow
+
+Often, you'll find yourself needing to tweak the parameters of the authentication process providers
+depending on the situation. For example, in some cases, you may want to force Google to prompt
+for consent so you can acquire a refresh token on previously authenticated individuals. This may 
+also be useful if you'd like to tweak the requested scopes as the user makes their way through the app.
+
+Typically, this might mean writing a lot of repetitive code; however, we've approached this problem
+by introducing "contexts" to an authentication process. For example, I might use the Twig helper to render
+a connector in my module and want to ensure the user has offline access to Google. I would first render my
+connector with the context parameter set and then register an event handler in my module to 
+tweak the authentication URL depending on the context.
+
+[See Example](#modifying-the-authentication-flow-conditionally)
+
 ## Events
 
 #### `venveo\oauthclient\services\Apps`
@@ -143,6 +158,8 @@ Generally, you'll only find yourself using the `Apps` and `Credentials` services
     - `venveo\oauthclient\events\AppEvent`
 - `Apps:EVENT_AFTER_APP_DELETED` 
     - `venveo\oauthclient\events\AppEvent`
+- `Apps:EVENT_GET_URL_OPTIONS` 
+    - `venveo\oauthclient\events\AuthorizationUrlEvent`
 
 #### `venveo\oauthclient\services\Tokens`
 
@@ -222,6 +239,34 @@ $sheet = $service->spreadsheets->get('some-google-sheet');
 {% else %}
     Could not find app
 {% endif %}
+```
+
+### Modifying the authentication flow conditionally
+
+In this example, we'll render the connector with a context and register an event
+to modify the authorization parameters before the connection URL is rendered.
+
+```twig
+{% set app = craft.oauth.getAppByHandle('google') %}
+{{ app.renderConnector('cp') }}
+
+{# I can also just render the link URL #}
+<a href="{{ app.getRedirectUrl('cp') }}">Login</a>
+```
+
+```php
+use venveo\oauthclient\events\AuthorizationUrlEvent;
+use venveo\oauthclient\services\Apps;
+use yii\base\Event;
+// [...]
+Event::on(Apps::class, Apps::EVENT_GET_URL_OPTIONS, function (AuthorizationUrlEvent $e) {
+    if ($e->context === 'cp' && $e->app->handle === 'google') {
+        // Force re-consent during OAuth 
+        $e->options['prompt'] = 'consent';
+        $e->options['access_type'] = 'offline';
+        $e->options['approval_prompt'] = null;
+    }
+});
 ```
 
 Brought to you by [Venveo](https://www.venveo.com)

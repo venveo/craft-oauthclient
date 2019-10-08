@@ -100,11 +100,14 @@ class App extends Model
     /**
      * Get the URL callback URL
      *
+     * @param null|string $context A context that will be passed to the controller to help tag events for handling.
      * @return string
      */
-    public function getRedirectUrl(): string
+    public function getRedirectUrl($context = null): string
     {
-        return UrlHelper::cpUrl('oauthclient/authorize/' . $this->handle);
+        return UrlHelper::cpUrl('oauthclient/authorize/' . $this->handle, [
+            'context' => $context
+        ]);
     }
 
     /**
@@ -179,7 +182,7 @@ class App extends Model
      * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
-    public function renderConnector() {
+    public function renderConnector($context = null) {
         $view = Craft::$app->getView();
         $oldTemplateMode = $view->getTemplateMode();
         if ($oldTemplateMode !== $view::TEMPLATE_MODE_CP) {
@@ -187,6 +190,7 @@ class App extends Model
         }
         $tokens = $this->getValidTokensForUser();
         $template = \Craft::$app->view->renderTemplate('oauthclient/_connector/connector', [
+            'context' => $context,
             'app' => $this,
             'token' => count($tokens) ? $tokens[0] : null
         ]);

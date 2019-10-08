@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.1 - 2019-10-08
+### Added
+- Added `AuthorizationUrlEvent` event type
+- Added `EVENT_GET_URL_OPTIONS` event to `Apps` service to allow modification of options
+- Added `context` parameter to getRedirectUrl($context) to track the EVENT_GET_URL_OPTIONS
+- Added `context` parameter to renderConnector($context) to track the EVENT_GET_URL_OPTIONS
+
 ## 2.1.0 - 2019-10-08
 ### Added
 - Added project config support

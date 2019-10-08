@@ -17,6 +17,7 @@ use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use venveo\oauthclient\events\AppEvent;
+use venveo\oauthclient\events\AuthorizationUrlEvent;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
 
@@ -35,6 +36,8 @@ class Apps extends Component
 
     public const EVENT_BEFORE_APP_DELETED = 'EVENT_BEFORE_APP_DELETED';
     public const EVENT_AFTER_APP_DELETED = 'EVENT_AFTER_APP_DELETED';
+
+    public const EVENT_GET_URL_OPTIONS = 'EVENT_GET_URL_OPTIONS';
 
     private $_APPS_BY_HANDLE = [];
     private $_APPS_BY_ID = [];
@@ -125,6 +128,40 @@ class Apps extends Component
     }
 
     /**
+     * Generates the authorization URL for an App model
+     *
+     * @param AppModel $app
+     * @param $state
+     * @param $context|null
+     * @return string|null
+     * @throws \ReflectionException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getAuthorizationUrlForApp(AppModel $app, $state, $context = null) {
+        $options = ['state' => $state];
+
+        $event = new AuthorizationUrlEvent([
+            'context' => $context,
+            'app' => $app,
+            'options' => $options
+        ]);
+
+        $provider = $app->getProviderInstance();
+
+        if ($this->hasEventHandlers(self::EVENT_GET_URL_OPTIONS)) {
+            $this->trigger(self::EVENT_GET_URL_OPTIONS, $event);
+        }
+        if ($event->url) {
+            $url = $event->url;
+        } else {
+            $url = $provider->getAuthorizeURL($event->options);
+        }
+        return $url;
+    }
+
+    /**
+     * Build an App model from some settings
+     *
      * @param $config
      * @return AppModel
      */
@@ -137,6 +174,7 @@ class Apps extends Component
 
     /**
      * Deletes an app
+     *
      * @param AppModel $app
      */
     public function deleteApp(AppModel $app): void
