@@ -9,7 +9,8 @@ act as an authentication provider for users to login to the CMS.
 
 ## Features
 - Simple API for integrating League OAuth Providers
-- Lots of events
+- Lots of events for developers
+- CLI for refreshing tokens
 - Project config support
 - 1-line Twig helper for generating authentication UI in your module
 
