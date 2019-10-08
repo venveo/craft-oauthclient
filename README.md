@@ -139,6 +139,10 @@ Generally, you'll only find yourself using the `Apps` and `Credentials` services
     - `venveo\oauthclient\events\AppEvent`
 - `Apps:EVENT_AFTER_APP_SAVED` 
     - `venveo\oauthclient\events\AppEvent`
+- `Apps:EVENT_BEFORE_APP_DELETED` 
+    - `venveo\oauthclient\events\AppEvent`
+- `Apps:EVENT_AFTER_APP_DELETED` 
+    - `venveo\oauthclient\events\AppEvent`
 
 #### `venveo\oauthclient\services\Tokens`
 

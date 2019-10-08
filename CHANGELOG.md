@@ -4,12 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 2.1.0 - 2019-10-08
 ### Added
 - Added project config support
+- Added events `EVENT_BEFORE_APP_DELETED` and `EVENT_AFTER_APP_DELETED`
 
 ### Changed
 - Minimum Craft version require is now 3.1.34.3
+- Events now extend `ModelEvent`
+- Optimized event triggers
 
 ### Fixed
 - Fixed deleting apps
