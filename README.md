@@ -7,6 +7,12 @@ clients and tokens.
 It exposes an easy to use API and frontend for authorizing tokens for internal business logic. What it does not do is
 act as an authentication provider for users to login to the CMS.
 
+## Features
+- Simple API for integrating League OAuth Providers
+- Lots of events
+- Project config support
+- 1-line Twig helper for generating authentication UI in your module
+
 ## Example Use Cases
 - Building a custom CRM integration
 - Reading from and writing to Google Sheets
@@ -19,7 +25,7 @@ act as an authentication provider for users to login to the CMS.
 
 ## Requirements
 
-This plugin should work on Craft CMS 3.1.0 or later, and likely earlier versions of Craft.
+This plugin should work on Craft CMS 3.1.34.3 or later
 
 ## Installation
 
@@ -34,6 +40,8 @@ To install the plugin, follow these instructions.
         composer require venveo/craft-oauthclient
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for OAuth 2.0 Client.
+
+4. Configure on Craft settings page
 
 ---
 
