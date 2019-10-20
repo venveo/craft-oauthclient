@@ -11,9 +11,11 @@ use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterUrlRulesEvent;
+use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\UrlHelper;
 use craft\log\FileTarget;
 use craft\services\ProjectConfig;
+use craft\services\UserPermissions;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\UrlManager;
 use venveo\oauthclient\services\Apps as AppsService;
@@ -40,9 +42,12 @@ use yii\base\Event;
  */
 class Plugin extends BasePlugin
 {
+    const HANDLE = 'oauthclient';
+
     // Static Properties
     // =========================================================================
     public static $PROJECT_CONFIG_KEY = 'oauthClient';
+
 
     /**
      * @var Plugin
@@ -78,6 +83,7 @@ class Plugin extends BasePlugin
         $this->_registerCpRoutes();
         $this->_registerVariables();
         $this->_registerProjectConfig();
+        $this->_registerPermissions();
     }
 
     // Protected Methods
@@ -152,6 +158,19 @@ class Plugin extends BasePlugin
         });
     }
 
+    private function _registerPermissions(): void
+    {
+        Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function (RegisterUserPermissionsEvent $event) {
+            $apps = Plugin::$plugin->apps->getAllApps();
+            $appPermissions = [];
+            foreach($apps as $app) {
+                $suffix = ':' . $app->uid;
+                $appPermissions['oauthclient-login' . $suffix] = ['label' => self::t( 'Login to “{name}” ({handle}) app', ['name' => $app->name, 'handle' => $app->handle])];
+            }
+            $event->permissions[self::t('OAuth Client')] = $appPermissions;
+        });
+    }
+
     /**
      * Handle project config rebuilding
      * @param RebuildConfigEvent $e
@@ -187,5 +206,13 @@ class Plugin extends BasePlugin
                 $variable->set('oauth', OAuthVariable::class);
             }
         );
+    }
+
+    /**
+     * @see Craft::t()
+     */
+    public static function t($message, $params = [], $language = null)
+    {
+        return Craft::t(self::HANDLE, $message, $params, $language);
     }
 }

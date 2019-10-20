@@ -38,8 +38,6 @@ class AuthorizeController extends Controller
      */
     public function actionAuthorizeApp($handle): Response
     {
-        $this->requireAdmin();
-
         if (Craft::$app->request->isPost) {
             $redirectUrl = Craft::$app->getRequest()->getValidatedBodyParam('redirect');
             if ($redirectUrl) {
@@ -53,6 +51,8 @@ class AuthorizeController extends Controller
             Craft::$app->response->setStatusCode(404, 'App handle does not exist');
             return null;
         }
+
+        $this->requirePermission('oauthclient-login:'.$app->uid);
 
         $context = Craft::$app->request->getParam('context');
         $error = Craft::$app->request->getParam('error');
@@ -130,6 +130,9 @@ class AuthorizeController extends Controller
         if (!$token) {
             return Craft::$app->response->setStatusCode(404, 'Token not found');
         }
+
+        $app = $token->getApp();
+        $this->requirePermission('oauthclient-login:'.$app->uid);
 
         $refreshed = Plugin::$plugin->credentials->refreshToken($token);
         if ($refreshed) {
