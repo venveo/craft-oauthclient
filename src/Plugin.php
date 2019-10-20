@@ -162,12 +162,14 @@ class Plugin extends BasePlugin
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function (RegisterUserPermissionsEvent $event) {
             $apps = Plugin::$plugin->apps->getAllApps();
-            $appPermissions = [];
+            $loginPermissions = [];
             foreach($apps as $app) {
                 $suffix = ':' . $app->uid;
-                $appPermissions['oauthclient-login' . $suffix] = ['label' => self::t( 'Login to “{name}” ({handle}) app', ['name' => $app->name, 'handle' => $app->handle])];
+                $loginPermissions['oauthclient-login' . $suffix] = ['label' => self::t( 'Login to “{name}” ({handle}) app', ['name' => $app->name, 'handle' => $app->handle])];
             }
-            $event->permissions[self::t('OAuth Client')] = $appPermissions;
+            $event->permissions[self::t('OAuth Client')] = [
+                'oauthclient-login' => ['label' => self::t( 'Login to Apps'), 'nested' => $loginPermissions]
+            ];
         });
     }
 
