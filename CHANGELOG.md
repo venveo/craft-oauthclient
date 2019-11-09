@@ -4,9 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 2.1.2 - 2019-11-09
 ### Added
 - Added permissions for authorizing with apps
+
+### Changed
+- The Connect button on apps in the CP now includes a `plugin.cp` context
 
 ## 2.1.1 - 2019-10-08
 ### Added

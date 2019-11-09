@@ -144,6 +144,9 @@ a connector in my module and want to ensure the user has offline access to Googl
 connector with the context parameter set and then register an event handler in my module to 
 tweak the authentication URL depending on the context.
 
+The context for the connection button on the Applications list in the control panel
+is `plugin.cp`
+
 [See Example](#modifying-the-authentication-flow-conditionally)
 
 ## Events

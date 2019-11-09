@@ -28,7 +28,7 @@
                     <td data-title="{{ 'Handle'|t('oauthclient') }}">{{ app.handle }}</td>
                     <td data-title="{{ 'Provider'|t('oauthclient') }}">{{ instance }}</td>
                     <td data-title="{{ "Number of Tokens"|t }}">{{ app.getTokenRecordQuery().count() }}</td>
-                    <td class="thin"><a href="{{ app.redirectUrl }}" class="icon add"
+                    <td class="thin"><a href="{{ app.getRedirectUrl('plugin.cp') }}" class="icon add"
                                         title="{{ 'Connect'|t('oauthclient') }}"
                                         role="button"></a>
                     <td class="thin"><a class="delete icon"
