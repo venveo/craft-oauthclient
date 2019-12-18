@@ -33,6 +33,7 @@ class Token extends Model implements AccessTokenInterface
     public $expiryDate;
     public $refreshToken;
     public $accessToken;
+    public $response;
     public $uid;
 
     private $tokenValues;
@@ -47,7 +48,8 @@ class Token extends Model implements AccessTokenInterface
         return new self([
             'accessToken' => $token->getToken(),
             'refreshToken' => $token->getRefreshToken(),
-            'expiryDate' => $token->getExpires()
+            'expiryDate' => $token->getExpires(),
+            'response' => $token
         ]);
     }
 
