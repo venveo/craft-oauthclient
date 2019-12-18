@@ -70,6 +70,16 @@
     required: true,
     errors: app.getErrors('clientSecret'),
   }) }}
+  
+  {{ forms.textField({
+    label: 'Authorize URL'|t('oauthclient'),
+    instructions: 'The custom authorization URL, if different from the provider default.',
+    name: 'urlAuthorize',
+    id: 'urlAuthorize',
+    value : app.urlAuthorize,
+    required: false,
+    errors: app.getErrors('urlAuthorize'),
+  }) }}
 
   {{ forms.selectField({
     first: true,

@@ -101,6 +101,7 @@ class Install extends Migration
                     'provider' => $this->string(255)->notNull(),
                     'clientId' => $this->text(),
                     'clientSecret' => $this->text(),
+                    'urlAuthorize' => $this->text(),
                     'scopes' => $this->text(),
                 ]
             );

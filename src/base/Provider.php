@@ -47,7 +47,8 @@ abstract class Provider extends Component implements ProviderInterface
         return [
             'clientId' => $this->getApp()->getClientId(),
             'clientSecret' => $this->getApp()->getClientSecret(),
-            'redirectUri' => $this->getApp()->getRedirectUrl()
+            'redirectUri' => $this->getApp()->getRedirectUrl(),
+            'urlAuthorize' => $this->getApp()->getUrlAuthorize()
         ];
     }
 

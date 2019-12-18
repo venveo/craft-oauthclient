@@ -36,6 +36,7 @@ class App extends Model
     public $handle;
     public $clientId;
     public $clientSecret;
+    public $urlAuthorize;
 
     public $isNew;
 
@@ -69,6 +70,16 @@ class App extends Model
     public function getClientSecret(): string
     {
         return \Craft::parseEnv($this->clientSecret);
+    }
+    
+    /**
+     * Returns the custom authorization URL.
+     *
+     * @return string
+     */
+    public function getUrlAuthorize(): string
+    {
+        return (string)$this->urlAuthorize;
     }
 
     /**

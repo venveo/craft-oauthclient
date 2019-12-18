@@ -140,6 +140,7 @@ class AppsController extends Controller
             'handle' => $request->getRequiredBodyParam('handle'),
             'clientId' => $request->getRequiredBodyParam('clientId'),
             'clientSecret' => $request->getRequiredBodyParam('clientSecret'),
+            'urlAuthorize' => $request->getRequiredBodyParam('urlAuthorize'),
             'scopes' => $scopes
         ];
 
