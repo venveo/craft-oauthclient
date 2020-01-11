@@ -1,6 +1,6 @@
 <?php
 
-namespace craft\contentmigrations;
+namespace venveo\oauthclient\migrations;
 
 use Craft;
 use craft\db\Migration;
