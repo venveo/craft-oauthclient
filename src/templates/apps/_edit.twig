@@ -1,7 +1,7 @@
 {% extends "oauthclient/_layouts/cp" %}
 
 {% set crumbs = [
-  { label: "OAuth Apps"|t, url: url('oauthclient/apps') },
+    { label: "OAuth Apps"|t, url: url('oauthclient/apps') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -10,177 +10,181 @@
 
 
 {% set tabs = {
-  0: {'label':'Configuration'|t('oauthclient'),'url':'#config-tab'},
-  1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'}
+    0: {'label':'Configuration'|t('oauthclient'),'url':'#config-tab'},
+    1: {'label':'Setup Info'|t('oauthclient'),'url':'#info-tab'}
 } %}
 
 {% if app is defined and app.id is defined and app.id != null %}
-  {% if app.getAllTokens()|length %}
-    {% set tabs = tabs|merge({
-      2: {'label':'Tokens'|t('oauthclient'),'url':'#tokens-tab'},
-    }) %}
+    {% if app.getAllTokens()|length %}
+        {% set tabs = tabs|merge({
+            2: {'label':'Tokens'|t('oauthclient'),'url':'#tokens-tab'},
+        }) %}
     {% endif %}
 {% endif %}
 
 {% block content %}
-  <div id="config-tab">
-  <input type="hidden" name="id" value="{{ app.id }}">
-  {{ actionInput('oauthclient/apps/save') }}
+    <div id="config-tab">
+        <input type="hidden" name="id" value="{{ app.id }}">
+        {{ actionInput('oauthclient/apps/save') }}
 
-  {{ forms.textField({
-    label: 'Name'|t('oauthclient'),
-    instructions: 'Give your app a descriptive name, like Google, HubSpot CRM, or Jeff'|t('oauthclient'),
-    name: 'name',
-    first: true,
-    id: 'name',
-    value : app.name,
-    required: true,
-    errors: app.getErrors('name'),
-  }) }}
+        {{ forms.textField({
+            label: 'Name'|t('oauthclient'),
+            instructions: 'Give your app a descriptive name, like Google, HubSpot CRM, or Jeff'|t('oauthclient'),
+            name: 'name',
+            first: true,
+            id: 'name',
+            value : app.name,
+            required: true,
+            errors: app.getErrors('name'),
+        }) }}
 
-  {{ forms.textField({
-    label: 'Handle'|t('oauthclient'),
-    instructions: 'This is a unique handle used to reference the app in the API.',
-    name: 'handle',
-    id: 'handle',
-    value : app.handle,
-    required: true,
-    errors: app.getErrors('handle'),
-  }) }}
+        {{ forms.textField({
+            label: 'Handle'|t('oauthclient'),
+            instructions: 'This is a unique handle used to reference the app in the API.',
+            name: 'handle',
+            id: 'handle',
+            value : app.handle,
+            required: true,
+            errors: app.getErrors('handle'),
+        }) }}
 
 
-    {{ forms.selectField({
-      first: true,
-      label: 'Provider'|t('oauthclient'),
-      id: 'provider',
-      name: 'provider',
-      options : providerOptions,
-      value : app.provider,
-      required: true,
-      errors: app.provider.getErrors('type') ?? null,
-      toggle: true
-    }) }}
+        {{ forms.selectField({
+            first: true,
+            label: 'Provider'|t('oauthclient'),
+            id: 'provider',
+            name: 'provider',
+            options : providerOptions,
+            value : app.provider,
+            required: true,
+            errors: app.provider.getErrors('type') ?? null,
+            toggle: true
+        }) }}
 
-  {{ forms.autosuggestField({
-    suggestEnvVars: true,
-    label: 'Client ID'|t('oauthclient'),
-    instructions: 'Enter your client ID here',
-    name: 'clientId',
-    id: 'clientId',
-    value : app.clientId,
-    required: true,
-    errors: app.getErrors('clientId'),
-  }) }}
+        {{ forms.autosuggestField({
+            suggestEnvVars: true,
+            label: 'Client ID'|t('oauthclient'),
+            instructions: 'Enter your client ID here',
+            name: 'clientId',
+            id: 'clientId',
+            value : app.clientId,
+            required: true,
+            errors: app.getErrors('clientId'),
+        }) }}
 
-    {{ forms.autosuggestField({
-      suggestEnvVars: true,
-    label: 'Client Secret'|t('oauthclient'),
-    name: 'clientSecret',
-    id: 'clientSecret',
-    value : app.clientSecret,
-    instructions: 'Enter your client secret here',
-    required: true,
-    errors: app.getErrors('clientSecret'),
-  }) }}
+        {{ forms.autosuggestField({
+            suggestEnvVars: true,
+            label: 'Client Secret'|t('oauthclient'),
+            name: 'clientSecret',
+            id: 'clientSecret',
+            value : app.clientSecret,
+            instructions: 'Enter your client secret here',
+            required: true,
+            errors: app.getErrors('clientSecret'),
+        }) }}
 
-    {{ forms.editableTableField({
-      label: 'Scopes'|t('oauthclient'),
-      instructions: 'Add scopes associated with this application',
-      id: 'scopes',
-      name: 'scopes',
-      addRowLabel: 'Add a Scope',
-      cols: {
-        scope: {
-          type: 'singleline',
-          heading: 'Scope Name'|t('oauthclient'),
-          info: 'The name of the scope'|t('oauthclient'),
-          code: true,
-        }
-      },
-      rows: app.getScopes(true),
-      errors: app.getErrors('scopes'),
-    }) }}
-    <hr>
-    <a class="fieldtoggle" data-target="advanced">{{ "Advanced"|t('app') }}</a>
-    <div id="advanced" class="hidden">
-      {{ forms.autosuggestField({
-        suggestEnvVars: true,
-        label: 'Authorize URL'|t('oauthclient'),
-        instructions: 'The custom authorization URL, if different from the provider default.',
-        name: 'urlAuthorize',
-        id: 'urlAuthorize',
-        value : app.urlAuthorize,
-        required: false,
-        errors: app.getErrors('urlAuthorize'),
-      }) }}
+        {{ forms.editableTableField({
+            label: 'Scopes'|t('oauthclient'),
+            instructions: 'Add scopes associated with this application',
+            id: 'scopes',
+            name: 'scopes',
+            addRowLabel: 'Add a Scope',
+            cols: {
+                scope: {
+                    type: 'singleline',
+                    heading: 'Scope Name'|t('oauthclient'),
+                    info: 'The name of the scope'|t('oauthclient'),
+                    code: true,
+                }
+            },
+            rows: app.getScopes(true),
+            errors: app.getErrors('scopes'),
+        }) }}
+        <hr>
+        <a class="fieldtoggle" data-target="advanced">{{ "Advanced"|t('app') }}</a>
+        <div id="advanced" class="hidden">
+            {{ forms.autosuggestField({
+                suggestEnvVars: true,
+                label: 'Authorize URL'|t('oauthclient'),
+                instructions: 'The custom authorization URL, if different from the provider default.',
+                name: 'urlAuthorize',
+                id: 'urlAuthorize',
+                value : app.urlAuthorize,
+                required: false,
+                errors: app.getErrors('urlAuthorize'),
+            }) }}
+        </div>
     </div>
-  </div>
-  {% if app is defined and app.id is defined %}
-  <div id="info-tab" class="hidden">
-    {{ forms.textField({
-      first: true,
-      id: 'redirectUri',
-      readonly: true,
-      label: 'Redirect URI',
-      instructions: 'This value is determined by Craft - make sure you paste this into your registered OAuth Application in your OAuth provider',
-      value : app.id != null ? app.getRedirectUrl() : 'Enter an app handle first!',
-      required: false
-    }) }}
-  </div>
+    {% if app is defined and app.id is defined %}
+        <div id="info-tab" class="hidden">
+            {{ forms.textField({
+                first: true,
+                id: 'redirectUri',
+                readonly: true,
+                label: 'Redirect URI',
+                instructions: 'This value is determined by Craft - make sure you paste this into your registered OAuth Application in your OAuth provider',
+                value : app.id != null ? app.getRedirectUrl() : 'Enter an app handle first!',
+                required: false
+            }) }}
+        </div>
 
-  <div id="tokens-tab" class="hidden">
-    {% set tokens = app.getAllTokens() %}
-    <table id="oauthapps" class="data fullwidth collapsible">
-      <thead>
-      <tr>
-        <th class="thin">{{ "ID"|t }}</th>
-        <th>{{ "Owner"|t }}</th>
-        <th>{{ "Created On"|t }}</th>
-        <th>{{ "Updated On"|t }}</th>
-        <th>{{ "Expires On"|t }}</th>
-        <th class="thin">{{ "Refresh Token"|t }}</th>
-      </tr>
-      </thead>
-      <tbody>
-      {% for token in tokens %}
-        <tr>
-          <td>{{ token.id }}</td>
-          <td>{%- include "_elements/element" with { element: token.getUser(), size: 'small' } -%}</td>
-          <td>{{ token.dateCreated|datetime('short') }}</td>
-          <td>{{ token.dateUpdated|datetime('short') }}</td>
-          <td>
-            {% if token.expiryDate != null %}
-              {{ token.expiryDate|datetime('short') }}
-              {% if token.hasExpired() %}
-                <strong>
-                {% if token.refreshToken|length %}
-                  <a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a>
-                {% else %}
-                  EXPIRED
-                {% endif %}
-              {% endif %}
-              </strong>
-            {% else %}
-              <p>Unknown</p>
-            {% endif %}
-          </td>
-          <td class="centeralign">{% if token.refreshToken|length %}<span class="success" title="{{ 'Yes'|t('app') }}" data-icon="check"></span>{% else %}<span class="error" title="{{ 'No'|t('app') }}" data-icon="remove"></span>{% endif %}</td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% endif %}
+        <div id="tokens-tab" class="hidden">
+            {% set tokens = app.getAllTokens() %}
+            <table id="oauthapps" class="data fullwidth collapsible">
+                <thead>
+                <tr>
+                    <th class="thin">{{ "ID"|t }}</th>
+                    <th>{{ "Owner"|t }}</th>
+                    <th>{{ "Created On"|t }}</th>
+                    <th>{{ "Updated On"|t }}</th>
+                    <th>{{ "Expires On"|t }}</th>
+                    <th class="thin">{{ "Refresh Token"|t }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for token in tokens %}
+                    <tr>
+                        <td>{{ token.id }}</td>
+                        <td>{%- include "_elements/element" with { element: token.getUser(), size: 'small' } -%}</td>
+                        <td>{{ token.dateCreated|datetime('short') }}</td>
+                        <td>{{ token.dateUpdated|datetime('short') }}</td>
+                        <td>
+                            {% if token.expiryDate != null %}
+                                {{ token.expiryDate|datetime('short') }}
+                                {% if token.hasExpired() %}
+                                    <strong>
+                                    {% if token.refreshToken|length %}
+                                        <a href="{{ token.getRefreshURL() }}" target="_blank">EXPIRED</a>
+                                    {% else %}
+                                        EXPIRED
+                                    {% endif %}
+                                {% endif %}
+                                </strong>
+                            {% else %}
+                                <p>Unknown</p>
+                            {% endif %}
+                        </td>
+                        <td class="centeralign">{% if token.refreshToken|length %}<span class="success"
+                                                                                        title="{{ 'Yes'|t('app') }}"
+                                                                                        data-icon="check"></span>{% else %}
+                                <span class="error" title="{{ 'No'|t('app') }}" data-icon="remove"></span>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% if app is not defined or not app.handle %}
-  {% js %}
-    new Craft.HandleGenerator('#name', '#handle');
-    $(document).ready(function() {
-      $('#handle').change(function(value) {
-          var value = value.target.value;
-          $('#redirectUri').val("{{ app.getRedirectUrl()|e('js') }}/" + value);
-      });
-    });
-  {% endjs %}
+    {% js %}
+        new Craft.HandleGenerator('#name', '#handle');
+        $(document).ready(function() {
+        $('#handle').change(function(value) {
+        var value = value.target.value;
+        $('#redirectUri').val("{{ app.getRedirectUrl()|e('js') }}/" + value);
+        });
+        });
+    {% endjs %}
 {% endif %}
