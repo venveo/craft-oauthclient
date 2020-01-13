@@ -79,7 +79,7 @@ class App extends Model
      */
     public function getUrlAuthorize(): string
     {
-        return (string)$this->urlAuthorize;
+        return \Craft::parseEnv($this->clientSecret);
     }
 
     /**
@@ -127,7 +127,7 @@ class App extends Model
      * @return Provider|null
      * @throws \yii\base\InvalidConfigException
      */
-    public function getProviderInstance(): ?Provider
+    public function getProviderInstance()
     {
         if ($this->providerInstance instanceof Provider) {
             return $this->providerInstance;

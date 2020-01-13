@@ -71,7 +71,8 @@
     errors: app.getErrors('clientSecret'),
   }) }}
   
-  {{ forms.textField({
+  {{ forms.autosuggestField({
+    suggestEnvVars: true,
     label: 'Authorize URL'|t('oauthclient'),
     instructions: 'The custom authorization URL, if different from the provider default.',
     name: 'urlAuthorize',
