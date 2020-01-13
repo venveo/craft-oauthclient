@@ -26,7 +26,7 @@ use venveo\oauthclient\Plugin;
  */
 class AuthorizeController extends Controller
 {
-    public const STATE_SESSION_KEY = 'oauth2state';
+    const STATE_SESSION_KEY = 'oauth2state';
 
     /**
      * Handles the actual OAuth process
