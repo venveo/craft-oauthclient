@@ -60,7 +60,7 @@ class Plugin extends BasePlugin
     /**
      * @var string
      */
-    public $schemaVersion = '1.1.0';
+    public $schemaVersion = '2.1.3';
     public $hasCpSettings = true;
 
     // Public Methods
