@@ -88,13 +88,14 @@ class MyProvider extends Provider
 And now you need only register it in your plugin or module's init function:
 
 ```php
+```php
 <?php
 use venveo\oauthclient\services\Providers;
 use craft\events\RegisterComponentTypesEvent;
 use MyProvider;
 // [...]
 Event::on(Providers::class, Providers::EVENT_REGISTER_PROVIDER_TYPES, function (RegisterComponentTypesEvent $event) {
-    $event->types[] = MyProvider:class;
+    $event->types[] = MyProvider:class
 });
 ```
 
@@ -180,6 +181,10 @@ is `plugin.cp`
 - `Credentials::EVENT_TOKEN_REFRESH_FAILED`
     - `venveo\oauthclient\events\TokenEvent`
 
+#### `venveo\oauthclient\base\Provider`
+- `venveo\oauthclient\base\Provide::EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE`
+    - `venveo\oauthclient\events\TokenEvent`
+
 ## Twig Variable
 
 There's a helpful Twig variable, `craft.oauth` exposed by the OAuth Client plugin to help you build your UI.
@@ -205,6 +210,7 @@ package and make the necessary requests; however, token management adds a lot of
 this plugin comes in. Assuming you've already required the Google_Client, you could utilize this plugin like so:
 
 ```php
+```php
 use venveo\oauthclient\Plugin;
 // [...]
 
@@ -217,12 +223,12 @@ $tokens = $plugin->credentials->getValidTokensForAppAndUser('google');
 $app = $plugin->apps->getAppByHandle('google');
 
 // Show time! Note: you should add some error checking.
-$client = new \Google_Client();
+$client = new Google_Client();
 $client->setAccessToken($tokens[0]->accessToken);
 $client->setClientId($app->getClientId());
 $client->setClientSecret($app->getClientSecret());
 
-$service = new \Google_Service_Sheets($client);
+$service = new Google_Service_Sheets($client);
 $sheet = $service->spreadsheets->get('some-google-sheet');
 ```
 
