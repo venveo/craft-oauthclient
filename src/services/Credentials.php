@@ -20,6 +20,7 @@ use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\models\Token;
 use venveo\oauthclient\models\Token as TokenModel;
 use venveo\oauthclient\Plugin;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 
 /**
@@ -30,9 +31,9 @@ use yii\db\Exception;
  */
 class Credentials extends Component
 {
-    public const EVENT_BEFORE_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
-    public const EVENT_AFTER_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
-    public const EVENT_TOKEN_REFRESH_FAILED = 'EVENT_TOKEN_REFRESH_FAILED';
+    const EVENT_BEFORE_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
+    const EVENT_AFTER_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
+    const EVENT_TOKEN_REFRESH_FAILED = 'EVENT_TOKEN_REFRESH_FAILED';
 
     /**
      * Gets valid tokens given an application and optionally, a Craft user ID
@@ -138,7 +139,7 @@ class Credentials extends Component
      *
      * @param TokenModel $token
      * @return bool
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function checkTokenWithProvider(Token $token): bool
     {

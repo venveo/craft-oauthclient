@@ -12,6 +12,7 @@ namespace venveo\oauthclient\records;
 
 use craft\db\ActiveRecord;
 use craft\records\User;
+use DateTime;
 use venveo\oauthclient\records\App as AppRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -21,9 +22,9 @@ use yii\db\ActiveQueryInterface;
  * @since     1.0.0
  *
  * @property int $id
- * @property \DateTime $dateCreated
- * @property \DateTime $dateUpdated
- * @property \DateTime $expiryDate
+ * @property DateTime $dateCreated
+ * @property DateTime $dateUpdated
+ * @property DateTime $expiryDate
  * @property string $uid
  * @property int $userId
  * @property int $appId

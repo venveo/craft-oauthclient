@@ -90,17 +90,6 @@ class Plugin extends BasePlugin
     // =========================================================================
 
     /**
-     * @inheritdoc
-     */
-    public function getSettingsResponse()
-    {
-        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
-    }
-
-    // Private Methods
-    // =========================================================================
-
-    /**
      * Register a custom logger
      */
     private function _registerLogger()
@@ -110,6 +99,9 @@ class Plugin extends BasePlugin
             'categories' => ['venveo\oauthclient\*'],
         ]);
     }
+
+    // Private Methods
+    // =========================================================================
 
     /**
      * Set our service components
@@ -144,59 +136,6 @@ class Plugin extends BasePlugin
     }
 
     /**
-     *  Register project config handlers
-     */
-    private function _registerProjectConfig(): void
-    {
-        Craft::$app->projectConfig
-            ->onAdd(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleUpdatedApp'])
-            ->onUpdate(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleUpdatedApp'])
-            ->onRemove(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleRemovedApp']);
-
-        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
-            $this->_handleProjectConfigRebuild($e);
-        });
-    }
-
-    private function _registerPermissions(): void
-    {
-        Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function (RegisterUserPermissionsEvent $event) {
-            $apps = Plugin::$plugin->apps->getAllApps();
-            $loginPermissions = [];
-            foreach($apps as $app) {
-                $suffix = ':' . $app->uid;
-                $loginPermissions['oauthclient-login' . $suffix] = ['label' => self::t( 'Login to “{name}” ({handle}) app', ['name' => $app->name, 'handle' => $app->handle])];
-            }
-            $event->permissions[self::t('OAuth Client')] = [
-                'oauthclient-login' => ['label' => self::t( 'Login to Apps'), 'nested' => $loginPermissions]
-            ];
-        });
-    }
-
-    /**
-     * Handle project config rebuilding
-     * @param RebuildConfigEvent $e
-     */
-    private function _handleProjectConfigRebuild(RebuildConfigEvent $e): void
-    {
-        $appData = [];
-        $apps = $this->apps->getAllApps();
-        foreach($apps as $app) {
-            $appData[$app->uid] = [
-                'name' => $app->name,
-                'handle' => $app->handle,
-                'provider' => $app->provider,
-                'clientId' => $app->clientId,
-                'clientSecret' => $app->clientSecret,
-                'urlAuthorize' => $app->urlAuthorize,
-                'scopes' => $app->scopes
-            ];
-        }
-
-        $e->config[self::$PROJECT_CONFIG_KEY]['apps'] = $appData;
-    }
-
-    /**
      * Set our Twig variable
      */
     private function _registerVariables()
@@ -212,10 +151,71 @@ class Plugin extends BasePlugin
     }
 
     /**
+     *  Register project config handlers
+     */
+    private function _registerProjectConfig(): void
+    {
+        Craft::$app->projectConfig
+            ->onAdd(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleUpdatedApp'])
+            ->onUpdate(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleUpdatedApp'])
+            ->onRemove(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleRemovedApp']);
+
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function (RebuildConfigEvent $e) {
+            $this->_handleProjectConfigRebuild($e);
+        });
+    }
+
+    /**
+     * Handle project config rebuilding
+     * @param RebuildConfigEvent $e
+     */
+    private function _handleProjectConfigRebuild(RebuildConfigEvent $e): void
+    {
+        $appData = [];
+        $apps = $this->apps->getAllApps();
+        foreach ($apps as $app) {
+            $appData[$app->uid] = [
+                'name' => $app->name,
+                'handle' => $app->handle,
+                'provider' => $app->provider,
+                'clientId' => $app->clientId,
+                'clientSecret' => $app->clientSecret,
+                'urlAuthorize' => $app->urlAuthorize,
+                'scopes' => $app->scopes
+            ];
+        }
+
+        $e->config[self::$PROJECT_CONFIG_KEY]['apps'] = $appData;
+    }
+
+    private function _registerPermissions(): void
+    {
+        Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function (RegisterUserPermissionsEvent $event) {
+            $apps = Plugin::$plugin->apps->getAllApps();
+            $loginPermissions = [];
+            foreach ($apps as $app) {
+                $suffix = ':' . $app->uid;
+                $loginPermissions['oauthclient-login' . $suffix] = ['label' => self::t('Login to “{name}” ({handle}) app', ['name' => $app->name, 'handle' => $app->handle])];
+            }
+            $event->permissions[self::t('OAuth Client')] = [
+                'oauthclient-login' => ['label' => self::t('Login to Apps'), 'nested' => $loginPermissions]
+            ];
+        });
+    }
+
+    /**
      * @see Craft::t()
      */
     public static function t($message, $params = [], $language = null)
     {
         return Craft::t(self::HANDLE, $message, $params, $language);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSettingsResponse()
+    {
+        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
     }
 }

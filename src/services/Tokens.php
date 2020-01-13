@@ -13,6 +13,7 @@ namespace venveo\oauthclient\services;
 use Craft;
 use craft\base\Component;
 use craft\db\Query;
+use Exception;
 use venveo\oauthclient\events\TokenEvent;
 use venveo\oauthclient\models\Token;
 use venveo\oauthclient\models\Token as TokenModel;
@@ -29,8 +30,8 @@ use venveo\oauthclient\records\Token as TokenRecord;
 class Tokens extends Component
 {
 
-    public const EVENT_BEFORE_TOKEN_SAVED = 'EVENT_BEFORE_TOKEN_SAVED';
-    public const EVENT_AFTER_TOKEN_SAVED = 'EVENT_AFTER_TOKEN_SAVED';
+    const EVENT_BEFORE_TOKEN_SAVED = 'EVENT_BEFORE_TOKEN_SAVED';
+    const EVENT_AFTER_TOKEN_SAVED = 'EVENT_AFTER_TOKEN_SAVED';
 
     /**
      * Returns all tokens
@@ -51,7 +52,39 @@ class Tokens extends Component
         return $tokens;
     }
 
-    public function getTokenById($id): ?TokenModel
+    /**
+     * Returns a Query object prepped for retrieving tokens.
+     *
+     * @return Query The query object.
+     */
+    private function _createTokenQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'userId',
+                'dateCreated',
+                'dateUpdated',
+                'expiryDate',
+                'appId',
+                'accessToken',
+                'refreshToken',
+            ])
+            ->from(['{{%oauthclient_tokens}}']);
+    }
+
+    public function createToken($config): TokenModel
+    {
+        $app = new TokenModel($config);
+        $app->userId = $app->userId ?? Craft::$app->user->getId();
+        return $app;
+    }
+
+    /**
+     * @param $id
+     * @return TokenModel|null
+     */
+    public function getTokenById($id)
     {
         $result = $this->_createTokenQuery()
             ->where(['id' => $id])
@@ -75,43 +108,13 @@ class Tokens extends Component
         return $tokens;
     }
 
-    public function createToken($config): TokenModel
-    {
-        $app = new TokenModel($config);
-        $app->userId = $app->userId ?? \Craft::$app->user->getId();
-        return $app;
-    }
-
-
-    /**
-     * Returns a Query object prepped for retrieving tokens.
-     *
-     * @return Query The query object.
-     */
-    private function _createTokenQuery(): Query
-    {
-        return (new Query())
-            ->select([
-                'id',
-                'userId',
-                'dateCreated',
-                'dateUpdated',
-                'expiryDate',
-                'appId',
-                'accessToken',
-                'refreshToken',
-            ])
-            ->from(['{{%oauthclient_tokens}}']);
-    }
-
-
     /**
      * Saves a token.
      *
      * @param TokenModel $token
      * @param bool $runValidation
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function saveToken(TokenModel $token, bool $runValidation = true): bool
     {
@@ -120,7 +123,7 @@ class Tokens extends Component
             $record = TokenRecord::findOne($token->id);
 
             if (!$record) {
-                throw new \Exception(\Craft::t('oauthclient', 'No token exists with the ID “{id}”', ['id' => $token->id]));
+                throw new Exception(Craft::t('oauthclient', 'No token exists with the ID “{id}”', ['id' => $token->id]));
             }
         } else {
             $record = new TokenRecord();

@@ -1,17 +1,17 @@
 <div class="pane">
-{% if not currentUser %}
+    {% if not currentUser %}
         <h3>You must login before you may proceed</h3>
-{% else %}
-    {% if token %}
-        <h3>You're connected to {{ app.name }}!</h3>
-        <h4>Token Last Updated on {{ token.dateCreated|datetime('short') }}</h4>
     {% else %}
-        <h3>Connect to {{ app.name }}</h3>
-        <form method="post" action="{{ app.getRedirectUrl(context) }}">
-            {{ csrfInput() }}
-            {{ redirectInput(craft.app.request.url) }}
-            <button type="submit" class="btn formsubmit">Connect</button>
-        </form>
+        {% if token %}
+            <h3>You're connected to {{ app.name }}!</h3>
+            <h4>Token Last Updated on {{ token.dateCreated|datetime('short') }}</h4>
+        {% else %}
+            <h3>Connect to {{ app.name }}</h3>
+            <form method="post" action="{{ app.getRedirectUrl(context) }}">
+                {{ csrfInput() }}
+                {{ redirectInput(craft.app.request.url) }}
+                <button type="submit" class="btn formsubmit">Connect</button>
+            </form>
+        {% endif %}
     {% endif %}
-{% endif %}
 </div>

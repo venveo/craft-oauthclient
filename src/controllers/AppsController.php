@@ -1,8 +1,8 @@
 <?php
 /**
  *  OAuth 2.0 Client plugin for Craft CMS 3
- *  @link      https://www.venveo.com
- *  @copyright Copyright (c) 2018-2019 Venveo
+ * @link      https://www.venveo.com
+ * @copyright Copyright (c) 2018-2019 Venveo
  */
 
 namespace venveo\oauthclient\controllers;
@@ -12,8 +12,11 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use craft\web\Response;
+use Exception;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
@@ -41,11 +44,11 @@ class AppsController extends Controller
      * @param AppModel|null $app
      * @return Response
      * @throws HttpException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function actionEdit($handle = null, $app = null)
     {
-        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+        if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
         }
         $this->requireAdmin();
@@ -91,11 +94,12 @@ class AppsController extends Controller
      * Attempt to delete an app by its ID
      * @return \yii\web\Response
      * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\web\ForbiddenHttpException
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionDelete() {
-        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+    public function actionDelete()
+    {
+        if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
         }
         $this->requireAdmin();
@@ -117,11 +121,11 @@ class AppsController extends Controller
     /**
      * @return Response|null
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public function actionSave()
     {
-        if(!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
+        if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
         }
         $this->requireAdmin();

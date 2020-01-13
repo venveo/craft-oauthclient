@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 - Added a setting to override a provider's authorization URL
 
+### Fixed
+- Improved compatibility with older versions of PHP (7.0+)
+
 ## 2.1.2 - 2019-11-09
 ### Added
 - Added permissions for authorizing with apps

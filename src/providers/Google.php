@@ -10,6 +10,7 @@
 
 namespace venveo\oauthclient\providers;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use League\OAuth2\Client\Provider\Google as GoogleProvider;
 use venveo\oauthclient\base\Provider;
@@ -45,7 +46,7 @@ class Google extends Provider implements ValidatesTokens
     public static function checkToken(Token $token): bool
     {
         $url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' . $token->accessToken;
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
         try {
             $resp = $client->request('GET', $url);
             $status = $resp->getStatusCode();

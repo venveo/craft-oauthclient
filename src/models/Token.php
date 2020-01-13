@@ -2,6 +2,7 @@
 
 namespace venveo\oauthclient\models;
 
+use Craft;
 use craft\base\Model;
 use craft\elements\User;
 use craft\helpers\UrlHelper;
@@ -55,13 +56,13 @@ class Token extends Model implements AccessTokenInterface
      * Gets the user the token belongs to
      * @return User|null
      */
-    public function getUser(): ?User
+    public function getUser()
     {
         if ($this->user instanceof User) {
             return $this->user;
         }
 
-        return $this->user = \Craft::$app->users->getUserById($this->userId);
+        return $this->user = Craft::$app->users->getUserById($this->userId);
     }
 
     /**

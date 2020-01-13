@@ -2,9 +2,13 @@
 
 namespace venveo\oauthclient\base;
 
+use Craft;
 use craft\base\Component;
 use League\OAuth2\Client\Grant\RefreshToken;
 use League\OAuth2\Client\Provider\AbstractProvider;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use ReflectionClass;
+use ReflectionException;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\models\Token as TokenModel;
 
@@ -16,26 +20,53 @@ use venveo\oauthclient\models\Token as TokenModel;
  */
 abstract class Provider extends Component implements ProviderInterface
 {
-    private $app;
     protected $configuredProvider;
+    private $app;
 
     /**
-     * Sets the app model
-     * @param AppModel $app
+     * @inheritDoc
+     * @throws ReflectionException
      */
-    public function setApp(AppModel $app)
+    public function getAuthorizeURL($options = []): string
     {
-        $this->app = $app;
+        $options = array_merge($this->getDefaultAuthorizationUrlOptions(), $options);
+        $provider = $this->getConfiguredProvider();
+        return $provider->getAuthorizationUrl($options);
     }
 
     /**
-     * Gets the app this concrete provider is configured for.
-     * @return AppModel
+     * Provide additional options for the authorization URL.
+     * @return array
      */
-    public function getApp(): AppModel
+    public function getDefaultAuthorizationUrlOptions(): array
     {
-        return $this->app;
+        return [
+            'scope' => $this->getApp()->getScopes()
+        ];
     }
+
+    /**
+     * @inheritDoc
+     * @throws ReflectionException
+     */
+    public function getConfiguredProvider()
+    {
+        if ($this->configuredProvider instanceof AbstractProvider) {
+            return $this->configuredProvider;
+        }
+
+        $leagueProvider = new ReflectionClass(static::getProviderClass());
+
+        $this->configuredProvider = $leagueProvider->newInstance($this->getProviderOptions());
+
+        return $this->configuredProvider;
+    }
+
+    /**
+     * Get the class name for the League provider
+     * @return string
+     */
+    abstract public static function getProviderClass(): string;
 
     /**
      * Provides the options that will be passed to the new instance of the League provider.
@@ -53,51 +84,30 @@ abstract class Provider extends Component implements ProviderInterface
     }
 
     /**
-     * Provide additional options for the authorization URL.
-     * @return array
+     * Gets the app this concrete provider is configured for.
+     * @return AppModel
      */
-    public function getDefaultAuthorizationUrlOptions(): array
+    public function getApp(): AppModel
     {
-        return [
-            'scope' => $this->getApp()->getScopes()
-        ];
+        return $this->app;
     }
 
     /**
-     * @inheritDoc
-     * @throws \ReflectionException
+     * Sets the app model
+     * @param AppModel $app
      */
-    public function getAuthorizeURL($options = []): string
+    public function setApp(AppModel $app)
     {
-        $options = array_merge($this->getDefaultAuthorizationUrlOptions(), $options);
-        $provider = $this->getConfiguredProvider();
-        return $provider->getAuthorizationUrl($options);
-    }
-
-    /**
-     * @inheritDoc
-     * @throws \ReflectionException
-     */
-    public function getConfiguredProvider()
-    {
-        if ($this->configuredProvider instanceof AbstractProvider) {
-            return $this->configuredProvider;
-        }
-
-        $leagueProvider = new \ReflectionClass(static::getProviderClass());
-
-        $this->configuredProvider = $leagueProvider->newInstance($this->getProviderOptions());
-
-        return $this->configuredProvider;
+        $this->app = $app;
     }
 
     /**
      * Gets a unique state parameter. We're gonna use the CSRF token by default
      * @return string|null
      */
-    public function getState(): ?string
+    public function getState(): string
     {
-        return \Craft::$app->request->getCsrfToken();
+        return Craft::$app->request->getCsrfToken();
     }
 
     /**
@@ -112,7 +122,7 @@ abstract class Provider extends Component implements ProviderInterface
      * @param TokenModel $tokenModel
      * @param array $options
      * @return TokenModel
-     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     * @throws IdentityProviderException
      */
     public function refreshToken(TokenModel $tokenModel, $options = []): TokenModel
     {
@@ -128,12 +138,6 @@ abstract class Provider extends Component implements ProviderInterface
         }
         return $tokenModel;
     }
-
-    /**
-     * Get the class name for the League provider
-     * @return string
-     */
-    abstract public static function getProviderClass(): string;
 
     public function __toString()
     {

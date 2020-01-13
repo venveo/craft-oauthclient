@@ -52,7 +52,7 @@ class AuthorizeController extends Controller
             return null;
         }
 
-        $this->requirePermission('oauthclient-login:'.$app->uid);
+        $this->requirePermission('oauthclient-login:' . $app->uid);
 
         $context = Craft::$app->request->getParam('context');
         $error = Craft::$app->request->getParam('error');
@@ -118,32 +118,6 @@ class AuthorizeController extends Controller
     }
 
     /**
-     * Will refresh a token by its ID
-     * @param $id
-     * @return Response|\yii\console\Response
-     * @throws IdentityProviderException
-     * @throws \Exception
-     */
-    public function actionRefresh($id)
-    {
-        $token = Plugin::$plugin->tokens->getTokenById($id);
-        if (!$token) {
-            return Craft::$app->response->setStatusCode(404, 'Token not found');
-        }
-
-        $app = $token->getApp();
-        $this->requirePermission('oauthclient-login:'.$app->uid);
-
-        $refreshed = Plugin::$plugin->credentials->refreshToken($token);
-        if ($refreshed) {
-            $app = $token->getApp();
-            return Craft::$app->response->redirect($app->getCpEditUrl());
-        }
-
-        throw new \Exception('Failed to refresh token');
-    }
-
-    /**
      * Get a random state value
      * @param int $length
      * @return string
@@ -154,5 +128,31 @@ class AuthorizeController extends Controller
         // Converting bytes to hex will always double length. Hence, we can reduce
         // the amount of bytes by half to produce the correct length.
         return bin2hex(random_bytes($length / 2));
+    }
+
+    /**
+     * Will refresh a token by its ID
+     * @param $id
+     * @return Response|\yii\console\Response
+     * @throws IdentityProviderException
+     * @throws Exception
+     */
+    public function actionRefresh($id)
+    {
+        $token = Plugin::$plugin->tokens->getTokenById($id);
+        if (!$token) {
+            return Craft::$app->response->setStatusCode(404, 'Token not found');
+        }
+
+        $app = $token->getApp();
+        $this->requirePermission('oauthclient-login:' . $app->uid);
+
+        $refreshed = Plugin::$plugin->credentials->refreshToken($token);
+        if ($refreshed) {
+            $app = $token->getApp();
+            return Craft::$app->response->redirect($app->getCpEditUrl());
+        }
+
+        throw new Exception('Failed to refresh token');
     }
 }

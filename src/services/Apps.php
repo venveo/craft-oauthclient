@@ -16,10 +16,13 @@ use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use ReflectionException;
 use venveo\oauthclient\events\AppEvent;
 use venveo\oauthclient\events\AuthorizationUrlEvent;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
+use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 /**
  * @author    Venveo
@@ -70,126 +73,6 @@ class Apps extends Component
         return $this->_APPS_BY_ID;
     }
 
-    public function getAppById($id): ?AppModel
-    {
-        if (isset($this->_APPS_BY_ID[$id])) {
-            return $this->_APPS_BY_ID[$id];
-        }
-        $result = $this->_createAppQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        $app = $result ? $this->createApp($result) : null;
-        if ($app) {
-            $this->_APPS_BY_ID[$app->id] = $app;
-            $this->_APPS_BY_UID[$app->uid] = $app;
-            $this->_APPS_BY_HANDLE[$app->handle] = $app;
-            return $this->_APPS_BY_ID[$app->id];
-        }
-        return null;
-    }
-
-    public function getAppByUid($uid): ?AppModel
-    {
-        if (isset($this->_APPS_BY_UID[$uid])) {
-            return $this->_APPS_BY_UID[$uid];
-        }
-        $result = $this->_createAppQuery()
-            ->where(['uid' => $uid])
-            ->one();
-
-        $app = $result ? $this->createApp($result) : null;
-        if ($app) {
-            $this->_APPS_BY_ID[$app->id] = $app;
-            $this->_APPS_BY_UID[$app->uid] = $app;
-            $this->_APPS_BY_HANDLE[$app->handle] = $app;
-            return $this->_APPS_BY_ID[$app->id];
-        }
-        return null;
-    }
-
-    public function getAppByHandle($handle): ?AppModel
-    {
-        if (isset($this->_APPS_BY_HANDLE[$handle])) {
-            return $this->_APPS_BY_HANDLE[$handle];
-        }
-        $result = $this->_createAppQuery()
-            ->where(['handle' => $handle])
-            ->one();
-
-        $app = $result ? $this->createApp($result) : null;
-        if ($app) {
-            $this->_APPS_BY_ID[$app->id] = $app;
-            $this->_APPS_BY_UID[$app->uid] = $app;
-            $this->_APPS_BY_HANDLE[$app->handle] = $app;
-            return $this->_APPS_BY_HANDLE[$app->handle];
-        }
-        return null;
-    }
-
-    /**
-     * Generates the authorization URL for an App model
-     *
-     * @param AppModel $app
-     * @param $state
-     * @param $context|null
-     * @return string|null
-     * @throws \ReflectionException
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getAuthorizationUrlForApp(AppModel $app, $state, $context = null) {
-        $options = ['state' => $state];
-
-        $event = new AuthorizationUrlEvent([
-            'context' => $context,
-            'app' => $app,
-            'options' => $options
-        ]);
-
-        $provider = $app->getProviderInstance();
-
-        if ($this->hasEventHandlers(self::EVENT_GET_URL_OPTIONS)) {
-            $this->trigger(self::EVENT_GET_URL_OPTIONS, $event);
-        }
-        if ($event->url) {
-            $url = $event->url;
-        } else {
-            $url = $provider->getAuthorizeURL($event->options);
-        }
-        return $url;
-    }
-
-    /**
-     * Build an App model from some settings
-     *
-     * @param $config
-     * @return AppModel
-     */
-    public function createApp($config): AppModel
-    {
-        $app = new AppModel($config);
-        $app->userId = $app->userId ?? \Craft::$app->user->getId();
-        return $app;
-    }
-
-    /**
-     * Deletes an app
-     *
-     * @param AppModel $app
-     */
-    public function deleteApp(AppModel $app): void
-    {
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_APP_DELETED)) {
-            $this->trigger(self::EVENT_BEFORE_APP_DELETED, new AppEvent([
-                'app' => $app,
-            ]));
-        }
-
-        $path = Plugin::$PROJECT_CONFIG_KEY . ".apps.{$app->uid}";
-        Craft::$app->projectConfig->remove($path);
-    }
-
-
     /**
      * Returns a Query object prepped for retrieving gateways.
      *
@@ -215,6 +98,114 @@ class Apps extends Component
             ->from(['{{%oauthclient_apps}}']);
     }
 
+    /**
+     * Build an App model from some settings
+     *
+     * @param $config
+     * @return AppModel
+     */
+    public function createApp($config): AppModel
+    {
+        $app = new AppModel($config);
+        $app->userId = $app->userId ?? Craft::$app->user->getId();
+        return $app;
+    }
+
+    /**
+     * @param $id
+     * @return AppModel|null
+     */
+    public function getAppById($id)
+    {
+        if (isset($this->_APPS_BY_ID[$id])) {
+            return $this->_APPS_BY_ID[$id];
+        }
+        $result = $this->_createAppQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        $app = $result ? $this->createApp($result) : null;
+        if ($app) {
+            $this->_APPS_BY_ID[$app->id] = $app;
+            $this->_APPS_BY_UID[$app->uid] = $app;
+            $this->_APPS_BY_HANDLE[$app->handle] = $app;
+            return $this->_APPS_BY_ID[$app->id];
+        }
+        return null;
+    }
+
+    /**
+     * @param $handle
+     * @return AppModel|null
+     */
+    public function getAppByHandle($handle)
+    {
+        if (isset($this->_APPS_BY_HANDLE[$handle])) {
+            return $this->_APPS_BY_HANDLE[$handle];
+        }
+        $result = $this->_createAppQuery()
+            ->where(['handle' => $handle])
+            ->one();
+
+        $app = $result ? $this->createApp($result) : null;
+        if ($app) {
+            $this->_APPS_BY_ID[$app->id] = $app;
+            $this->_APPS_BY_UID[$app->uid] = $app;
+            $this->_APPS_BY_HANDLE[$app->handle] = $app;
+            return $this->_APPS_BY_HANDLE[$app->handle];
+        }
+        return null;
+    }
+
+    /**
+     * Generates the authorization URL for an App model
+     *
+     * @param AppModel $app
+     * @param $state
+     * @param $context |null
+     * @return string|null
+     * @throws ReflectionException
+     * @throws InvalidConfigException
+     */
+    public function getAuthorizationUrlForApp(AppModel $app, $state, $context = null)
+    {
+        $options = ['state' => $state];
+
+        $event = new AuthorizationUrlEvent([
+            'context' => $context,
+            'app' => $app,
+            'options' => $options
+        ]);
+
+        $provider = $app->getProviderInstance();
+
+        if ($this->hasEventHandlers(self::EVENT_GET_URL_OPTIONS)) {
+            $this->trigger(self::EVENT_GET_URL_OPTIONS, $event);
+        }
+        if ($event->url) {
+            $url = $event->url;
+        } else {
+            $url = $provider->getAuthorizeURL($event->options);
+        }
+        return $url;
+    }
+
+    /**
+     * Deletes an app
+     *
+     * @param AppModel $app
+     */
+    public function deleteApp(AppModel $app)
+    {
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_APP_DELETED)) {
+            $this->trigger(self::EVENT_BEFORE_APP_DELETED, new AppEvent([
+                'app' => $app,
+            ]));
+        }
+
+        $path = Plugin::$PROJECT_CONFIG_KEY . ".apps.{$app->uid}";
+        Craft::$app->projectConfig->remove($path);
+    }
 
     /**
      * Saves an app.
@@ -266,11 +257,9 @@ class Apps extends Component
         return true;
     }
 
-    // PROJECT CONFIG HANDLERS //
-
     /**
      * @param ConfigEvent $event
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function handleUpdatedApp(ConfigEvent $event)
     {
@@ -323,9 +312,34 @@ class Apps extends Component
         }
     }
 
+    // PROJECT CONFIG HANDLERS //
+
+    /**
+     * @param $uid
+     * @return AppModel|null
+     */
+    public function getAppByUid($uid)
+    {
+        if (isset($this->_APPS_BY_UID[$uid])) {
+            return $this->_APPS_BY_UID[$uid];
+        }
+        $result = $this->_createAppQuery()
+            ->where(['uid' => $uid])
+            ->one();
+
+        $app = $result ? $this->createApp($result) : null;
+        if ($app) {
+            $this->_APPS_BY_ID[$app->id] = $app;
+            $this->_APPS_BY_UID[$app->uid] = $app;
+            $this->_APPS_BY_HANDLE[$app->handle] = $app;
+            return $this->_APPS_BY_ID[$app->id];
+        }
+        return null;
+    }
+
     /**
      * @param ConfigEvent $event
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function handleRemovedApp(ConfigEvent $event)
     {

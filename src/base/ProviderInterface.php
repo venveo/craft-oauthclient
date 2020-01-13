@@ -3,6 +3,8 @@
 namespace venveo\oauthclient\base;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use venveo\oauthclient\models\Token as TokenModel;
 
 /**
@@ -41,14 +43,14 @@ interface ProviderInterface
      * Get the session security state
      * @return string|null
      */
-    public function getState(): ?string;
+    public function getState(): string;
 
     /**
      * Gets an access token, returing a League access token
      * @param $grant
      * @param array $options
-     * @return \League\OAuth2\Client\Token\AccessTokenInterface
-     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     * @return AccessTokenInterface
+     * @throws IdentityProviderException
      */
     public function getAccessToken($grant, $options = []);
 

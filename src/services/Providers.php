@@ -20,6 +20,7 @@ use venveo\oauthclient\providers\Facebook;
 use venveo\oauthclient\providers\GitHub;
 use venveo\oauthclient\providers\Google;
 use venveo\oauthclient\providers\MissingProvider;
+use yii\base\InvalidConfigException;
 
 /**
  * @author    Venveo
@@ -31,7 +32,7 @@ use venveo\oauthclient\providers\MissingProvider;
  */
 class Providers extends Component
 {
-    public const EVENT_REGISTER_PROVIDER_TYPES = 'EVENT_REGISTER_GATEWAY_TYPES';
+    const EVENT_REGISTER_PROVIDER_TYPES = 'EVENT_REGISTER_GATEWAY_TYPES';
 
     /**
      * Get all of the registered provider types. This is a great place to register your custom providers!
@@ -60,7 +61,7 @@ class Providers extends Component
      *
      * @param mixed $config The providers’s class name, or its config, with a `type` value and optionally a `settings` value
      * @return Provider The provider
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function createProvider($config): Provider
     {

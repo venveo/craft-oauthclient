@@ -12,6 +12,7 @@ namespace venveo\oauthclient\records;
 
 use craft\db\ActiveRecord;
 use craft\records\User;
+use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -19,8 +20,8 @@ use yii\db\ActiveQueryInterface;
  * @package   OauthClient
  * @since     1.0.0
  * @property int $id
- * @property \DateTime $dateCreated
- * @property \DateTime $dateUpdated
+ * @property DateTime $dateCreated
+ * @property DateTime $dateUpdated
  * @property string $uid
  * @property int $userId
  * @property string $name
@@ -30,7 +31,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $clientSecret
  * @property string $urlAuthorize
  * @property User $user
- * @property \yii\db\ActiveQueryInterface $tokens
+ * @property ActiveQueryInterface $tokens
  * @property string $scopes
  */
 class App extends ActiveRecord

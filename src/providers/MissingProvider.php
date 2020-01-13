@@ -24,16 +24,16 @@ class MissingProvider extends Provider
         return 'Provider Missing';
     }
 
-    public function getConfiguredProvider()
-    {
-        return null;
-    }
-
     /**
      * @inheritDoc
      */
     public static function getProviderClass(): string
     {
         return '';
+    }
+
+    public function getConfiguredProvider()
+    {
+        return null;
     }
 }

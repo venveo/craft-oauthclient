@@ -48,20 +48,6 @@ class Install extends Migration
     }
 
     /**
-     * @inheritdoc
-     */
-    public function safeDown()
-    {
-        $this->driver = Craft::$app->getConfig()->getDb()->driver;
-        $this->removeTables();
-
-        return true;
-    }
-
-    // Protected Methods
-    // =========================================================================
-
-    /**
      * @return bool
      */
     protected function createTables()
@@ -109,6 +95,9 @@ class Install extends Migration
 
         return true;
     }
+
+    // Protected Methods
+    // =========================================================================
 
     /**
      * @return void
@@ -172,6 +161,17 @@ class Install extends Migration
             'CASCADE',
             'CASCADE'
         );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function safeDown()
+    {
+        $this->driver = Craft::$app->getConfig()->getDb()->driver;
+        $this->removeTables();
+
+        return true;
     }
 
     /**

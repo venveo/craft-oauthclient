@@ -4,20 +4,27 @@ namespace venveo\oauthclient\models;
 
 use Craft;
 use craft\base\Model;
+use craft\elements\User;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use Exception;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use Twig\Markup;
 use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\Plugin;
 use venveo\oauthclient\records\App as AppRecord;
 use venveo\oauthclient\records\Token as TokenRecord;
-use craft\elements\User;
+use yii\base\InvalidConfigException;
+use yii\db\ActiveQuery;
 
 /**
  * Class App
  *
  * @since 2.0
- * @property \yii\db\ActiveQuery $tokenRecordQuery
+ * @property ActiveQuery $tokenRecordQuery
  * @property array $allTokens
  * @property string $redirectUrl
  * @property string $cpEditUrl
@@ -59,7 +66,7 @@ class App extends Model
      */
     public function getClientId(): string
     {
-        return \Craft::parseEnv($this->clientId);
+        return Craft::parseEnv($this->clientId);
     }
 
     /**
@@ -69,9 +76,9 @@ class App extends Model
      */
     public function getClientSecret(): string
     {
-        return \Craft::parseEnv($this->clientSecret);
+        return Craft::parseEnv($this->clientSecret);
     }
-    
+
     /**
      * Returns the custom authorization URL.
      *
@@ -79,7 +86,7 @@ class App extends Model
      */
     public function getUrlAuthorize(): string
     {
-        return \Craft::parseEnv($this->clientSecret);
+        return Craft::parseEnv($this->clientSecret);
     }
 
     /**
@@ -125,7 +132,7 @@ class App extends Model
      * Get an instance of the Provider
      *
      * @return Provider|null
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function getProviderInstance()
     {
@@ -142,29 +149,6 @@ class App extends Model
     }
 
     /**
-     * Get all tokens valid tokens for the supplied user. If no user is supplied, the current user will
-     * be used.
-     *
-     * @param null|int|User $user
-     * @return Token[]
-     * @throws \Exception
-     */
-    public function getValidTokensForUser($user = null) {
-        $userId = null;
-        if ($user instanceof User) {
-            $userId = $user->id;
-        } elseif (is_int($user)) {
-            $userId = $user;
-        } elseif ($currentUser = \Craft::$app->user->getIdentity()) {
-            $userId = $currentUser->id;
-        } else {
-            // No user, but let's return an empty array so we don't break anything upstream
-            return [];
-        }
-        return Plugin::$plugin->credentials->getValidTokensForAppAndUser($this, $userId);
-    }
-
-    /**
      * Get all token models belong to this app
      *
      * @return Token[]
@@ -177,9 +161,9 @@ class App extends Model
     /**
      * Gets an ActiveQuery for tokens belonging to this app.
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getTokenRecordQuery(): \yii\db\ActiveQuery
+    public function getTokenRecordQuery(): ActiveQuery
     {
         return TokenRecord::find()->where(['appId' => $this->id]);
     }
@@ -187,26 +171,51 @@ class App extends Model
     /**
      * Renders some basic UI to allow a user to connect to the app
      *
-     * @return \Twig\Markup
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @return Markup
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      * @throws \yii\base\Exception
      */
-    public function renderConnector($context = null) {
+    public function renderConnector($context = null)
+    {
         $view = Craft::$app->getView();
         $oldTemplateMode = $view->getTemplateMode();
         if ($oldTemplateMode !== $view::TEMPLATE_MODE_CP) {
             $view->setTemplateMode($view::TEMPLATE_MODE_CP);
         }
         $tokens = $this->getValidTokensForUser();
-        $template = \Craft::$app->view->renderTemplate('oauthclient/_connector/connector', [
+        $template = Craft::$app->view->renderTemplate('oauthclient/_connector/connector', [
             'context' => $context,
             'app' => $this,
             'token' => count($tokens) ? $tokens[0] : null
         ]);
         $view->setTemplateMode($oldTemplateMode);
         return Template::raw($template);
+    }
+
+    /**
+     * Get all tokens valid tokens for the supplied user. If no user is supplied, the current user will
+     * be used.
+     *
+     * @param null|int|User $user
+     * @return Token[]
+     * @throws Exception
+     */
+    public function getValidTokensForUser($user = null)
+    {
+        $userId = null;
+        if ($user instanceof User) {
+            $userId = $user->id;
+        } elseif (is_int($user)) {
+            $userId = $user;
+        } elseif ($currentUser = Craft::$app->user->getIdentity()) {
+            $userId = $currentUser->id;
+        } else {
+            // No user, but let's return an empty array so we don't break anything upstream
+            return [];
+        }
+        return Plugin::$plugin->credentials->getValidTokensForAppAndUser($this, $userId);
     }
 
     /**
