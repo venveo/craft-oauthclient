@@ -28,6 +28,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $handle
  * @property string $clientId
  * @property string $clientSecret
+ * @property string $urlAuthorize
  * @property User $user
  * @property \yii\db\ActiveQueryInterface $tokens
  * @property string $scopes

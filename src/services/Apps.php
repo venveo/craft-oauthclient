@@ -208,6 +208,7 @@ class Apps extends Component
                 'dateUpdated',
                 'clientId',
                 'clientSecret',
+                'urlAuthorize',
                 'scopes',
                 'handle'
             ])
@@ -254,6 +255,7 @@ class Apps extends Component
             'provider' => $app->provider,
             'clientId' => $app->clientId,
             'clientSecret' => $app->clientSecret,
+            'urlAuthorize' => $app->urlAuthorize,
             'scopes' => $app->scopes,
         ]);
 
@@ -293,6 +295,7 @@ class Apps extends Component
                     'provider' => $event->newValue['provider'],
                     'clientId' => $event->newValue['clientId'],
                     'clientSecret' => $event->newValue['clientSecret'],
+                    'urlAuthorize' => $event->newValue['urlAuthorize'],
                     'scopes' => $event->newValue['scopes'],
                 ])
                 ->execute();
@@ -304,6 +307,7 @@ class Apps extends Component
                     'provider' => $event->newValue['provider'],
                     'clientId' => $event->newValue['clientId'],
                     'clientSecret' => $event->newValue['clientSecret'],
+                    'urlAuthorize' => $event->newValue['urlAuthorize'],
                     'scopes' => $event->newValue['scopes'],
                 ], ['id' => $id])
                 ->execute();

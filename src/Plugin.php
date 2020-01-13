@@ -60,7 +60,7 @@ class Plugin extends BasePlugin
     /**
      * @var string
      */
-    public $schemaVersion = '1.0.0';
+    public $schemaVersion = '1.1.0';
     public $hasCpSettings = true;
 
     // Public Methods
@@ -188,6 +188,7 @@ class Plugin extends BasePlugin
                 'provider' => $app->provider,
                 'clientId' => $app->clientId,
                 'clientSecret' => $app->clientSecret,
+                'urlAuthorize' => $app->urlAuthorize,
                 'scopes' => $app->scopes
             ];
         }
