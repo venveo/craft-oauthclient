@@ -15,7 +15,7 @@ class m200113_014806_add_url_authorize extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%oauthclient_apps}}', 'urlAuthorize', $this->text());
+        $this->addColumn('{{%oauthclient_apps}}', 'urlAuthorize', $this->text()->after('clientSecret'));
     }
 
     /**
