@@ -49,6 +49,18 @@
   }) }}
 
 
+    {{ forms.selectField({
+      first: true,
+      label: 'Provider'|t('oauthclient'),
+      id: 'provider',
+      name: 'provider',
+      options : providerOptions,
+      value : app.provider,
+      required: true,
+      errors: app.provider.getErrors('type') ?? null,
+      toggle: true
+    }) }}
+
   {{ forms.autosuggestField({
     suggestEnvVars: true,
     label: 'Client ID'|t('oauthclient'),
@@ -69,18 +81,6 @@
     instructions: 'Enter your client secret here',
     required: true,
     errors: app.getErrors('clientSecret'),
-  }) }}
-
-  {{ forms.selectField({
-    first: true,
-    label: 'Provider'|t('oauthclient'),
-    id: 'provider',
-    name: 'provider',
-    options : providerOptions,
-    value : app.provider,
-    required: true,
-    errors: app.provider.getErrors('type') ?? null,
-    toggle: true
   }) }}
 
     {{ forms.editableTableField({
