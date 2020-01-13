@@ -8,10 +8,14 @@
 namespace venveo\oauthclient\events;
 
 use craft\events\ModelEvent;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use venveo\oauthclient\models\Token;
 
 class TokenEvent extends ModelEvent
 {
+    /** @var AccessTokenInterface */
+    public $responseToken;
+
     /** @var Token */
     public $token;
 }

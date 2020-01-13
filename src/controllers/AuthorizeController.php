@@ -16,7 +16,6 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use ReflectionException;
 use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\models\App as AppModel;
-use venveo\oauthclient\models\Token as TokenModel;
 use venveo\oauthclient\Plugin;
 
 /**
@@ -86,13 +85,14 @@ class AuthorizeController extends Controller
             Craft::$app->session->remove(self::STATE_SESSION_KEY);
             return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
         }
-
-        $tokenResponse = $provider->getConfiguredProvider()->getAccessToken('authorization_code', [
+        /** @var Provider $configuredProvider */
+        $configuredProvider = $provider->getConfiguredProvider();
+        $tokenResponse = $configuredProvider->getAccessToken('authorization_code', [
             'code' => $code
         ]);
 
         // We need to save the token
-        $token = TokenModel::fromLeagueToken($tokenResponse);
+        $token = $configuredProvider->createTokenModelFromResponse($tokenResponse);
         $token->appId = $app->id;
         $token->userId = Craft::$app->user->getId();
 

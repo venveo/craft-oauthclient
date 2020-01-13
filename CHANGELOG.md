@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ## Unreleased
 ### Added
 - Added a setting to override a provider's authorization URL
+- Added `EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE` to base Provider
+
+### Changed
+- Allow providers to define their own logic for token creation
 
 ### Fixed
 - Improved compatibility with older versions of PHP (7.0+)

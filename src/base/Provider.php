@@ -7,8 +7,10 @@ use craft\base\Component;
 use League\OAuth2\Client\Grant\RefreshToken;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessTokenInterface;
 use ReflectionClass;
 use ReflectionException;
+use venveo\oauthclient\events\TokenEvent;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\models\Token as TokenModel;
 
@@ -20,6 +22,8 @@ use venveo\oauthclient\models\Token as TokenModel;
  */
 abstract class Provider extends Component implements ProviderInterface
 {
+    const EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE = 'EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE';
+
     protected $configuredProvider;
     private $app;
 
@@ -123,6 +127,7 @@ abstract class Provider extends Component implements ProviderInterface
      * @param array $options
      * @return TokenModel
      * @throws IdentityProviderException
+     * @throws ReflectionException
      */
     public function refreshToken(TokenModel $tokenModel, $options = []): TokenModel
     {
@@ -137,6 +142,23 @@ abstract class Provider extends Component implements ProviderInterface
             $tokenModel->refreshToken = $token->getRefreshToken();
         }
         return $tokenModel;
+    }
+
+    /**
+     * Converts the League OAuth access token response to a localized Token model
+     * @param AccessTokenInterface $token
+     * @return TokenModel
+     */
+    public function createTokenModelFromResponse(AccessTokenInterface $token): TokenModel
+    {
+        $tokenModel = new TokenModel([
+            'accessToken' => $token->getToken(),
+            'refreshToken' => $token->getRefreshToken(),
+            'expiryDate' => $token->getExpires()
+        ]);
+        $event = new TokenEvent(['token' => $tokenModel, 'responseToken' => $token]);
+        $this->trigger(self::EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE, $event);
+        return $event->token;
     }
 
     public function __toString()

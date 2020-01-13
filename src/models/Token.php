@@ -8,7 +8,6 @@ use craft\elements\User;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use DateTime;
-use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
@@ -42,15 +41,6 @@ class Token extends Model implements AccessTokenInterface
     private $app;
     /** @var User */
     private $user;
-
-    public static function fromLeagueToken(AccessToken $token): self
-    {
-        return new self([
-            'accessToken' => $token->getToken(),
-            'refreshToken' => $token->getRefreshToken(),
-            'expiryDate' => $token->getExpires()
-        ]);
-    }
 
     /**
      * Gets the user the token belongs to
