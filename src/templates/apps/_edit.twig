@@ -4,8 +4,6 @@
     { label: "OAuth Apps"|t, url: url('oauthclient/apps') },
 ] %}
 
-{% set fullPageForm = true %}
-
 {% import "_includes/forms" as forms %}
 
 
@@ -22,10 +20,22 @@
     {% endif %}
 {% endif %}
 
+{% block actionButton %}
+    {% if app is defined and app.id %}
+    <a href="{{ app.getRedirectUrl('plugin.cp') }}" class="btn submit secondary formsubmit">{{ 'Connect'|t('oauthclient') }}</a>
+    {% endif %}
+    <div class="btn submit formsubmit" data-form="main-form">{{ 'Save'|t('app') }}</div>
+    {{ parent() }}
+{% endblock %}
+
 {% block content %}
+<form id="main-form" method="post" accept-charset="UTF-8"
+      data-saveshortcut{% if app is defined and app.id %} data-saveshortcut-redirect="{{ 'oauthclient/apps/save'|hash }}"{% endif %}
+      data-confirm-unload>
+    {{ hiddenInput('id', app.id) }}
+    {{ actionInput('oauthclient/apps/save') }}
+    {{ csrfInput() }}
     <div id="config-tab">
-        <input type="hidden" name="id" value="{{ app.id }}">
-        {{ actionInput('oauthclient/apps/save') }}
 
         {{ forms.textField({
             label: 'Name'|t('oauthclient'),
@@ -175,6 +185,7 @@
             </table>
         </div>
     {% endif %}
+</form>
 {% endblock %}
 
 {% if app is not defined or not app.handle %}

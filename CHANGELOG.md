@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 - Added a setting to override a provider's authorization URL
 - Added `EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE` to base Provider
+- Added a connect button to the app edit page
 
 ### Changed
 - Allow providers to define their own logic for token creation
