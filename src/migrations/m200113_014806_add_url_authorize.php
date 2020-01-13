@@ -6,9 +6,9 @@ use Craft;
 use craft\db\Migration;
 
 /**
- * add_url_authorize migration.
+ * m200113_014806_add_url_authorize migration.
  */
-class add_url_authorize extends Migration
+class m200113_014806_add_url_authorize extends Migration
 {
     /**
      * @inheritdoc
