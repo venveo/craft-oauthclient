@@ -70,17 +70,6 @@
     required: true,
     errors: app.getErrors('clientSecret'),
   }) }}
-  
-  {{ forms.autosuggestField({
-    suggestEnvVars: true,
-    label: 'Authorize URL'|t('oauthclient'),
-    instructions: 'The custom authorization URL, if different from the provider default.',
-    name: 'urlAuthorize',
-    id: 'urlAuthorize',
-    value : app.urlAuthorize,
-    required: false,
-    errors: app.getErrors('urlAuthorize'),
-  }) }}
 
   {{ forms.selectField({
     first: true,
@@ -111,6 +100,20 @@
       rows: app.getScopes(true),
       errors: app.getErrors('scopes'),
     }) }}
+    <hr>
+    <a class="fieldtoggle" data-target="advanced">{{ "Advanced"|t('app') }}</a>
+    <div id="advanced" class="hidden">
+      {{ forms.autosuggestField({
+        suggestEnvVars: true,
+        label: 'Authorize URL'|t('oauthclient'),
+        instructions: 'The custom authorization URL, if different from the provider default.',
+        name: 'urlAuthorize',
+        id: 'urlAuthorize',
+        value : app.urlAuthorize,
+        required: false,
+        errors: app.getErrors('urlAuthorize'),
+      }) }}
+    </div>
   </div>
   {% if app is defined and app.id is defined %}
   <div id="info-tab" class="hidden">
