@@ -92,7 +92,7 @@ class AuthorizeController extends Controller
         ]);
 
         // We need to save the token
-        $token = $configuredProvider->createTokenModelFromResponse($tokenResponse);
+        $token = $provider->createTokenModelFromResponse($tokenResponse);
         $token->appId = $app->id;
         $token->userId = Craft::$app->user->getId();
 
