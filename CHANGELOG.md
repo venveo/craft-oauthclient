@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.4 - 2020-02-07
+### Fixed
+- Error when invoking createTokenModelResponse (Thanks, @joshangell)
+
 ## 2.1.3 - 2020-01-13
 ### Added
 - Added a setting to override a provider's authorization URL
