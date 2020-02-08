@@ -79,12 +79,18 @@ abstract class Provider extends Component implements ProviderInterface
      */
     public function getProviderOptions(): array
     {
-        return [
+        $urlAuthorize = $this->getApp()->getUrlAuthorize();
+        $result = [
             'clientId' => $this->getApp()->getClientId(),
             'clientSecret' => $this->getApp()->getClientSecret(),
             'redirectUri' => $this->getApp()->getRedirectUrl(),
-            'urlAuthorize' => $this->getApp()->getUrlAuthorize()
         ];
+        
+        if ($urlAuthorize) {
+          $result['urlAuthorize'] = $urlAuthorize;
+        }
+
+        return $result;
     }
 
     /**
