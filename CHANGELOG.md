@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.5 - 2020-02-17
+### Fixed
+- Incorrect response from getUrlAuthorize (Thanks, @kennethormandy)
+
 ## 2.1.4 - 2020-02-07
 ### Fixed
 - Error when invoking createTokenModelResponse (Thanks, @joshangell)
