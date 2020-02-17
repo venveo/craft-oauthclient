@@ -86,7 +86,7 @@ class App extends Model
      */
     public function getUrlAuthorize(): string
     {
-        return Craft::parseEnv($this->clientSecret);
+        return Craft::parseEnv($this->urlAuthorize);
     }
 
     /**
