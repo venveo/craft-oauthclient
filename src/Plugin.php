@@ -129,8 +129,14 @@ class Plugin extends BasePlugin
                 'oauthclient/apps/new' => 'oauthclient/apps/edit',
                 'oauthclient/apps/<handle:{handle}>' => 'oauthclient/apps/edit',
                 'oauthclient/apps/delete' => 'oauthclient/apps/delete',
+
+                // TODO: Remove these in next version in favor of `oauth` route
                 'oauthclient/authorize/refresh/<id:\d+>' => 'oauthclient/authorize/refresh',
                 'oauthclient/authorize/<handle:{handle}>' => 'oauthclient/authorize/authorize-app',
+                // These are duplicates of potentially non-admin-facing actions. Craft automatically checks routes for
+                // the plugin handle, so we needed new routes without the handle.
+                'oauth/authorize/refresh/<id:\d+>' => 'oauthclient/authorize/refresh',
+                'oauth/authorize/<handle:{handle}>' => 'oauthclient/authorize/authorize-app',
             ]);
         });
     }
@@ -153,7 +159,7 @@ class Plugin extends BasePlugin
     /**
      *  Register project config handlers
      */
-    private function _registerProjectConfig(): void
+    private function _registerProjectConfig()
     {
         Craft::$app->projectConfig
             ->onAdd(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleUpdatedApp'])
@@ -169,7 +175,7 @@ class Plugin extends BasePlugin
      * Handle project config rebuilding
      * @param RebuildConfigEvent $e
      */
-    private function _handleProjectConfigRebuild(RebuildConfigEvent $e): void
+    private function _handleProjectConfigRebuild(RebuildConfigEvent $e)
     {
         $appData = [];
         $apps = $this->apps->getAllApps();
@@ -188,7 +194,7 @@ class Plugin extends BasePlugin
         $e->config[self::$PROJECT_CONFIG_KEY]['apps'] = $appData;
     }
 
-    private function _registerPermissions(): void
+    private function _registerPermissions()
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function (RegisterUserPermissionsEvent $event) {
             $apps = Plugin::$plugin->apps->getAllApps();
@@ -198,7 +204,9 @@ class Plugin extends BasePlugin
                 $loginPermissions['oauthclient-login' . $suffix] = ['label' => self::t('Login to “{name}” ({handle}) app', ['name' => $app->name, 'handle' => $app->handle])];
             }
             $event->permissions[self::t('OAuth Client')] = [
-                'oauthclient-login' => ['label' => self::t('Login to Apps'), 'nested' => $loginPermissions]
+                'oauthclient-login' => [
+                    'label' => self::t('Login to Apps'), 'nested' => $loginPermissions
+                ]
             ];
         });
     }

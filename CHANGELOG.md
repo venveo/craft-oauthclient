@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.6 - 2020-02-18
+### Fixed
+- Fixed a permissions error that could occur when a non-admin user tries to authenticate an app
+
+### Changed
+- Changed `oauthclient/authorize` and `oauthclient/authorize/refresh` routes to `oauth/authorize` and `oauth/authorize/refresh` respectively. THe original routes will continue to function as expected.
+
 ## 2.1.5 - 2020-02-17
 ### Fixed
 - Incorrect response from getUrlAuthorize (Thanks, @kennethormandy)

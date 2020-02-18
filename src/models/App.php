@@ -123,7 +123,7 @@ class App extends Model
      */
     public function getRedirectUrl($context = null): string
     {
-        return UrlHelper::cpUrl('oauthclient/authorize/' . $this->handle, [
+        return UrlHelper::cpUrl('oauth/authorize/' . $this->handle, [
             'context' => $context
         ]);
     }

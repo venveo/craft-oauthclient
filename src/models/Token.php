@@ -75,7 +75,7 @@ class Token extends Model implements AccessTokenInterface
      */
     public function getRefreshURL()
     {
-        return UrlHelper::cpUrl('oauthclient/authorize/refresh/' . $this->id);
+        return UrlHelper::cpUrl('oauth/authorize/refresh/' . $this->id);
     }
 
 
