@@ -37,11 +37,17 @@ class AuthorizeController extends Controller
      */
     public function actionAuthorizeApp($handle): Response
     {
+        $context = Craft::$app->request->getParam('context');
+        $redirectUrl = null;
+
         if (Craft::$app->request->isPost) {
             $redirectUrl = Craft::$app->getRequest()->getValidatedBodyParam('redirect');
-            if ($redirectUrl) {
-                Craft::$app->session->set('OAUTH_REDIRECT_URL', $redirectUrl);
-            }
+        } else if ($context && $context['redirect']) {
+            $redirectUrl = $context['redirect'];
+        }
+        
+        if ($redirectUrl) {
+            Craft::$app->session->set('OAUTH_REDIRECT_URL', $redirectUrl);
         }
 
         /** @var  $app */
@@ -53,7 +59,6 @@ class AuthorizeController extends Controller
 
         $this->requirePermission('oauthclient-login:' . $app->uid);
 
-        $context = Craft::$app->request->getParam('context');
         $error = Craft::$app->request->getParam('error');
         $code = Craft::$app->request->getParam('code');
         $state = Craft::$app->request->getParam('state');
