@@ -291,7 +291,7 @@ If we wanted to adjust the return URL the user is brought to after authenticatin
 ```twig
 <form method="post" action="{{ app.getRedirectUrl(context) }}">
         {{ csrfInput() }}
-        {# In this case, we'll just send the user back to this page
+        {# In this case, we'll just send the user back to this page #}
         {{ redirectInput(craft.app.request.url) }}
         <button type="submit" class="btn formsubmit">Connect</button>
 </form>
