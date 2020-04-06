@@ -2,7 +2,7 @@
   "name": "venveo/craft-oauthclient",
   "description": "Simple OAuth 2.0 client",
   "type": "craft-plugin",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "keywords": [
     "craft",
     "cms",
