@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 2.1.7 - 2020-04-06
 ### Fixed
 - Error when creating Facebook provider due to lack of Graph API version
+
+### Changed
+- The Authorization process will now keep track of a context in the session
+
+### Added
+- Added `AuthorizationEvent` to modify the flow of app authorization, such as the return URI for non-POST authorizations.
+- Added `venveo\oauthclient\controllers\AuthorizeController::EVENT_BEFORE_AUTHENTICATE`
+- Added `venveo\oauthclient\controllers\AuthorizeController::EVENT_AFTER_AUTHENTICATE`
 
 ## 2.1.6 - 2020-02-18
 ### Fixed

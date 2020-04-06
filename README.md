@@ -184,6 +184,12 @@ is `plugin.cp`
 #### `venveo\oauthclient\base\Provider`
 - `venveo\oauthclient\base\Provide::EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE`
     - `venveo\oauthclient\events\TokenEvent`
+    
+#### `venveo\oauthclient\controllers\AuthorizeController`
+- `venveo\oauthclient\controllers\AuthorizeController::EVENT_BEFORE_AUTHENTICATE`
+    - `venveo\oauthclient\events\AuthorizationEvent`
+- `venveo\oauthclient\controllers\AuthorizeController::EVENT_AFTER_AUTHENTICATE`
+    - `venveo\oauthclient\events\AuthorizationEvent`
 
 ## Twig Variable
 
@@ -252,6 +258,7 @@ $sheet = $service->spreadsheets->get('some-google-sheet');
 
 ### Modifying the authentication flow conditionally
 
+#### Example 1: Modifying the OAuth Provider Settings
 In this example, we'll render the connector with a context and register an event
 to modify the authorization parameters before the connection URL is rendered.
 
@@ -277,5 +284,35 @@ Event::on(Apps::class, Apps::EVENT_GET_URL_OPTIONS, function (AuthorizationUrlEv
     }
 });
 ```
+
+#### Example 2: Modifying the OAuth flow based on context
+
+If we wanted to adjust the return URL the user is brought to after authenticating, we have two approaches. The first is quite simple and uses standard Craft form redirects:
+```twig
+<form method="post" action="{{ app.getRedirectUrl(context) }}">
+        {{ csrfInput() }}
+        {# In this case, we'll just send the user back to this page
+        {{ redirectInput(craft.app.request.url) }}
+        <button type="submit" class="btn formsubmit">Connect</button>
+</form>
+```
+
+The 2nd case is more complicated, and that's when we don't have a form, but instead just a button to the `app.getRedirectUrl()`
+
+Since it's not a POST request, we need to make use of `context` to modify the flow. We'll call our context "my-custom-context" and invoke the redirect URL with that context:
+```twig
+<a href="{{ app.getRedirectUrl('my-custom-context') }}>Login</a>
+```
+
+Now in our module or plugin, we can just register an event handler for the AuthorizeController controller:
+```php
+Event::on(AuthorizeController::class, AuthorizeController::EVENT_BEFORE_AUTHENTICATE, function (AuthorizationEvent $event) {
+            if ($event->context === 'my-custom-context') {
+                $event->returnUrl = 'https://google.com';
+            }
+});
+```
+
+Success! Now upon logging in, the user will be sent to Google.
 
 Brought to you by [Venveo](https://www.venveo.com)

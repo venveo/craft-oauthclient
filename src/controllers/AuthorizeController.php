@@ -2,7 +2,7 @@
 /**
  *  OAuth 2.0 Client plugin for Craft CMS 3
  * @link      https://www.venveo.com
- * @copyright Copyright (c) 2018-2019 Venveo
+ * @copyright Copyright (c) 2018-2020 Venveo
  */
 
 namespace venveo\oauthclient\controllers;
@@ -15,6 +15,7 @@ use Exception;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use ReflectionException;
 use venveo\oauthclient\base\Provider;
+use venveo\oauthclient\events\AuthorizationEvent;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
 
@@ -25,10 +26,16 @@ use venveo\oauthclient\Plugin;
  */
 class AuthorizeController extends Controller
 {
+    const EVENT_BEFORE_AUTHENTICATE = 'EVENT_BEFORE_AUTHENTICATE';
+    const EVENT_AFTER_AUTHENTICATE = 'EVENT_AFTER_AUTHENTICATE';
+
     const STATE_SESSION_KEY = 'oauth2state';
+    const CONTEXT_SESSION_KEY = 'OAUTH_CONTEXT';
+    const REDIRECT_URL_SESSION_KEY = 'OAUTH_REDIRECT_URL';
 
     /**
      * Handles the actual OAuth process
+     *
      * @param string $handle
      * @return Response
      * @throws IdentityProviderException
@@ -37,31 +44,59 @@ class AuthorizeController extends Controller
      */
     public function actionAuthorizeApp($handle): Response
     {
-        $context = Craft::$app->request->getParam('context');
-        $redirectUrl = null;
+        // These are things that would be returned from our OAuth provider
+        $error = Craft::$app->request->getParam('error');
+        $code = Craft::$app->request->getParam('code');
+        $state = Craft::$app->request->getParam('state');
 
-        if (Craft::$app->request->isPost) {
-            $redirectUrl = Craft::$app->getRequest()->getValidatedBodyParam('redirect');
-        } else if ($context && $context['redirect']) {
-            $redirectUrl = $context['redirect'];
-        }
-        
-        if ($redirectUrl) {
-            Craft::$app->session->set('OAUTH_REDIRECT_URL', $redirectUrl);
+        // If any of those items are set, we'll assume we're getting a callback from the provider
+        $callbackMode = false;
+        if ($state || $error || $code) {
+            $callbackMode = true;
         }
 
-        /** @var  $app */
-        $app = Plugin::$plugin->apps->getAppByHandle($handle);
+        $event = new AuthorizationEvent();
+
+        // We can either have a context in the params or in the session
+        $event->context = Craft::$app->request->getParam('context');
+        if (Craft::$app->session->get(self::CONTEXT_SESSION_KEY)) {
+            $event->context = Craft::$app->session->get(self::CONTEXT_SESSION_KEY);
+            Craft::$app->session->remove(self::CONTEXT_SESSION_KEY);
+        }
+
+        // If it's a form submission, the form may have a redirect URI for after authenticating
+        if (Craft::$app->request->isPost && $redirectUrl = Craft::$app->getRequest()->getValidatedBodyParam('redirect')) {
+            $event->returnUrl = $redirectUrl;
+        }
+
+        // We're coming back from our OAuth provider and we have a redirect url set in our session
+        if ($sessionRedirectUrl = Craft::$app->session->get(self::REDIRECT_URL_SESSION_KEY)) {
+            $event->returnUrl = $sessionRedirectUrl;
+            Craft::$app->session->remove(self::REDIRECT_URL_SESSION_KEY);
+        }
+
+        // Give the event a chance to override the app handle
+        $event->appHandle = $handle;
+
+        if (!$callbackMode) {
+            $this->trigger(self::EVENT_BEFORE_AUTHENTICATE, $event);
+        }
+
+        if (!$callbackMode) {
+            // We need to store the redirect URL in the session since the user is leaving the website for a moment for OAuth
+            // Note: We're not using the absolute URL here because it will be set to this controller's URL
+            $returnUrl = $event->returnUrl ?? UrlHelper::cpUrl('oauthclient/apps');
+            $event->returnUrl = $returnUrl;
+            Craft::$app->session->set(self::REDIRECT_URL_SESSION_KEY, $returnUrl);
+        }
+
+        $app = Plugin::$plugin->apps->getAppByHandle($event->appHandle);
         if (!$app instanceof AppModel) {
             Craft::$app->response->setStatusCode(404, 'App handle does not exist');
             return null;
         }
 
         $this->requirePermission('oauthclient-login:' . $app->uid);
-
-        $error = Craft::$app->request->getParam('error');
-        $code = Craft::$app->request->getParam('code');
-        $state = Craft::$app->request->getParam('state');
 
         /** @var Provider $provider */
         $provider = $app->getProviderInstance();
@@ -71,24 +106,23 @@ class AuthorizeController extends Controller
             Craft::error($error, __METHOD__);
             Craft::$app->session->remove(self::STATE_SESSION_KEY);
             Craft::$app->session->setError(Craft::t('oauthclient', 'Failed to authorize app: ' . $error));
-            return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
+            return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl($event->returnUrl));
         }
 
-        // Begin auth process
         if (empty($code)) {
             $state = $this->getRandomState();
             Craft::$app->session->set(self::STATE_SESSION_KEY, $state);
-
-            $url = Plugin::$plugin->apps->getAuthorizationUrlForApp($app, $state, $context);
-
+            Craft::$app->session->set(self::CONTEXT_SESSION_KEY, $event->context);
+            $url = Plugin::$plugin->apps->getAuthorizationUrlForApp($app, $state, $event->context);
             return Craft::$app->response->redirect($url);
         }
 
-        if (empty($state) || Craft::$app->session->get(self::STATE_SESSION_KEY) !== $state) {
+        // At this point, we should definitely be in callback mode - so we'll
 
+        if (empty($state) || Craft::$app->session->get(self::STATE_SESSION_KEY) !== $state) {
             Craft::$app->session->setError(Craft::t('oauthclient', 'Invalid OAuth 2 State'));
             Craft::$app->session->remove(self::STATE_SESSION_KEY);
-            return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
+            return Craft::$app->response->redirect($event->returnUrl);
         }
         /** @var Provider $configuredProvider */
         $configuredProvider = $provider->getConfiguredProvider();
@@ -104,6 +138,7 @@ class AuthorizeController extends Controller
         try {
             $saved = Plugin::$plugin->tokens->saveToken($token);
             if ($saved) {
+                $event->token = $token;
                 Craft::$app->session->setFlash(Craft::t('oauthclient', 'Connected via ' . $app->name));
             } else {
                 Craft::$app->session->setError(Craft::t('oauthclient', 'Failed to save token'));
@@ -113,13 +148,9 @@ class AuthorizeController extends Controller
             Craft::$app->session->setError(Craft::t('oauthclient', 'Something went wrong: ' . $e->getMessage()));
         }
 
-        $redirectUrl = Craft::$app->session->get('OAUTH_REDIRECT_URL');
-        if ($redirectUrl) {
-            Craft::$app->session->remove('OAUTH_REDIRECT_URL');
-            return Craft::$app->getResponse()->redirect(UrlHelper::url($redirectUrl));
-        }
+        $this->trigger(self::EVENT_AFTER_AUTHENTICATE, $event);
 
-        return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('oauthclient/apps'));
+        return Craft::$app->getResponse()->redirect(UrlHelper::url($event->returnUrl));
     }
 
     /**
