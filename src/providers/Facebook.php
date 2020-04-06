@@ -35,4 +35,11 @@ class Facebook extends Provider
     {
         return FacebookProvider::class;
     }
+
+    public function getProviderOptions(): array
+    {
+        $options = parent::getProviderOptions();
+        $options['graphApiVersion'] = 'v6.0';
+        return $options;
+    }
 }

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+- Error when creating Facebook provider due to lack of Graph API version
+
 ## 2.1.6 - 2020-02-18
 ### Fixed
 - Fixed a permissions error that could occur when a non-admin user tries to authenticate an app
