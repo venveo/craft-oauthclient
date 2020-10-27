@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.8 - 2020-10-27
+### Fixed
+- Fixed Composer 2 compatibility (#32)
+
 ## 2.1.7 - 2020-04-06
 ### Fixed
 - Error when creating Facebook provider due to lack of Graph API version
