@@ -7,6 +7,7 @@ use craft\base\Model;
 use craft\elements\User;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
+use craft\services\Security;
 use craft\validators\UniqueValidator;
 use Exception;
 use Twig\Error\LoaderError;
@@ -19,6 +20,7 @@ use venveo\oauthclient\records\App as AppRecord;
 use venveo\oauthclient\records\Token as TokenRecord;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
+use yii\web\HttpException;
 
 /**
  * Class App
@@ -119,12 +121,14 @@ class App extends Model
      * Get the URL callback URL
      *
      * @param null|string $context A context that will be passed to the controller to help tag events for handling.
+     * @param null $returnUrl
      * @return string
      */
-    public function getRedirectUrl($context = null): string
+    public function getRedirectUrl($context = null, $returnUrl = null): string
     {
         return UrlHelper::cpUrl('oauth/authorize/' . $this->handle, [
-            'context' => $context
+            'context' => $context,
+            'returnUrl' => isset($returnUrl) ? Craft::$app->security->hashData(UrlHelper::url($returnUrl)) : null
         ]);
     }
 

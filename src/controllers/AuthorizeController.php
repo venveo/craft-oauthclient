@@ -18,6 +18,7 @@ use venveo\oauthclient\base\Provider;
 use venveo\oauthclient\events\AuthorizationEvent;
 use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
+use yii\web\HttpException;
 
 /**
  * @author    Venveo
@@ -49,13 +50,22 @@ class AuthorizeController extends Controller
         $code = Craft::$app->request->getParam('code');
         $state = Craft::$app->request->getParam('state');
 
+        $event = new AuthorizationEvent();
+
+        $returnUrl = Craft::$app->request->getQueryParam('returnUrl');
+        if ($returnUrl) {
+            $returnUrl = Craft::$app->security->validateData($returnUrl);
+            if (!$returnUrl) {
+                throw new HttpException(400, 'Security hash not valid');
+            }
+            $event->returnUrl = $returnUrl;
+        }
+
         // If any of those items are set, we'll assume we're getting a callback from the provider
         $callbackMode = false;
         if ($state || $error || $code) {
             $callbackMode = true;
         }
-
-        $event = new AuthorizationEvent();
 
         // We can either have a context in the params or in the session
         $event->context = Craft::$app->request->getParam('context');
@@ -93,7 +103,7 @@ class AuthorizeController extends Controller
         $app = Plugin::$plugin->apps->getAppByHandle($event->appHandle);
         if (!$app instanceof AppModel) {
             Craft::$app->response->setStatusCode(404, 'App handle does not exist');
-            return null;
+            return Craft::$app->response;
         }
 
         $this->requirePermission('oauthclient-login:' . $app->uid);

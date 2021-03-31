@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.9 - 2021-03-30
+### Added
+- It's now possible to specify a redirect URL in `App::getRedirectUrl`
+
+### Fixed
+- The `renderConnector` no longer uses a form to submit, making it possible to use within forms (e.g. field layout templates)
+
 ## 2.1.8 - 2020-10-27
 ### Fixed
 - Fixed Composer 2 compatibility (#32)
