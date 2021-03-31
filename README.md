@@ -267,7 +267,8 @@ to modify the authorization parameters before the connection URL is rendered.
 {{ app.renderConnector('cp') }}
 
 {# I can also just render the link URL #}
-<a href="{{ app.getRedirectUrl('cp') }}">Login</a>
+{# Note: As of 2.1.9, a return URL may be sent as a paramter in getRedirectUrl() #}
+<a href="{{ app.getRedirectUrl('cp', craft.app.request.url) }}">Login</a>
 ```
 
 ```php
