@@ -40,11 +40,7 @@ class Providers extends Component
      */
     public function getAllProviderTypes(): array
     {
-        $providerTypes = [
-            Google::class,
-            GitHub::class,
-            Facebook::class
-        ];
+        $providerTypes = [];
         $event = new RegisterComponentTypesEvent([
             'types' => $providerTypes
         ]);

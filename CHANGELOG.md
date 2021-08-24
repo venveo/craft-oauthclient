@@ -1,8 +1,23 @@
-# OAuth 2.0 Client Changelog
+Changelog
+=========
 
-All notable changes to this project will be documented in this file.
+## 3.0.0
+> {warning} This update removes core providers. Please stay on version 2.x if you rely on these.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
+### Added
+- Tokens now store "value" data
+
+### Changed
+- Plugin now requires at least php 7.4
+- Remove Facebook provider from core
+- Remove Google provider from core
+- Remove GitHub provider from core
+- Tokens no longer require a User
+- Remove route `oauthclient/authorize/refresh/{id}`
+- Remove route `oauthclient/authorize/{handle}`
+- When a token is fetched, the user's previous tokens for that app will be deleted
+
+### Changed
 
 ## 2.1.9 - 2021-03-30
 ### Added

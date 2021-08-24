@@ -160,7 +160,8 @@ abstract class Provider extends Component implements ProviderInterface
         $tokenModel = new TokenModel([
             'accessToken' => $token->getToken(),
             'refreshToken' => $token->getRefreshToken(),
-            'expiryDate' => $token->getExpires()
+            'expiryDate' => $token->getExpires(),
+            'values' => $token->getValues()
         ]);
         $event = new TokenEvent(['token' => $tokenModel, 'responseToken' => $token]);
         $this->trigger(self::EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE, $event);

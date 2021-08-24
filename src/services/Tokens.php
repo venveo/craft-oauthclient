@@ -116,7 +116,7 @@ class Tokens extends Component
      * @return bool
      * @throws Exception
      */
-    public function saveToken(TokenModel $token, bool $runValidation = true): bool
+    public function saveToken(TokenModel $token, bool $runValidation = true, $prune = true): bool
     {
         $isNew = empty($token->id);
         if ($token->id) {
@@ -156,6 +156,15 @@ class Tokens extends Component
 
             // Now that we have a record ID, save it on the model
             $token->id = $record->id;
+
+            if ($prune && $record->userId) {
+                $deleted = TokenRecord::deleteAll(['and',
+                    ['=', 'userId', $record->userId],
+                    ['=', 'appId', $record->appId],
+                    ['!=', 'id', $token->id]
+                ]);
+                Craft::info("Pruned $deleted tokens during token save for user: ". $record->userId);
+            }
 
             if ($this->hasEventHandlers(self::EVENT_AFTER_TOKEN_SAVED)) {
                 $this->trigger(self::EVENT_AFTER_TOKEN_SAVED, new TokenEvent([

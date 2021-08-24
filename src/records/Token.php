@@ -30,6 +30,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $appId
  * @property string $accessToken
  * @property string $refreshToken
+ * @property string $values
  * @property App $app
  * @property User $user
  */

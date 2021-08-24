@@ -160,7 +160,7 @@ class AuthorizeController extends Controller
 
         $this->trigger(self::EVENT_AFTER_AUTHENTICATE, $event);
 
-        return Craft::$app->getResponse()->redirect(UrlHelper::url($event->returnUrl));
+        return Craft::$app->getResponse()->redirect(UrlHelper::url($event->returnUrl ?? ''));
     }
 
     /**

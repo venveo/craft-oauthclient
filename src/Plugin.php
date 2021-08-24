@@ -60,7 +60,7 @@ class Plugin extends BasePlugin
     /**
      * @var string
      */
-    public $schemaVersion = '2.1.3';
+    public $schemaVersion = '3.0.0';
     public $hasCpSettings = true;
 
     // Public Methods
@@ -130,11 +130,7 @@ class Plugin extends BasePlugin
                 'oauthclient/apps/<handle:{handle}>' => 'oauthclient/apps/edit',
                 'oauthclient/apps/delete' => 'oauthclient/apps/delete',
 
-                // TODO: Remove these in next version in favor of `oauth` route
-                'oauthclient/authorize/refresh/<id:\d+>' => 'oauthclient/authorize/refresh',
-                'oauthclient/authorize/<handle:{handle}>' => 'oauthclient/authorize/authorize-app',
-                // These are duplicates of potentially non-admin-facing actions. Craft automatically checks routes for
-                // the plugin handle, so we needed new routes without the handle.
+                // These routes avoid the plugin handle to allow access in non-dev environments
                 'oauth/authorize/refresh/<id:\d+>' => 'oauthclient/authorize/refresh',
                 'oauth/authorize/<handle:{handle}>' => 'oauthclient/authorize/authorize-app',
             ]);

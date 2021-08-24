@@ -34,8 +34,7 @@ class Token extends Model implements AccessTokenInterface
     public $refreshToken;
     public $accessToken;
     public $uid;
-
-    private $tokenValues;
+    public $values;
 
     /** @var AppModel */
     private $app;
@@ -48,6 +47,10 @@ class Token extends Model implements AccessTokenInterface
      */
     public function getUser()
     {
+        if (!$this->userId) {
+            return null;
+        }
+
         if ($this->user instanceof User) {
             return $this->user;
         }
@@ -139,7 +142,7 @@ class Token extends Model implements AccessTokenInterface
      */
     public function getValues()
     {
-        return $this->tokenValues;
+        return $this->values;
     }
 
     /**
