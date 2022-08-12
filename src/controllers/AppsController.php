@@ -29,7 +29,11 @@ use yii\web\NotFoundHttpException;
 class AppsController extends Controller
 {
 
-    public function actionIndex()
+    /**
+     * @return \yii\web\Response
+     * @throws ForbiddenHttpException
+     */
+    public function actionIndex(): \yii\web\Response
     {
         $this->requireAdmin();
         $apps = Plugin::getInstance()->apps->getAllApps();
@@ -39,14 +43,13 @@ class AppsController extends Controller
         ]);
     }
 
-
     /**
-     * @param AppModel|null $app
-     * @return Response
-     * @throws HttpException
-     * @throws InvalidConfigException
+     * @param $handle
+     * @param $app
+     * @return \yii\web\Response
+     * @throws ForbiddenHttpException
      */
-    public function actionEdit($handle = null, $app = null)
+    public function actionEdit($handle = null, $app = null): \yii\web\Response
     {
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
@@ -93,11 +96,11 @@ class AppsController extends Controller
     /**
      * Attempt to delete an app by its ID
      * @return \yii\web\Response
-     * @throws \yii\db\Exception
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
      */
-    public function actionDelete()
+    public function actionDelete(): \yii\web\Response
     {
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
@@ -119,11 +122,11 @@ class AppsController extends Controller
     }
 
     /**
-     * @return Response|null
-     * @throws HttpException
-     * @throws Exception
+     * @return \yii\web\Response|null
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?\yii\web\Response
     {
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
@@ -149,7 +152,6 @@ class AppsController extends Controller
             'scopes' => $scopes
         ];
 
-        /** @var AppModel $app */
         $app = $appService->createApp($config);
         if ($app->id) {
             $isNew = false;
