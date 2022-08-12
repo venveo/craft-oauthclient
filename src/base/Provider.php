@@ -22,7 +22,7 @@ use venveo\oauthclient\models\Token as TokenModel;
  */
 abstract class Provider extends Component implements ProviderInterface
 {
-    const EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE = 'EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE';
+    public const EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE = 'EVENT_CREATE_TOKEN_MODEL_FROM_RESPONSE';
 
     protected $configuredProvider;
     private $app;
@@ -53,7 +53,7 @@ abstract class Provider extends Component implements ProviderInterface
      * @inheritDoc
      * @throws ReflectionException
      */
-    public function getConfiguredProvider()
+    public function getConfiguredProvider(): ProviderInterface
     {
         if ($this->configuredProvider instanceof AbstractProvider) {
             return $this->configuredProvider;
@@ -113,7 +113,7 @@ abstract class Provider extends Component implements ProviderInterface
 
     /**
      * Gets a unique state parameter. We're gonna use the CSRF token by default
-     * @return string|null
+     * @return string
      */
     public function getState(): string
     {

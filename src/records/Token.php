@@ -35,13 +35,10 @@ use yii\db\ActiveQueryInterface;
  */
 class Token extends ActiveRecord
 {
-    // Public Static Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return '{{%oauthclient_tokens}}';
     }
@@ -64,17 +61,5 @@ class Token extends ActiveRecord
     public function getApp(): ActiveQueryInterface
     {
         return $this->hasOne(AppRecord::class, ['id' => 'appId']);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-
-        $attributes[] = 'expiryDate';
-
-        return $attributes;
     }
 }

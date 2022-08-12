@@ -36,9 +36,6 @@ use yii\db\ActiveQueryInterface;
  */
 class App extends ActiveRecord
 {
-    // Public Static Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -46,9 +43,6 @@ class App extends ActiveRecord
     {
         return '{{%oauthclient_apps}}';
     }
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the OAuth Tokens’s user.

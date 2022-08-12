@@ -30,8 +30,8 @@ use venveo\oauthclient\records\Token as TokenRecord;
 class Tokens extends Component
 {
 
-    const EVENT_BEFORE_TOKEN_SAVED = 'EVENT_BEFORE_TOKEN_SAVED';
-    const EVENT_AFTER_TOKEN_SAVED = 'EVENT_AFTER_TOKEN_SAVED';
+    public const EVENT_BEFORE_TOKEN_SAVED = 'EVENT_BEFORE_TOKEN_SAVED';
+    public const EVENT_AFTER_TOKEN_SAVED = 'EVENT_AFTER_TOKEN_SAVED';
 
     /**
      * Returns all tokens
@@ -84,7 +84,7 @@ class Tokens extends Component
      * @param $id
      * @return TokenModel|null
      */
-    public function getTokenById($id)
+    public function getTokenById($id): ?TokenModel
     {
         $result = $this->_createTokenQuery()
             ->where(['id' => $id])
@@ -93,6 +93,10 @@ class Tokens extends Component
         return $result ? $this->createToken($result) : null;
     }
 
+    /**
+     * @param $appId
+     * @return array<TokenModel>
+     */
     public function getAllTokensForApp($appId): array
     {
         $rows = $this->_createTokenQuery()

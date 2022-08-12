@@ -7,7 +7,6 @@ use craft\base\Model;
 use craft\elements\User;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
-use craft\services\Security;
 use craft\validators\UniqueValidator;
 use Exception;
 use Twig\Error\LoaderError;
@@ -20,7 +19,6 @@ use venveo\oauthclient\records\App as AppRecord;
 use venveo\oauthclient\records\Token as TokenRecord;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
-use yii\web\HttpException;
 
 /**
  * Class App
@@ -34,22 +32,20 @@ use yii\web\HttpException;
  */
 class App extends Model
 {
-    public $uid;
-    public $id;
-    public $dateCreated;
-    public $dateUpdated;
+    public ?string $uid = null;
+    public ?int $id = null;
+    public ?\DateTime $dateCreated = null;
+    public ?\DateTime $dateUpdated = null;
     public $scopes;
-    public $userId;
-    public $provider;
-    public $name;
-    public $handle;
-    public $clientId;
-    public $clientSecret;
-    public $urlAuthorize;
+    public ?int $userId = null;
+    public ?string $provider = null;
+    public ?string $name = null;
+    public ?string $handle = null;
+    public ?int $clientId = null;
+    public ?string $clientSecret = null;
+    public ?string $urlAuthorize = null;
 
-    public $isNew;
-
-    private $providerInstance = null;
+    private ?Provider $providerInstance = null;
 
     /**
      * Returns the name of this payment method.
@@ -68,7 +64,7 @@ class App extends Model
      */
     public function getClientId(): string
     {
-        return Craft::parseEnv($this->clientId);
+        return \craft\helpers\App::parseEnv($this->clientId);
     }
 
     /**
@@ -78,7 +74,7 @@ class App extends Model
      */
     public function getClientSecret(): string
     {
-        return Craft::parseEnv($this->clientSecret);
+        return \craft\helpers\App::parseEnv($this->clientSecret);
     }
 
     /**
@@ -88,7 +84,7 @@ class App extends Model
      */
     public function getUrlAuthorize(): string
     {
-        return Craft::parseEnv($this->urlAuthorize);
+        return \craft\helpers\App::parseEnv($this->urlAuthorize);
     }
 
     /**
@@ -97,10 +93,10 @@ class App extends Model
      * @param bool $forTable If true, we'll format the output for Craft's table field
      * @return array
      */
-    public function getScopes($forTable = false): array
+    public function getScopes(bool $forTable = false): array
     {
         if ($forTable) {
-            return array_map(function ($scope) {
+            return array_map(static function ($scope) {
                 return ['scope' => $scope];
             }, explode(',', $this->scopes));
         }
@@ -120,11 +116,13 @@ class App extends Model
     /**
      * Get the URL callback URL
      *
-     * @param null|string $context A context that will be passed to the controller to help tag events for handling.
+     * @param string|null $context A context that will be passed to the controller to help tag events for handling.
      * @param null $returnUrl
      * @return string
+     * @throws InvalidConfigException
+     * @throws \yii\base\Exception
      */
-    public function getRedirectUrl($context = null, $returnUrl = null): string
+    public function getRedirectUrl(string $context = null, $returnUrl = null): string
     {
         return UrlHelper::cpUrl('oauth/authorize/' . $this->handle, [
             'context' => $context,
@@ -138,7 +136,7 @@ class App extends Model
      * @return Provider|null
      * @throws InvalidConfigException
      */
-    public function getProviderInstance()
+    public function getProviderInstance(): ?Provider
     {
         if ($this->providerInstance instanceof Provider) {
             return $this->providerInstance;
@@ -202,11 +200,12 @@ class App extends Model
      * Get all tokens valid tokens for the supplied user. If no user is supplied, the current user will
      * be used.
      *
-     * @param null|int|User $user
+     * @param int|User|null $user
      * @return Token[]
      * @throws Exception
+     * @throws \Throwable
      */
-    public function getValidTokensForUser($user = null)
+    public function getValidTokensForUser(int|User $user = null): array
     {
         $userId = null;
         if ($user instanceof User) {
@@ -216,7 +215,7 @@ class App extends Model
         } elseif ($currentUser = Craft::$app->user->getIdentity()) {
             $userId = $currentUser->id;
         } else {
-            // No user, but let's return an empty array so we don't break anything upstream
+            // No user, but let's return an empty array, so we don't break anything upstream
             return [];
         }
         return Plugin::getInstance()->credentials->getValidTokensForAppAndUser($this, $userId);

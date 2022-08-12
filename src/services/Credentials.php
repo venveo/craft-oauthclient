@@ -31,19 +31,19 @@ use yii\db\Exception;
  */
 class Credentials extends Component
 {
-    const EVENT_BEFORE_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
-    const EVENT_AFTER_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
-    const EVENT_TOKEN_REFRESH_FAILED = 'EVENT_TOKEN_REFRESH_FAILED';
+    public const EVENT_BEFORE_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
+    public const EVENT_AFTER_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
+    public const EVENT_TOKEN_REFRESH_FAILED = 'EVENT_TOKEN_REFRESH_FAILED';
 
     /**
      * Gets valid tokens given an application and optionally, a Craft user ID
      * This method will attempt to refresh expired tokens for an app
-     * @param $appHandle AppModel|string
-     * @param $user User|int
+     * @param $appHandle string|AppModel
+     * @param $user int|User|null
      * @return TokenModel[]
      * @throws \Exception
      */
-    public function getValidTokensForAppAndUser($appHandle, $user = null): array
+    public function getValidTokensForAppAndUser(string|AppModel $appHandle, int|User|null $user = null): array
     {
         // Allow models or IDs against my better judgement
         if ($appHandle instanceof AppModel) {

@@ -4,6 +4,7 @@
 
 ### Changed
 - Now requires Craft 4 & PHP 8.0.2
+- `Provider::getConfiguredProvider()` now returns `ProviderInterface` instead of `AbstractProvider`
 
 ### Removed
 - Removed route `oauthclient/authorize/refresh/` use `oauth/authorize/refresh/` instead
