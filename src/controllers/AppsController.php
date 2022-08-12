@@ -128,6 +128,7 @@ class AppsController extends Controller
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
         }
+        $isNew = true;
         $this->requireAdmin();
         $this->requirePostRequest();
 
@@ -150,6 +151,9 @@ class AppsController extends Controller
 
         /** @var AppModel $app */
         $app = $appService->createApp($config);
+        if ($app->id) {
+            $isNew = false;
+        }
 
         $session = Craft::$app->session;
 
@@ -164,6 +168,6 @@ class AppsController extends Controller
         }
 
         $session->setNotice(Craft::t('oauthclient', 'App saved'));
-        return $this->redirect(UrlHelper::cpUrl('oauthclient/apps/' . $app->handle . ($app->isNew ? '#info-tab' : '')));
+        return $this->redirect(UrlHelper::cpUrl('oauthclient/apps/' . $app->handle . ($isNew ? '#info-tab' : '')));
     }
 }
