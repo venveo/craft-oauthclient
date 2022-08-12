@@ -49,7 +49,7 @@ class Credentials extends Component
         if ($appHandle instanceof AppModel) {
             $app = $appHandle;
         } else {
-            $app = Plugin::$plugin->apps->getAppByHandle($appHandle);
+            $app = Plugin::getInstance()->apps->getAppByHandle($appHandle);
         }
 
         if (!$app instanceof AppModel) {
@@ -76,7 +76,7 @@ class Credentials extends Component
 
         $tokenModels = [];
         foreach ($tokenRecords as $tokenRecord) {
-            $tokenModel = Plugin::$plugin->tokens->createToken($tokenRecord);
+            $tokenModel = Plugin::getInstance()->tokens->createToken($tokenRecord);
             // We need to prune this token at some point
             if ($tokenModel->hasExpired() && empty($tokenModel->refreshToken)) {
                 continue;
@@ -112,7 +112,7 @@ class Credentials extends Component
         try {
             $app = $tokenModel->getApp();
             $app->getProviderInstance()->refreshToken($tokenModel);
-            $saved = Plugin::$plugin->tokens->saveToken($tokenModel);
+            $saved = Plugin::getInstance()->tokens->saveToken($tokenModel);
             if ($saved) {
                 if ($this->hasEventHandlers(self::EVENT_AFTER_REFRESH_TOKEN)) {
                     $this->trigger(self::EVENT_AFTER_REFRESH_TOKEN, new TokenEvent([

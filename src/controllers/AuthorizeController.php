@@ -100,7 +100,7 @@ class AuthorizeController extends Controller
             Craft::$app->session->set(self::REDIRECT_URL_SESSION_KEY, $returnUrl);
         }
 
-        $app = Plugin::$plugin->apps->getAppByHandle($event->appHandle);
+        $app = Plugin::getInstance()->apps->getAppByHandle($event->appHandle);
         if (!$app instanceof AppModel) {
             Craft::$app->response->setStatusCode(404, 'App handle does not exist');
             return Craft::$app->response;
@@ -123,7 +123,7 @@ class AuthorizeController extends Controller
             $state = $this->getRandomState();
             Craft::$app->session->set(self::STATE_SESSION_KEY, $state);
             Craft::$app->session->set(self::CONTEXT_SESSION_KEY, $event->context);
-            $url = Plugin::$plugin->apps->getAuthorizationUrlForApp($app, $state, $event->context);
+            $url = Plugin::getInstance()->apps->getAuthorizationUrlForApp($app, $state, $event->context);
             return Craft::$app->response->redirect($url);
         }
 
@@ -146,7 +146,7 @@ class AuthorizeController extends Controller
         $token->userId = Craft::$app->user->getId();
 
         try {
-            $saved = Plugin::$plugin->tokens->saveToken($token);
+            $saved = Plugin::getInstance()->tokens->saveToken($token);
             if ($saved) {
                 $event->token = $token;
                 Craft::$app->session->setFlash(Craft::t('oauthclient', 'Connected via ' . $app->name));
@@ -185,7 +185,7 @@ class AuthorizeController extends Controller
      */
     public function actionRefresh($id)
     {
-        $token = Plugin::$plugin->tokens->getTokenById($id);
+        $token = Plugin::getInstance()->tokens->getTokenById($id);
         if (!$token) {
             return Craft::$app->response->setStatusCode(404, 'Token not found');
         }
@@ -193,7 +193,7 @@ class AuthorizeController extends Controller
         $app = $token->getApp();
         $this->requirePermission('oauthclient-login:' . $app->uid);
 
-        $refreshed = Plugin::$plugin->credentials->refreshToken($token);
+        $refreshed = Plugin::getInstance()->credentials->refreshToken($token);
         if ($refreshed) {
             $app = $token->getApp();
             return Craft::$app->response->redirect($app->getCpEditUrl());

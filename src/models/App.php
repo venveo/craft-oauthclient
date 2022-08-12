@@ -148,7 +148,7 @@ class App extends Model
             'app' => $this,
             'type' => $this->provider
         ];
-        $this->providerInstance = Plugin::$plugin->providers->createProvider($config);
+        $this->providerInstance = Plugin::getInstance()->providers->createProvider($config);
         return $this->providerInstance;
     }
 
@@ -159,7 +159,7 @@ class App extends Model
      */
     public function getAllTokens(): array
     {
-        return Plugin::$plugin->tokens->getAllTokensForApp($this->id);
+        return Plugin::getInstance()->tokens->getAllTokensForApp($this->id);
     }
 
     /**
@@ -219,13 +219,13 @@ class App extends Model
             // No user, but let's return an empty array so we don't break anything upstream
             return [];
         }
-        return Plugin::$plugin->credentials->getValidTokensForAppAndUser($this, $userId);
+        return Plugin::getInstance()->credentials->getValidTokensForAppAndUser($this, $userId);
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['handle', 'name', 'clientId', 'clientSecret', 'provider'], 'required'],

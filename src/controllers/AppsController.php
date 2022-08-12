@@ -107,13 +107,13 @@ class AppsController extends Controller
 
         $request = Craft::$app->getRequest();
         $id = $request->getRequiredBodyParam('id');
-        $app = Plugin::$plugin->apps->getAppById($id);
+        $app = Plugin::getInstance()->apps->getAppById($id);
 
         if (!$app) {
             throw new NotFoundHttpException('App does not exist');
         }
 
-        Plugin::$plugin->apps->deleteApp($app);
+        Plugin::getInstance()->apps->deleteApp($app);
 
         return $this->asJson(['success' => true]);
     }

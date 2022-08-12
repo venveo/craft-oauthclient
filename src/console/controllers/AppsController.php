@@ -21,8 +21,8 @@ class AppsController extends Controller
      */
     public function actionRefreshTokens($appHandle)
     {
-        $credentialService = Plugin::$plugin->credentials;
-        $appService = Plugin::$plugin->apps;
+        $credentialService = Plugin::getInstance()->credentials;
+        $appService = Plugin::getInstance()->apps;
         if (!$app = $appService->getAppByHandle($appHandle)) {
             $this->stderr('No app found with that handle' . PHP_EOL);
             return 1;

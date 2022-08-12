@@ -1,8 +1,14 @@
 # OAuth 2.0 Client Changelog
 
-All notable changes to this project will be documented in this file.
+## 4.0.0-beta.1 - Unreleased
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
+### Changed
+- Now requires Craft 4 & PHP 8.0.2
+
+### Removed
+- Removed route `oauthclient/authorize/refresh/` use `oauth/authorize/refresh/` instead
+- Removed route `oauthclient/authorize/` use `oauth/authorize/` instead
+- Removed `Plugin::$plugin` static property - use `Plugin::getInstance()` instead
 
 ## 2.1.9 - 2021-03-30
 ### Added

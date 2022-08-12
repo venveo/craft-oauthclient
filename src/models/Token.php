@@ -65,7 +65,7 @@ class Token extends Model implements AccessTokenInterface
             return $this->app;
         }
 
-        $this->app = Plugin::$plugin->apps->getAppById($this->appId);
+        $this->app = Plugin::getInstance()->apps->getAppById($this->appId);
         return $this->app;
     }
 
@@ -82,7 +82,7 @@ class Token extends Model implements AccessTokenInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['accessToken', 'appId'], 'required'],
