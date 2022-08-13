@@ -8,6 +8,7 @@ use craft\elements\User;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use craft\web\View;
 use Exception;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -173,26 +174,22 @@ class App extends Model
     /**
      * Renders some basic UI to allow a user to connect to the app
      *
+     * @param string|null $context
      * @return Markup
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
+     * @throws \Throwable
      * @throws \yii\base\Exception
      */
-    public function renderConnector($context = null)
+    public function renderConnector(string|null $context = null): Markup
     {
-        $view = Craft::$app->getView();
-        $oldTemplateMode = $view->getTemplateMode();
-        if ($oldTemplateMode !== $view::TEMPLATE_MODE_CP) {
-            $view->setTemplateMode($view::TEMPLATE_MODE_CP);
-        }
         $tokens = $this->getValidTokensForUser();
         $template = Craft::$app->view->renderTemplate('oauthclient/_connector/connector', [
             'context' => $context,
             'app' => $this,
             'token' => count($tokens) ? $tokens[0] : null
-        ]);
-        $view->setTemplateMode($oldTemplateMode);
+        ], View::TEMPLATE_MODE_CP);
         return Template::raw($template);
     }
 
