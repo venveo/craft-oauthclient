@@ -41,7 +41,7 @@ class App extends Model
     public ?string $provider = null;
     public ?string $name = null;
     public ?string $handle = null;
-    public ?int $clientId = null;
+    public ?string $clientId = null;
     public ?string $clientSecret = null;
     public ?string $urlAuthorize = null;
 
@@ -84,7 +84,7 @@ class App extends Model
      */
     public function getUrlAuthorize(): string
     {
-        return \craft\helpers\App::parseEnv($this->urlAuthorize);
+        return \craft\helpers\App::parseEnv($this->urlAuthorize) ?: '';
     }
 
     /**

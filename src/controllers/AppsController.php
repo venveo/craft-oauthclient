@@ -161,14 +161,13 @@ class AppsController extends Controller
 
         // Save it
         if (!Plugin::getInstance()->apps->saveApp($app)) {
-            $session->setError(Craft::t('oauthclient', 'Failed to save app'));
-            // Send the volume back to the template
-            Craft::$app->getUrlManager()->setRouteParams([
+            // TODO: Switch to asModelFailure
+            return $this->asFailure('Failed to save app', [], [
                 'app' => $app
             ]);
-            return null;
         }
 
+        // TODO: Switch to asModuleSuccess
         $session->setNotice(Craft::t('oauthclient', 'App saved'));
         return $this->redirect(UrlHelper::cpUrl('oauthclient/apps/' . $app->handle . ($isNew ? '#info-tab' : '')));
     }

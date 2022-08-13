@@ -28,9 +28,9 @@ interface ProviderInterface
 
     /**
      * Gets a concrete League provider instance
-     * @return ProviderInterface
+     * @return AbstractProvider
      */
-    public function getConfiguredProvider(): ProviderInterface;
+    public function getConfiguredProvider(): AbstractProvider;
 
     /**
      * Get the URL used to authorize the token

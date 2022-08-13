@@ -53,7 +53,7 @@ abstract class Provider extends Component implements ProviderInterface
      * @inheritDoc
      * @throws ReflectionException
      */
-    public function getConfiguredProvider(): ProviderInterface
+    public function getConfiguredProvider(): AbstractProvider
     {
         if ($this->configuredProvider instanceof AbstractProvider) {
             return $this->configuredProvider;
