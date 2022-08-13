@@ -80,18 +80,18 @@ class App extends Model
     /**
      * Returns the custom authorization URL.
      *
-     * @return string
+     * @return string|null
      */
-    public function getUrlAuthorize(): string
+    public function getUrlAuthorize(): ?string
     {
-        return \craft\helpers\App::parseEnv($this->urlAuthorize) ?: '';
+        return \craft\helpers\App::parseEnv($this->urlAuthorize);
     }
 
     /**
      * Get the scopes for the app
      *
      * @param bool $forTable If true, we'll format the output for Craft's table field
-     * @return array
+     * @return array<string>
      */
     public function getScopes(bool $forTable = false): array
     {
