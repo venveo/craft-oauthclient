@@ -37,7 +37,7 @@ class App extends Model
     public ?int $id = null;
     public ?\DateTime $dateCreated = null;
     public ?\DateTime $dateUpdated = null;
-    public $scopes;
+    public string $scopes = '';
     public ?int $userId = null;
     public ?string $provider = null;
     public ?string $name = null;

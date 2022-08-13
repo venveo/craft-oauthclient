@@ -5,6 +5,9 @@
 ### Changed
 - Now requires Craft 4 & PHP 8.0.2
 
+## Fixed
+- Fixed saving an app with no scopes producing an error
+
 ### Removed
 - Removed route `oauthclient/authorize/refresh/` use `oauth/authorize/refresh/` instead
 - Removed route `oauthclient/authorize/` use `oauth/authorize/` instead

@@ -139,7 +139,9 @@ class AppsController extends Controller
         $appService = Plugin::getInstance()->apps;
 
         $scopes = $request->getBodyParam('scopes');
-        $scopes = implode(',', ArrayHelper::getColumn($scopes, 'scope'));
+        if (is_array($scopes)) {
+            $scopes = implode(',', ArrayHelper::getColumn($scopes, 'scope'));
+        }
 
         $config = [
             'id' => $request->getBodyParam('id'),
