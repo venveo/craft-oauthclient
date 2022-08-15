@@ -48,7 +48,7 @@ class Plugin extends BasePlugin
 
     public static string $PROJECT_CONFIG_KEY = 'oauthClient';
 
-    public string $schemaVersion = '2.1.3';
+    public string $schemaVersion = '4.0.0';
     public bool $hasCpSettings = true;
 
 
@@ -56,7 +56,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -77,7 +77,7 @@ class Plugin extends BasePlugin
     /**
      * Register a custom logger
      */
-    private function _registerLogger()
+    private function _registerLogger(): void
     {
         Craft::getLogger()->dispatcher->targets[] = new MonologTarget([
             'name' => 'oauthclient',
@@ -112,7 +112,7 @@ class Plugin extends BasePlugin
     /**
      * Adds the event handler for registering CP routes
      */
-    private function _registerCpRoutes()
+    private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function (RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
@@ -131,7 +131,7 @@ class Plugin extends BasePlugin
     /**
      * Set our Twig variable
      */
-    private function _registerVariables()
+    private function _registerVariables(): void
     {
         Event::on(
             CraftVariable::class,
@@ -146,7 +146,7 @@ class Plugin extends BasePlugin
     /**
      *  Register project config handlers
      */
-    private function _registerProjectConfig()
+    private function _registerProjectConfig(): void
     {
         Craft::$app->projectConfig
             ->onAdd(self::$PROJECT_CONFIG_KEY . '.apps.{uid}', [$this->apps, 'handleUpdatedApp'])
@@ -162,7 +162,7 @@ class Plugin extends BasePlugin
      * Handle project config rebuilding
      * @param RebuildConfigEvent $e
      */
-    private function _handleProjectConfigRebuild(RebuildConfigEvent $e)
+    private function _handleProjectConfigRebuild(RebuildConfigEvent $e): void
     {
         $appData = [];
         $apps = $this->apps->getAllApps();
@@ -204,7 +204,7 @@ class Plugin extends BasePlugin
     /**
      * @see Craft::t()
      */
-    public static function t($message, $params = [], $language = null)
+    public static function t($message, $params = [], $language = null): string
     {
         return Craft::t(self::HANDLE, $message, $params, $language);
     }

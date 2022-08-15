@@ -4,6 +4,7 @@
 
 ### Changed
 - Now requires Craft 4 & PHP 8.0.2
+- Apps no longer keep track of who created them
 
 ## Fixed
 - Fixed saving an app with no scopes producing an error
@@ -12,6 +13,7 @@
 - Removed route `oauthclient/authorize/refresh/` use `oauth/authorize/refresh/` instead
 - Removed route `oauthclient/authorize/` use `oauth/authorize/` instead
 - Removed `Plugin::$plugin` static property - use `Plugin::getInstance()` instead
+- Removed `userId` property from Apps
 
 ## 2.1.9 - 2021-03-30
 ### Added

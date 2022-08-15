@@ -86,7 +86,6 @@ class Apps extends Component
                 'id',
                 'provider',
                 'name',
-                'userId',
                 'dateCreated',
                 'dateUpdated',
                 'clientId',
@@ -107,7 +106,6 @@ class Apps extends Component
     public function createApp($config): AppModel
     {
         $app = new AppModel($config);
-        $app->userId = $app->userId ?? Craft::$app->user->getId();
         return $app;
     }
 

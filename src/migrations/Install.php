@@ -20,27 +20,15 @@ use craft\db\Migration;
  */
 class Install extends Migration
 {
-    // Public Properties
-    // =========================================================================
-
-    /**
-     * @var string The database driver to use
-     */
-    public $driver;
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
     public function safeUp()
     {
-        $this->driver = Craft::$app->getConfig()->getDb()->driver;
         if ($this->createTables()) {
             $this->createIndexes();
             $this->addForeignKeys();
-            // Refresh the db schema caches
             Craft::$app->db->schema->refresh();
         }
 
@@ -50,10 +38,8 @@ class Install extends Migration
     /**
      * @return bool
      */
-    protected function createTables()
+    protected function createTables(): bool
     {
-        $tablesCreated = false;
-
         $tableSchema = Craft::$app->db->schema->getTableSchema('{{%oauthclient_tokens}}');
         if ($tableSchema === null) {
             $this->createTable(
@@ -81,7 +67,6 @@ class Install extends Migration
                     'dateCreated' => $this->dateTime()->notNull(),
                     'dateUpdated' => $this->dateTime()->notNull(),
                     'uid' => $this->uid(),
-                    'userId' => $this->integer(),
                     'name' => $this->string(255)->notNull(),
                     'handle' => $this->string(255)->notNull(),
                     'provider' => $this->string(255)->notNull(),
@@ -96,41 +81,20 @@ class Install extends Migration
         return true;
     }
 
-    // Protected Methods
-    // =========================================================================
-
     /**
      * @return void
      */
-    protected function createIndexes()
+    protected function createIndexes(): void
     {
-        $this->createIndex(
-            $this->db->getIndexName(
-                '{{%oauthclient_apps}}',
-                'handle',
-                true
-            ),
-            '{{%oauthclient_apps}}',
-            'handle',
-            true
-        );
-
-        $this->createIndex(
-            $this->db->getIndexName(
-                '{{%oauthclient_apps}}',
-                'provider',
-                false
-            ),
-            '{{%oauthclient_apps}}',
-            'provider',
-            false
-        );
+        $this->createIndex(null, '{{%oauthclient_apps}}', 'handle', true);
+        $this->createIndex(null, '{{%oauthclient_apps}}', 'provider', false);
+        $this->createIndex(null, '{{%oauthclient_tokens}}', ['userId', 'appId'], true);
     }
 
     /**
      * @return void
      */
-    protected function addForeignKeys()
+    protected function addForeignKeys(): void
     {
         $this->addForeignKey(
             $this->db->getForeignKeyName('{{%oauthclient_tokens}}', 'appId'),
@@ -151,33 +115,21 @@ class Install extends Migration
             'CASCADE',
             'CASCADE'
         );
-
-        $this->addForeignKey(
-            $this->db->getForeignKeyName('{{%oauthclient_apps}}', 'userId'),
-            '{{%oauthclient_apps}}',
-            'userId',
-            '{{%users}}',
-            'id',
-            'CASCADE',
-            'CASCADE'
-        );
     }
 
     /**
      * @inheritdoc
      */
-    public function safeDown()
+    public function safeDown(): bool
     {
-        $this->driver = Craft::$app->getConfig()->getDb()->driver;
         $this->removeTables();
-
         return true;
     }
 
     /**
      * @return void
      */
-    protected function removeTables()
+    protected function removeTables(): void
     {
         $this->dropTableIfExists('{{%oauthclient_tokens}}');
         $this->dropTableIfExists('{{%oauthclient_apps}}');
