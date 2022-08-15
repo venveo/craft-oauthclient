@@ -9,7 +9,6 @@ use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use League\OAuth2\Client\Token\AccessTokenInterface;
-use venveo\oauthclient\models\App as AppModel;
 use venveo\oauthclient\Plugin;
 
 /**
@@ -20,27 +19,24 @@ use venveo\oauthclient\Plugin;
  * @property mixed $token
  * @property mixed $values
  * @property mixed $expires
+ * @property-read null|App $app
  * @property string $cpEditUrl
  */
 class Token extends Model implements AccessTokenInterface
 {
-    public $id;
-    public $dateCreated;
-    public $dateUpdated;
+    public ?int $id = null;
+    public ?\DateTime $dateCreated = null;
+    public ?\DateTime $dateUpdated = null;
 
-    public $userId;
-    public $appId;
-    public $expiryDate;
-    public $refreshToken;
-    public $accessToken;
-    public $uid;
+    public ?int $userId = null;
+    public ?int $appId = null;
+    public ?\DateTime $expiryDate = null;
+    public ?string $refreshToken = null;
+    public ?string $accessToken = null;
+    public ?string $uid = null;
 
-    private $tokenValues;
-
-    /** @var AppModel */
-    private $app;
-    /** @var User */
-    private $user;
+    private ?array $tokenValues = null;
+    private ?User $user = null;
 
     /**
      * Gets the user the token belongs to
@@ -61,19 +57,14 @@ class Token extends Model implements AccessTokenInterface
      */
     public function getApp()
     {
-        if ($this->app instanceof AppModel) {
-            return $this->app;
-        }
-
-        $this->app = Plugin::$plugin->apps->getAppById($this->appId);
-        return $this->app;
+        return Plugin::getInstance()->apps->getAppById($this->appId);
     }
 
     /**
      * The internal URL in the CP to refresh this token
      * @return string
      */
-    public function getRefreshURL()
+    public function getRefreshURL(): string
     {
         return UrlHelper::cpUrl('oauth/authorize/refresh/' . $this->id);
     }
@@ -82,7 +73,7 @@ class Token extends Model implements AccessTokenInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['accessToken', 'appId'], 'required'],
@@ -98,7 +89,7 @@ class Token extends Model implements AccessTokenInterface
     /**
      * @inheritDoc
      */
-    public function getToken()
+    public function getToken(): ?string
     {
         return $this->accessToken;
     }
@@ -106,7 +97,7 @@ class Token extends Model implements AccessTokenInterface
     /**
      * @inheritDoc
      */
-    public function getRefreshToken()
+    public function getRefreshToken(): ?string
     {
         return $this->refreshToken;
     }
@@ -114,7 +105,7 @@ class Token extends Model implements AccessTokenInterface
     /**
      * @inheritDoc
      */
-    public function getExpires()
+    public function getExpires(): DateTime|int|null
     {
         return $this->expiryDate;
     }
@@ -122,7 +113,7 @@ class Token extends Model implements AccessTokenInterface
     /**
      * @inheritDoc
      */
-    public function hasExpired()
+    public function hasExpired(): bool
     {
         if (!$this->expiryDate) {
             return false;
@@ -137,7 +128,7 @@ class Token extends Model implements AccessTokenInterface
     /**
      * @inheritDoc
      */
-    public function getValues()
+    public function getValues(): array
     {
         return $this->tokenValues;
     }
@@ -145,7 +136,7 @@ class Token extends Model implements AccessTokenInterface
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
@@ -155,19 +146,6 @@ class Token extends Model implements AccessTokenInterface
      */
     public function __toString()
     {
-        return $this->accessToken;
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-
-        $attributes[] = 'expiryDate';
-
-        return $attributes;
+        return $this?->accessToken ?? '';
     }
 }

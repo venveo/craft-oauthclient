@@ -2,7 +2,7 @@
   "name": "venveo/craft-oauthclient",
   "description": "Simple OAuth 2.0 client",
   "type": "craft-plugin",
-  "version": "2.1.9",
+  "version": "4.0.0-beta.1",
   "keywords": [
     "craft",
     "cms",
@@ -22,9 +22,10 @@
     }
   ],
   "require": {
-    "craftcms/cms": "^3.1.34.3",
+    "php": "^8.0.2",
+    "craftcms/cms": "^4.0",
     "league/oauth2-client": "^2.2.1",
-    "league/oauth2-google": "^2.2 || ^3.0",
+    "league/oauth2-google": "^4.0",
     "league/oauth2-facebook": "^2.0",
     "league/oauth2-github": "^2.0 || ^3.0"
   },
@@ -34,11 +35,9 @@
     }
   },
   "extra": {
-    "hasCpSettings": true,
-    "hasCpSection": false,
     "name": "OAuth 2.0 Client",
     "handle": "oauthclient",
-    "changelogUrl": "https://raw.githubusercontent.com/venveo/craft-oauthclient/master/CHANGELOG.md",
+    "changelogUrl": "https://raw.githubusercontent.com/venveo/craft-oauthclient/main/CHANGELOG.md",
     "class": "venveo\\oauthclient\\Plugin"
   }
 }

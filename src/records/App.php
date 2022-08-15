@@ -23,7 +23,6 @@ use yii\db\ActiveQueryInterface;
  * @property DateTime $dateCreated
  * @property DateTime $dateUpdated
  * @property string $uid
- * @property int $userId
  * @property string $name
  * @property string $provider
  * @property string $handle
@@ -36,9 +35,6 @@ use yii\db\ActiveQueryInterface;
  */
 class App extends ActiveRecord
 {
-    // Public Static Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -47,18 +43,6 @@ class App extends ActiveRecord
         return '{{%oauthclient_apps}}';
     }
 
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * Returns the OAuth Tokens’s user.
-     *
-     * @return ActiveQueryInterface The relational query object.
-     */
-    public function getUser(): ActiveQueryInterface
-    {
-        return $this->hasOne(User::class, ['id' => 'userId']);
-    }
 
     /**
      * @return ActiveQueryInterface

@@ -32,10 +32,10 @@ use yii\base\InvalidConfigException;
  */
 class Providers extends Component
 {
-    const EVENT_REGISTER_PROVIDER_TYPES = 'EVENT_REGISTER_GATEWAY_TYPES';
+    public const EVENT_REGISTER_PROVIDER_TYPES = 'EVENT_REGISTER_GATEWAY_TYPES';
 
     /**
-     * Get all of the registered provider types. This is a great place to register your custom providers!
+     * Get all the registered provider types. This is a great place to register your custom providers!
      * @return array
      */
     public function getAllProviderTypes(): array
@@ -59,11 +59,11 @@ class Providers extends Component
     /**
      * Creates a Provider with a given config
      *
-     * @param mixed $config The providers’s class name, or its config, with a `type` value and optionally a `settings` value
+     * @param array|string $config The provider's class name, or its config, with a `type` value and optionally a `settings` value
      * @return Provider The provider
      * @throws InvalidConfigException
      */
-    public function createProvider($config): Provider
+    public function createProvider(array|string $config): Provider
     {
         if (is_string($config)) {
             $config = ['type' => $config];

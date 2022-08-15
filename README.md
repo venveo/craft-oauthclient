@@ -1,4 +1,4 @@
-OAuth 2.0 Client plugin for Craft CMS 3
+OAuth 2.0 Client plugin for Craft CMS 4
 ===
 
 This plugin provides developers with an easy centralized approach to managing and storing OAuth 2.0
@@ -26,7 +26,7 @@ act as an authentication provider for users to login to the CMS.
 
 ## Requirements
 
-This plugin should work on Craft CMS 3.1.34.3 or later
+This plugin should work on Craft CMS 4.0.0 or later
 
 ## Installation
 
@@ -222,7 +222,7 @@ use venveo\oauthclient\Plugin;
 
 // Get the plugin instance. Note: make sure you do this after the application has been inited, such as in a route or
 // event.
-$plugin = Plugin::$plugin;
+$plugin = Plugin::getInstance();
 // Let's grab a valid token - we could pass the current user ID in here to limit it
 $tokens = $plugin->credentials->getValidTokensForAppAndUser('google');
 // Get the app from the apps service

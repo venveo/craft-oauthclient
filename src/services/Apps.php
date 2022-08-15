@@ -34,18 +34,18 @@ use yii\db\Exception;
 class Apps extends Component
 {
 
-    const EVENT_BEFORE_APP_SAVED = 'EVENT_BEFORE_APP_SAVED';
-    const EVENT_AFTER_APP_SAVED = 'EVENT_AFTER_APP_SAVED';
+    public const EVENT_BEFORE_APP_SAVED = 'EVENT_BEFORE_APP_SAVED';
+    public const EVENT_AFTER_APP_SAVED = 'EVENT_AFTER_APP_SAVED';
 
-    const EVENT_BEFORE_APP_DELETED = 'EVENT_BEFORE_APP_DELETED';
-    const EVENT_AFTER_APP_DELETED = 'EVENT_AFTER_APP_DELETED';
+    public const EVENT_BEFORE_APP_DELETED = 'EVENT_BEFORE_APP_DELETED';
+    public const EVENT_AFTER_APP_DELETED = 'EVENT_AFTER_APP_DELETED';
 
-    const EVENT_GET_URL_OPTIONS = 'EVENT_GET_URL_OPTIONS';
+    public const EVENT_GET_URL_OPTIONS = 'EVENT_GET_URL_OPTIONS';
 
-    private $_APPS_BY_HANDLE = [];
-    private $_APPS_BY_ID = [];
-    private $_APPS_BY_UID = [];
-    private $_ALL_APPS_FETCHED = false;
+    private array $_APPS_BY_HANDLE = [];
+    private array $_APPS_BY_ID = [];
+    private array $_APPS_BY_UID = [];
+    private bool $_ALL_APPS_FETCHED = false;
 
     /**
      * Returns all apps
@@ -86,7 +86,6 @@ class Apps extends Component
                 'id',
                 'provider',
                 'name',
-                'userId',
                 'dateCreated',
                 'dateUpdated',
                 'clientId',
@@ -107,7 +106,6 @@ class Apps extends Component
     public function createApp($config): AppModel
     {
         $app = new AppModel($config);
-        $app->userId = $app->userId ?? Craft::$app->user->getId();
         return $app;
     }
 
@@ -115,7 +113,7 @@ class Apps extends Component
      * @param $id
      * @return AppModel|null
      */
-    public function getAppById($id)
+    public function getAppById($id): ?AppModel
     {
         if (isset($this->_APPS_BY_ID[$id])) {
             return $this->_APPS_BY_ID[$id];
@@ -138,7 +136,7 @@ class Apps extends Component
      * @param $handle
      * @return AppModel|null
      */
-    public function getAppByHandle($handle)
+    public function getAppByHandle($handle): ?AppModel
     {
         if (isset($this->_APPS_BY_HANDLE[$handle])) {
             return $this->_APPS_BY_HANDLE[$handle];
@@ -167,7 +165,7 @@ class Apps extends Component
      * @throws ReflectionException
      * @throws InvalidConfigException
      */
-    public function getAuthorizationUrlForApp(AppModel $app, $state, $context = null)
+    public function getAuthorizationUrlForApp(AppModel $app, $state, $context = null): ?string
     {
         $options = ['state' => $state];
 
@@ -195,7 +193,7 @@ class Apps extends Component
      *
      * @param AppModel $app
      */
-    public function deleteApp(AppModel $app)
+    public function deleteApp(AppModel $app): void
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_APP_DELETED)) {
             $this->trigger(self::EVENT_BEFORE_APP_DELETED, new AppEvent([
@@ -222,8 +220,10 @@ class Apps extends Component
         // Ensure the product type has a UID
         if ($isNew) {
             $app->uid = StringHelper::UUID();
-        } else if (!$app->uid) {
-            $app->uid = Db::uidById('{{%oauthclient_apps}}', $app->id);
+        } else {
+            if (!$app->uid) {
+                $app->uid = Db::uidById('{{%oauthclient_apps}}', $app->id);
+            }
         }
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_APP_SAVED)) {
@@ -261,7 +261,7 @@ class Apps extends Component
      * @param ConfigEvent $event
      * @throws Exception
      */
-    public function handleUpdatedApp(ConfigEvent $event)
+    public function handleUpdatedApp(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
 
@@ -318,7 +318,7 @@ class Apps extends Component
      * @param $uid
      * @return AppModel|null
      */
-    public function getAppByUid($uid)
+    public function getAppByUid($uid): ?AppModel
     {
         if (isset($this->_APPS_BY_UID[$uid])) {
             return $this->_APPS_BY_UID[$uid];
@@ -341,7 +341,7 @@ class Apps extends Component
      * @param ConfigEvent $event
      * @throws Exception
      */
-    public function handleRemovedApp(ConfigEvent $event)
+    public function handleRemovedApp(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
 

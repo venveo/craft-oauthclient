@@ -29,7 +29,11 @@ use yii\web\NotFoundHttpException;
 class AppsController extends Controller
 {
 
-    public function actionIndex()
+    /**
+     * @return \yii\web\Response
+     * @throws ForbiddenHttpException
+     */
+    public function actionIndex(): \yii\web\Response
     {
         $this->requireAdmin();
         $apps = Plugin::getInstance()->apps->getAllApps();
@@ -39,14 +43,13 @@ class AppsController extends Controller
         ]);
     }
 
-
     /**
-     * @param AppModel|null $app
-     * @return Response
-     * @throws HttpException
-     * @throws InvalidConfigException
+     * @param $handle
+     * @param $app
+     * @return \yii\web\Response
+     * @throws ForbiddenHttpException
      */
-    public function actionEdit($handle = null, $app = null)
+    public function actionEdit($handle = null, $app = null): \yii\web\Response
     {
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
@@ -93,11 +96,11 @@ class AppsController extends Controller
     /**
      * Attempt to delete an app by its ID
      * @return \yii\web\Response
-     * @throws \yii\db\Exception
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
+     * @throws NotFoundHttpException
      */
-    public function actionDelete()
+    public function actionDelete(): \yii\web\Response
     {
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
@@ -107,27 +110,28 @@ class AppsController extends Controller
 
         $request = Craft::$app->getRequest();
         $id = $request->getRequiredBodyParam('id');
-        $app = Plugin::$plugin->apps->getAppById($id);
+        $app = Plugin::getInstance()->apps->getAppById($id);
 
         if (!$app) {
             throw new NotFoundHttpException('App does not exist');
         }
 
-        Plugin::$plugin->apps->deleteApp($app);
+        Plugin::getInstance()->apps->deleteApp($app);
 
         return $this->asJson(['success' => true]);
     }
 
     /**
-     * @return Response|null
-     * @throws HttpException
-     * @throws Exception
+     * @return \yii\web\Response|null
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?\yii\web\Response
     {
         if (!Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             throw new ForbiddenHttpException('Administrative changes are disallowed in this environment');
         }
+        $isNew = true;
         $this->requireAdmin();
         $this->requirePostRequest();
 
@@ -135,7 +139,9 @@ class AppsController extends Controller
         $appService = Plugin::getInstance()->apps;
 
         $scopes = $request->getBodyParam('scopes');
-        $scopes = implode(',', ArrayHelper::getColumn($scopes, 'scope'));
+        if (is_array($scopes)) {
+            $scopes = implode(',', ArrayHelper::getColumn($scopes, 'scope'));
+        }
 
         $config = [
             'id' => $request->getBodyParam('id'),
@@ -148,22 +154,23 @@ class AppsController extends Controller
             'scopes' => $scopes
         ];
 
-        /** @var AppModel $app */
         $app = $appService->createApp($config);
+        if ($app->id) {
+            $isNew = false;
+        }
 
         $session = Craft::$app->session;
 
         // Save it
         if (!Plugin::getInstance()->apps->saveApp($app)) {
-            $session->setError(Craft::t('oauthclient', 'Failed to save app'));
-            // Send the volume back to the template
-            Craft::$app->getUrlManager()->setRouteParams([
+            // TODO: Switch to asModelFailure
+            return $this->asFailure('Failed to save app', [], [
                 'app' => $app
             ]);
-            return null;
         }
 
+        // TODO: Switch to asModuleSuccess
         $session->setNotice(Craft::t('oauthclient', 'App saved'));
-        return $this->redirect(UrlHelper::cpUrl('oauthclient/apps/' . $app->handle . ($app->isNew ? '#info-tab' : '')));
+        return $this->redirect(UrlHelper::cpUrl('oauthclient/apps/' . $app->handle . ($isNew ? '#info-tab' : '')));
     }
 }

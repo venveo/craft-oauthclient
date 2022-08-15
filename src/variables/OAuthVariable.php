@@ -18,8 +18,8 @@ class OAuthVariable
      * @param $handle
      * @return App|null
      */
-    public function getAppByHandle($handle)
+    public function getAppByHandle($handle): ?App
     {
-        return Plugin::$plugin->apps->getAppByHandle($handle);
+        return Plugin::getInstance()->apps->getAppByHandle($handle);
     }
 }

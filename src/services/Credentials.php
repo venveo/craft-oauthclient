@@ -31,25 +31,25 @@ use yii\db\Exception;
  */
 class Credentials extends Component
 {
-    const EVENT_BEFORE_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
-    const EVENT_AFTER_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
-    const EVENT_TOKEN_REFRESH_FAILED = 'EVENT_TOKEN_REFRESH_FAILED';
+    public const EVENT_BEFORE_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
+    public const EVENT_AFTER_REFRESH_TOKEN = 'EVENT_BEFORE_REFRESH_TOKEN';
+    public const EVENT_TOKEN_REFRESH_FAILED = 'EVENT_TOKEN_REFRESH_FAILED';
 
     /**
      * Gets valid tokens given an application and optionally, a Craft user ID
      * This method will attempt to refresh expired tokens for an app
-     * @param $appHandle AppModel|string
-     * @param $user User|int
+     * @param $appHandle string|AppModel
+     * @param $user int|User|null
      * @return TokenModel[]
      * @throws \Exception
      */
-    public function getValidTokensForAppAndUser($appHandle, $user = null): array
+    public function getValidTokensForAppAndUser(string|AppModel $appHandle, int|User|null $user = null): array
     {
         // Allow models or IDs against my better judgement
         if ($appHandle instanceof AppModel) {
             $app = $appHandle;
         } else {
-            $app = Plugin::$plugin->apps->getAppByHandle($appHandle);
+            $app = Plugin::getInstance()->apps->getAppByHandle($appHandle);
         }
 
         if (!$app instanceof AppModel) {
@@ -76,7 +76,7 @@ class Credentials extends Component
 
         $tokenModels = [];
         foreach ($tokenRecords as $tokenRecord) {
-            $tokenModel = Plugin::$plugin->tokens->createToken($tokenRecord);
+            $tokenModel = Plugin::getInstance()->tokens->createToken($tokenRecord);
             // We need to prune this token at some point
             if ($tokenModel->hasExpired() && empty($tokenModel->refreshToken)) {
                 continue;
@@ -112,7 +112,7 @@ class Credentials extends Component
         try {
             $app = $tokenModel->getApp();
             $app->getProviderInstance()->refreshToken($tokenModel);
-            $saved = Plugin::$plugin->tokens->saveToken($tokenModel);
+            $saved = Plugin::getInstance()->tokens->saveToken($tokenModel);
             if ($saved) {
                 if ($this->hasEventHandlers(self::EVENT_AFTER_REFRESH_TOKEN)) {
                     $this->trigger(self::EVENT_AFTER_REFRESH_TOKEN, new TokenEvent([

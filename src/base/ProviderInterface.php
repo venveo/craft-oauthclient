@@ -30,7 +30,7 @@ interface ProviderInterface
      * Gets a concrete League provider instance
      * @return AbstractProvider
      */
-    public function getConfiguredProvider();
+    public function getConfiguredProvider(): AbstractProvider;
 
     /**
      * Get the URL used to authorize the token
@@ -41,12 +41,12 @@ interface ProviderInterface
 
     /**
      * Get the session security state
-     * @return string|null
+     * @return string
      */
     public function getState(): string;
 
     /**
-     * Gets an access token, returing a League access token
+     * Gets an access token, returning a League access token
      * @param $grant
      * @param array $options
      * @return AccessTokenInterface

@@ -8,8 +8,8 @@
 namespace venveo\oauthclient\console\controllers;
 
 use craft\console\Controller;
-use venveo\oauthclient\models\Token;
 use venveo\oauthclient\Plugin;
+use yii\console\ExitCode;
 
 class AppsController extends Controller
 {
@@ -19,24 +19,23 @@ class AppsController extends Controller
      * @param $appHandle
      * @return int
      */
-    public function actionRefreshTokens($appHandle)
+    public function actionRefreshTokens($appHandle): int
     {
-        $credentialService = Plugin::$plugin->credentials;
-        $appService = Plugin::$plugin->apps;
+        $credentialService = Plugin::getInstance()->credentials;
+        $appService = Plugin::getInstance()->apps;
         if (!$app = $appService->getAppByHandle($appHandle)) {
             $this->stderr('No app found with that handle' . PHP_EOL);
-            return 1;
+            return ExitCode::UNSPECIFIED_ERROR;
         }
 
         $tokens = $app->getAllTokens();
         $total = count($tokens);
         if (!$total) {
             $this->stdout('No tokens exist for that app' . PHP_EOL);
-            return 0;
+            return ExitCode::OK;
         }
         $progress = 0;
         $hadErrors = false;
-        /** @var Token $token */
         foreach ($tokens as $token) {
             ++$progress;
             $prefix = "($progress/$total)";
@@ -49,6 +48,6 @@ class AppsController extends Controller
             }
         }
 
-        return $hadErrors ? 1 : 0;
+        return $hadErrors ? ExitCode::UNSPECIFIED_ERROR : ExitCode::OK;
     }
 }
